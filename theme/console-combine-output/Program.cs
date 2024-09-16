@@ -48,11 +48,11 @@ public class ConsoleCombineOutput {
 
         for (int i = 0; i < height; i++)
         {
-            for (int j = 0; j < height - i; j++)
+            for (int a = 0; a < height - i; a++)
             {
                 Console.Write(" ");
             }
-            for (int j = 0; j < 2 * i + 1; j++)
+            for (int b = 0; b < 2 * i + 1; b++)
             {
                 Console.Write(symbol);
             }

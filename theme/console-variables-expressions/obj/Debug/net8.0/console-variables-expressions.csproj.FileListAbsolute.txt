@@ -1,0 +1,15 @@
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-variables-expressions\bin\Debug\net8.0\console-variables-expressions.exe
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-variables-expressions\bin\Debug\net8.0\console-variables-expressions.deps.json
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-variables-expressions\bin\Debug\net8.0\console-variables-expressions.runtimeconfig.json
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-variables-expressions\bin\Debug\net8.0\console-variables-expressions.dll
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-variables-expressions\bin\Debug\net8.0\console-variables-expressions.pdb
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-variables-expressions\obj\Debug\net8.0\console-variables-expressions.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-variables-expressions\obj\Debug\net8.0\console-variables-expressions.AssemblyInfoInputs.cache
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-variables-expressions\obj\Debug\net8.0\console-variables-expressions.AssemblyInfo.cs
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-variables-expressions\obj\Debug\net8.0\console-variables-expressions.csproj.CoreCompileInputs.cache
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-variables-expressions\obj\Debug\net8.0\console-variables-expressions.sourcelink.json
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-variables-expressions\obj\Debug\net8.0\console-variables-expressions.dll
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-variables-expressions\obj\Debug\net8.0\refint\console-variables-expressions.dll
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-variables-expressions\obj\Debug\net8.0\console-variables-expressions.pdb
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-variables-expressions\obj\Debug\net8.0\console-variables-expressions.genruntimeconfig.cache
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-variables-expressions\obj\Debug\net8.0\ref\console-variables-expressions.dll
