@@ -20,3 +20,4 @@ int yearOfBirth = Convert.ToInt16(Console.ReadLine());
 int currentAge = DateTime.Now.Year - yearOfBirth;
 Console.WriteLine($"Volgens onze berekening ben je {currentAge} jaar oud");
 
+
