@@ -1,53 +1,28 @@
 ﻿// assignment 1
-for(int i = 1; i <= 100; i++) {
-    Console.WriteLine(i);
+List<int> numbers = new List<int> { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+foreach(int number in numbers) {
+    Console.WriteLine(number);
 }
-
 // assignment 2
-for(int i = 100; 1 <= i; i--) {
-    Console.WriteLine(i);
+List<double> energiePerDag = new List<double> { 20.1, 18.4, 23.4, 16.5, 19.2, 21.3, 22.1};
+double totaalEnergie = 0;
+foreach(double energie in energiePerDag) {
+    totaalEnergie += energie;
 }
+Console.WriteLine($"Totaal opgewekte energie: {totaalEnergie}kWh");
 
-// assingment 3
-for(int i = 1; i <= 100; i++) {
-    if((i % 2) == 0) {
-        Console.WriteLine(i);
+// assignment 3
+List<int> numbers2 = new List<int>
+{
+    32, 99, 7, 58, 95, 100, 63, 57, 33, 39, 24, 87, 38, 25, 48,
+    54, 63, 71, 9, 9, 32, 13, 1, 55, 29, 31, 77, 93, 30, 34
+};
+
+float highestNumber = 0f;
+foreach(int number in numbers2) {
+    if(number > highestNumber) {
+        highestNumber = number;
     }
 }
+Console.WriteLine($"Het hoogste getal is: {highestNumber}");
 
-// assignment 4
-for(int i = 1; i <= 5; i++) {
-    for(int a = 1; a <= 5; a++) {
-        Console.Write("*");
-    }
-    Console.WriteLine();
-}
-
-// assignment 5
-int som = 0;
-for(int i = 0; i <= 100; i++) {
-    som += i;
-}
-Console.WriteLine("De som van alle getallen tussen 0 en 100 is: " + som);
-
-// assignment 6
-int number = 28;
-int faculteit = 1;
-for(int i = 1; i <= number; i++) {
-    faculteit *= i;
-}
-Console.WriteLine("De faculteit van " + number + " is: " + faculteit);
-
-// assignment 7
-int number1 = 1;
-int number2 = 1;
-
-Console.WriteLine("1. 1");
-Console.WriteLine("2. 1");
-
-for(int i = 3; i <= 40; i++) {
-    int total = number1 + number2;
-    Console.WriteLine($"{i}. {total} ({number1} + {number2})");
-    number1 = number2;
-    number2 = total;
-}
