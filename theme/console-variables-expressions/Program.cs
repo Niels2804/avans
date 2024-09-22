@@ -48,3 +48,4 @@ foreach(string zin in randomZinnen) {
     Console.WriteLine($"{zin}\t\t\t {index}");
 }
 
+
