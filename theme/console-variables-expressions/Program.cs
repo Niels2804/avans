@@ -14,7 +14,7 @@ Console.WriteLine();
 for(int i = 0; i < 14; i++) {
     Console.Write($"A{DIN}\t\t");
     Console.Write($"{lengte}mm\t\t");
-    Console.Write($"{breedte}mm\t\t");
+    Console.Write($"{breedte}mm\t\t");  
     Console.WriteLine($"{lengte * breedte}mm2\t\t");
 
     lengte = breedte;
