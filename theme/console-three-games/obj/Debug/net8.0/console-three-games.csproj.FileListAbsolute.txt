@@ -1,0 +1,15 @@
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-three-games\bin\Debug\net8.0\console-three-games.exe
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-three-games\bin\Debug\net8.0\console-three-games.deps.json
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-three-games\bin\Debug\net8.0\console-three-games.runtimeconfig.json
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-three-games\bin\Debug\net8.0\console-three-games.dll
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-three-games\bin\Debug\net8.0\console-three-games.pdb
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-three-games\obj\Debug\net8.0\console-three-games.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-three-games\obj\Debug\net8.0\console-three-games.AssemblyInfoInputs.cache
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-three-games\obj\Debug\net8.0\console-three-games.AssemblyInfo.cs
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-three-games\obj\Debug\net8.0\console-three-games.csproj.CoreCompileInputs.cache
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-three-games\obj\Debug\net8.0\console-three-games.sourcelink.json
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-three-games\obj\Debug\net8.0\console-three-games.dll
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-three-games\obj\Debug\net8.0\refint\console-three-games.dll
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-three-games\obj\Debug\net8.0\console-three-games.pdb
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-three-games\obj\Debug\net8.0\console-three-games.genruntimeconfig.cache
+C:\Users\niels\Documents\GitHub\school\avans\theme\console-three-games\obj\Debug\net8.0\ref\console-three-games.dll
