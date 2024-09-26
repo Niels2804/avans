@@ -7,7 +7,7 @@ using System.Threading;
 namespace Checkbox {
     public class Program : Games {
         private static readonly string _checkboxHeadline = "Select one of the following options:";            
-        private static readonly string[] _options = ["Galgje", "Mastermind", "Boter, kaas en eieren"];
+        private static readonly string[] _options = ["Hangman", "Mastermind", "Butter, cheese and eggs"];
 
         // Main Game menu
         private static void Main() {
@@ -20,7 +20,7 @@ namespace Checkbox {
             foreach (CheckboxReturn checkboxReturn in response)
             {
                 SelectedGameOption = checkboxReturn.Index;
-                Console.WriteLine($"U heeft de game optie {checkboxReturn.Option} geselecteerd. De game wordt nu ingeladen...");
+                Console.WriteLine($"You have selected the game option {checkboxReturn.Option}. The game is loading...");
                 System.Threading.Thread.Sleep(1500);
                 Console.Clear();
             }
@@ -36,7 +36,7 @@ namespace Checkbox {
         protected static void Initialize() {
             switch(SelectedGameOption) {
                 case 0:
-                    Galgje.Initialize();
+                    Hangman.Initialize();
                     break;
                 case 1:
                     break;
@@ -50,32 +50,84 @@ namespace Checkbox {
             }
         }
 
-        // Game 1: Galgje
-        protected class Galgje {
-            protected static List<string> words { get; set; }
+        // Game 1: Hangman
+        protected class Hangman {
+            protected static List<string> words = new List<string>();
+            protected static List<char> toGambleWord = new List<char>();
+            protected static List<string> currentGamble = new List<string>();
+            protected static int totalAttempts {get; set;}
 
+            // Reading json file with words
             public static void Initialize()
             {
                 try {
-                    using (StreamReader File = new StreamReader("randomWords.json")) {   
-                        string json = File.ReadToEnd();
-                        var jsonData = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(json);
-
-                        if (jsonData != null && jsonData.ContainsKey("words")){
-                            words = jsonData["words"];
-                            foreach (string word in words)
-                            {
-                                Console.WriteLine(word);
+                    if (words == null || words.Count == 0) {
+                        Console.WriteLine("Initializing Hangman game...");
+                        using (StreamReader File = new StreamReader("randomWords.json"))
+                        {
+                            string json = File.ReadToEnd();
+                            var jsonData = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(json);
+                            if (jsonData != null && jsonData.ContainsKey("words")){
+                                foreach(string word in jsonData["words"]) {
+                                    words.Add(word.Trim().ToLower());
+                                }
+                            } else {
+                                Console.WriteLine("No words for the game \"Hangman\" found. The game will be ended...");
+                                Thread.Sleep(3000);
+                                throw new Exception("No words found in the JSON file."); // Throw exception instead of Environment.Exit(0)
                             }
-                        } else {
-                            Console.WriteLine("No words for the game \"Galgje\" found. The game will be ended...");
-                            System.Threading.Thread.Sleep(3000);
-                            Environment.Exit(0);
-                        }     
+                        }
                     }
+
+                    // Reset properties
+                    string gambleWord = words[Random.Shared.Next(words.Count)].Trim().ToLower();
+                    currentGamble.Clear();
+
+                    for (int i = 0; i < gambleWord.Length; i++)
+                    {
+                        toGambleWord.Add(gambleWord[i]);
+                        currentGamble.Add("_");
+                    }
+                    totalAttempts = 10;
+                    runGame();
                 } catch (Exception e) {
-                    Console.WriteLine($"An error occurred while initializing Galgje game: {e.Message}");
+                    Console.WriteLine($"An error occurred while initializing Hangman game: {e.Message}");
                 }
+            }
+
+            // Start-up Hangman game
+            protected static void runGame() {
+                try {
+                    showCurrentGamble();
+                    newAttempt();
+                } catch (Exception e) {
+                    Console.WriteLine($"An error occurred while initializing Hangman game: {e.Message}");
+                }
+            }
+
+            protected static bool newAttempt() {
+                Console.WriteLine("Type one letter: ");
+                string? input = Console.ReadLine();
+                if (input == "" || input == null) {
+                    Console.WriteLine("Pleas, enter a valid value with a length of 1 character");
+                } else if (input.Count() < 0) {
+                    Console.WriteLine("Pleas, make sure the length is max 1 character");
+                } else {
+                    return checkCurrentAttempt(input.Trim().ToLower());
+                }
+            }
+
+            protected static bool checkCurrentAttempt(string character) {
+                if (character == )
+            }
+
+            protected static void showCurrentGamble() {
+                Console.Write("Current gamble: ");
+                foreach (string c in currentGamble) { 
+                    Console.Write($"{c} ");
+                }
+                Console.WriteLine();
+                Console.WriteLine($"You have in total {totalAttempts} attempts left!");
             }
         }        
     }
