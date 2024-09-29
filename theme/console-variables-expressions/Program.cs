@@ -1,21 +1,34 @@
 ﻿// assignment 1
-Console.WriteLine(Random.Shared.Next(28));
+decimal calculateWaterPrice(Int16 kuub, decimal waterPrice, double tax) {
+    if (kuub > 50) {
+        Console.WriteLine($"Waarschuwing: u heeft meer dan 50 kuub water verbruikt, namelijk  {kuub} kuub.");
+    } 
 
-float randomNumber = new Random().Next(0, 10);
-if (randomNumber % 2 == 0) {
-    randomNumber /= 2;
+    return kuub * waterPrice * (1.00m + (decimal)tax);
 }
+
 // assignment 2
-Console.WriteLine(Random.Shared.Next(0, 4));
+decimal calculateElectricityPrice(long totalkWh, decimal pricePerKwh) {
+    if ((totalkWh - 100) > 0) {
+        return (100 * pricePerKwh * 1.08m) + ((totalkWh - 100) * (pricePerKwh + 0.20m) * 1.04m);
+    } else {
+        return totalkWh * pricePerKwh * 1.08m;
+    }
+}
 
 // assignment 3
-Console.WriteLine(Random.Shared.Next(105, 109));
+void printValues() {
+    Int16 kuub = (Int16)Random.Shared.Next(1, 100);
+    decimal waterPrice = 1.37m;
+    double tax = 0.08;
+    Console.WriteLine($"De prijs van {kuub} kuub water is €{calculateWaterPrice(kuub, waterPrice, tax)} euro.");
 
-// assignment 4
-Console.WriteLine(40 + Random.Shared.NextDouble() * 5);
+    long totalkWh = (long)Random.Shared.Next(1, 100);
+    decimal pricePerKwh = 0.23m;
+    Console.WriteLine($"De prijs van {totalkWh}kWh is €{String.Format("{0:#,##0.000}", calculateElectricityPrice(totalkWh, pricePerKwh))}");
+}
 
-// assignment 5
-double[] numbers = [0.0, 0.5, 1.0, 1.5, 2.0];
-Random.Shared.Shuffle(numbers);
-Console.WriteLine($"{numbers[0]} {numbers[1]} {numbers[2]} {numbers[3]} {numbers[4]}");
+printValues();
+
+
 
