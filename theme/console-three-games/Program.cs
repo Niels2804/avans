@@ -53,8 +53,8 @@ namespace Checkbox {
         // Game 1: Hangman
         protected class Hangman {
             protected static List<string> words = new List<string>();
-            protected static List<char> toGambleWord = new List<char>();
             protected static List<string> currentGamble = new List<string>();
+            protected static string toGambleWord {get; set;}
             protected static int totalAttempts {get; set;}
 
             // Reading json file with words
@@ -80,12 +80,12 @@ namespace Checkbox {
                     }
 
                     // Reset properties
-                    string gambleWord = words[Random.Shared.Next(words.Count)].Trim().ToLower();
+                    toGambleWord = words[Random.Shared.Next(words.Count)].Trim().ToLower();
+
                     currentGamble.Clear();
 
                     for (int i = 0; i < gambleWord.Length; i++)
                     {
-                        toGambleWord.Add(gambleWord[i]);
                         currentGamble.Add("_");
                     }
                     totalAttempts = 10;
@@ -107,18 +107,18 @@ namespace Checkbox {
 
             protected static bool newAttempt() {
                 Console.WriteLine("Type one letter: ");
-                string? input = Console.ReadLine();
+                char? input = Console.ReadLine();
                 if (input == "" || input == null) {
                     Console.WriteLine("Pleas, enter a valid value with a length of 1 character");
-                } else if (input.Count() < 0) {
+                } else if (input.Count() < 1) {
                     Console.WriteLine("Pleas, make sure the length is max 1 character");
                 } else {
                     return checkCurrentAttempt(input.Trim().ToLower());
                 }
             }
 
-            protected static bool checkCurrentAttempt(string character) {
-                if (character == )
+            protected static bool checkCurrentAttempt(char character) {
+                return toGambleWord.Contains(character);
             }
 
             protected static void showCurrentGamble() {
