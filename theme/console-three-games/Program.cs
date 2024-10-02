@@ -54,6 +54,7 @@ namespace Checkbox {
         protected class Hangman {
             protected static List<string> words = new List<string>();
             protected static List<string> currentGamble = new List<string>();
+            protected static List<string> wrongAttempts = new List<string>();
             protected static string toGambleWord {get; set;}
             protected static int totalAttempts {get; set;}
 
@@ -96,6 +97,7 @@ namespace Checkbox {
             // Start-up Hangman game
             protected static void runGame() {
                 try {
+                    Console.Clear();
                     showCurrentGamble();
                     newAttempt();
                 } catch (Exception e) {
@@ -103,28 +105,63 @@ namespace Checkbox {
                 }
             }
 
-            protected static bool newAttempt() {
+            protected static void newAttempt() {
                 Console.WriteLine("Type one letter: ");
                 string? input = Console.ReadLine();
                 if (string.IsNullOrEmpty(input)) {
                     Console.WriteLine("Pleas, enter a valid value with a length of 1 character");
-                } else if (input.Count() < 1) {
+                } else if (input.Length > 1) {
                     Console.WriteLine("Pleas, make sure the length is max 1 character");
                 } else {
-                    return checkCurrentAttempt(input);
+                    if (!checkCurrentAttempt(input)) {
+                        totalAttempts--;
+                        if (totalAttempts == 0) {
+                            Console.Clear();
+                            Console.WriteLine($"Sorry, you lost the Hangman game. The correct word is \"{toGambleWord}\"");
+                            Environment.Exit(0);
+                        }
+                    } else {
+                        bool goodGamble = true;
+                        for (int i = 0; i < toGambleWord.Length; i++) {
+                            foreach(string character in currentGamble) {
+                                if (character == "_") {
+                                    goodGamble = false;
+                                }
+                            }
+                        }
+
+                        if (goodGamble) {
+                            Console.WriteLine($"You guessed the word \"{toGambleWord}\", congratulations!");
+                            Environment.Exit(0);
+                        } 
+                    }
                 }
+                runGame();
             }
 
-            protected static bool checkCurrentAttempt(string input) {
-                foreach (char character in toGambleWord)
-                {
-                    return toGambleWord.Contains(character);
+            protected static bool checkCurrentAttempt(string character) {
+                bool passedAttempt = false;
+                for (int i = 0; i < toGambleWord.Length; i++) {
+                    if (toGambleWord.Substring(i, 1) == character) {
+                        currentGamble[i] = character;
+                        passedAttempt = true;
+                    } else {
+                        if (!wrongAttempts.Contains(character)) {
+                            wrongAttempts.Add(character);
+                        } 
+                    }
                 }
+                return passedAttempt;
             }
 
             protected static void showCurrentGamble() {
                 Console.Write("Current gamble: ");
                 foreach (string c in currentGamble) { 
+                    Console.Write($"{c} ");
+                }
+                Console.WriteLine();
+                Console.Write("Tried answers: ");
+                foreach (string c in wrongAttempts) { 
                     Console.Write($"{c} ");
                 }
                 Console.WriteLine();
