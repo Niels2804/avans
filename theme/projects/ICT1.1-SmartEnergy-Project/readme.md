@@ -38,7 +38,7 @@ dotnet user-secrets set "InfluxDb:Org" "your_influxdb_organization"
 ```
 
 **Tip: kopieer bovenstaande regels eerst in een tekst-editor en voeg de juiste waardes in alvorens je ze plakt in de CLI.**
-
+dotnet user-secrets set "InfluxDb:Url" "your_influxdb_url"
 Na het succesvol uitvoeren van deze stappen zijn je secrets opgeslagen op jouw machine en kan de applicatie hier gebruik van maken.
 
 

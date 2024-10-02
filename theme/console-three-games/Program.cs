@@ -81,10 +81,8 @@ namespace Checkbox {
 
                     // Reset properties
                     toGambleWord = words[Random.Shared.Next(words.Count)].Trim().ToLower();
-
                     currentGamble.Clear();
-
-                    for (int i = 0; i < gambleWord.Length; i++)
+                    for (int i = 0; i < toGambleWord.Length; i++)
                     {
                         currentGamble.Add("_");
                     }
@@ -107,18 +105,21 @@ namespace Checkbox {
 
             protected static bool newAttempt() {
                 Console.WriteLine("Type one letter: ");
-                char? input = Console.ReadLine();
-                if (input == "" || input == null) {
+                string? input = Console.ReadLine();
+                if (string.IsNullOrEmpty(input)) {
                     Console.WriteLine("Pleas, enter a valid value with a length of 1 character");
                 } else if (input.Count() < 1) {
                     Console.WriteLine("Pleas, make sure the length is max 1 character");
                 } else {
-                    return checkCurrentAttempt(input.Trim().ToLower());
+                    return checkCurrentAttempt(input);
                 }
             }
 
-            protected static bool checkCurrentAttempt(char character) {
-                return toGambleWord.Contains(character);
+            protected static bool checkCurrentAttempt(string input) {
+                foreach (char character in toGambleWord)
+                {
+                    return toGambleWord.Contains(character);
+                }
             }
 
             protected static void showCurrentGamble() {

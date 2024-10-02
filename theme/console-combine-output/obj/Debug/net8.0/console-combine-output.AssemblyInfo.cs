@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("console-combine-output")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+de17fcdfc16f7400f22438b97f86dff6e3db23bb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e363b22cc678edd53d9e87d4a0db370d3a32e85c")]
 [assembly: System.Reflection.AssemblyProductAttribute("console-combine-output")]
 [assembly: System.Reflection.AssemblyTitleAttribute("console-combine-output")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
