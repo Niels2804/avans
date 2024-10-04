@@ -223,3 +223,64 @@
 //         }
 //     }
 // }
+
+// Expressies met methods
+
+// namespace WorkingProject {
+//     public class Methods {
+
+//         public enum Season {
+//             Zomer,
+//             Herfst,
+//             Winter,
+//             Lente
+//         }
+
+//         public static void Main() {
+//             // assignment 1
+//             int temp = new Random().Next(-30, 50);
+//             Console.WriteLine(IsFreezing(temp) ? "Momenteel vriest het" : "Momenteel is het niet aan het vriezen");
+
+//             // assignment 2
+//             int randomNumber = new Random().Next(0, 999);
+//             Console.WriteLine(IsEven(randomNumber) ? $"Het getal {randomNumber} is even" : $"Het getal {randomNumber} is oneven");
+
+//             // assignment 3
+//             int batteryCapacity = 82; // kWh
+//             int summerRange = 663; // km
+//             int winterRange = 500; // km
+
+//             Console.WriteLine("Aantal afgelegde kilomteres:");
+//             int kilometers = Convert.ToInt16(Console.ReadLine());
+//             Console.WriteLine("Seizoen (Zomer, Herfst, Winter, Lente):");
+//             Season currentSeason = (Season)Enum.Parse(typeof(Season), Console.ReadLine(), true);
+
+//             double usedBattery = VerbruikteOpslag(kilometers, currentSeason, batteryCapacity, summerRange, winterRange);
+//             Console.WriteLine($"Verbruikte batterij-opslag: {usedBattery} kWh");
+//             Console.WriteLine($"Resterende batterij-opslag: {batteryCapacity - usedBattery} kWh");
+//         }
+
+//         protected static bool IsEven(int value) {
+//             return value % 2 == 0;
+//         }
+
+//         protected static bool IsFreezing(int temp) {
+//             return temp < 0;
+//         }
+
+//         protected static double VerbruikteOpslag(int kilometers, Season season, int batteryCapacity, int summerRange, int winterRange)
+//         {
+//             double range = IsWinter(season) ? winterRange : summerRange;
+//             double usagePerKm = batteryCapacity / range;
+//             return kilometers * usagePerKm;
+//         }
+
+//         protected static bool IsWinter(Season season)
+//         {
+//             return season == Season.Winter;
+//         }
+//     }
+// }
+
+
+
