@@ -1,34 +1,43 @@
-﻿// assignment 1
-decimal calculateWaterPrice(Int16 kuub, decimal waterPrice, double tax) {
-    if (kuub > 50) {
-        Console.WriteLine($"Waarschuwing: u heeft meer dan 50 kuub water verbruikt, namelijk  {kuub} kuub.");
-    } 
+﻿namespace Grades {
+    public class CumLaude {
+        private static List<double> grades = new List<double>();
+        private static double averageGrade = 0.0;
+        public static void Main() {
+            Console.Clear();
+            if (grades.Count > 0) {
+                GenerateSummery();
+            }
+            AskForGrade();
+        }
 
-    return kuub * waterPrice * (1.00m + (decimal)tax);
-}
+        private static void AskForGrade() {
+            Console.WriteLine("What is the grade you get? (Write like \"7,0\", decimal divided by a comma)");
+            Validator(Console.ReadLine());
+        }
 
-// assignment 2
-decimal calculateElectricityPrice(long totalkWh, decimal pricePerKwh) {
-    if ((totalkWh - 100) > 0) {
-        return (100 * pricePerKwh * 1.08m) + ((totalkWh - 100) * (pricePerKwh + 0.20m) * 1.04m);
-    } else {
-        return totalkWh * pricePerKwh * 1.08m;
+        private static void GenerateSummery() {
+            Console.WriteLine($"Average grade: {averageGrade}");
+            Console.Write($"Filled grades: ");
+            foreach(double grade in grades) {
+                Console.Write($"{grade} ");
+            }
+            Console.WriteLine();
+        }
+        
+        private static void Validator(string? value) {            
+            if (string.IsNullOrEmpty(value)) {
+                Console.WriteLine("Enter a valid value between \"0,0\" and \"10,0\", decimal divided by a comma");
+                return;
+            } 
+            double grade = double.Parse(value);
+            if (grade > 10 || grade < 0.0) {
+                Console.WriteLine("Grade value must be between \"0,0\" and \"10,0\", decimal divided by a comma");
+                return;
+            } else {
+                grades.Add(grade);  
+                averageGrade = grades.Sum() / grades.Count;
+            }
+            Main();
+        }
     }
 }
-
-// assignment 3
-void printValues() {
-    Int16 kuub = (Int16)Random.Shared.Next(1, 100);
-    decimal waterPrice = 1.37m;
-    double tax = 0.08;
-    Console.WriteLine($"De prijs van {kuub} kuub water is €{calculateWaterPrice(kuub, waterPrice, tax)} euro.");
-
-    long totalkWh = (long)Random.Shared.Next(1, 100);
-    decimal pricePerKwh = 0.23m;
-    Console.WriteLine($"De prijs van {totalkWh}kWh is €{String.Format("{0:#,##0.000}", calculateElectricityPrice(totalkWh, pricePerKwh))}");
-}
-
-printValues();
-
-
-
