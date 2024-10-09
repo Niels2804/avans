@@ -1,0 +1,14 @@
+{
+  "name": "ict1.1-smartenergy-project-v1.2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "init-project": "concurrently \"cd SmartEnergy.Client && dotnet user-secrets init && dotnet user-secrets set \"InfluxDb:Url\" \"https://influx-playground.sendlab.nl/\" && dotnet user-secrets set \"InfluxDb:Org\" \"1ec88b40ecd8c15b\" && dotnet user-secrets set \"InfluxDb:Token\" \"MBCNuEZ6DWgJVGl-nm6pUp4dfWYXOOrIRbiQ4VgyLfA4FhQAHYSdseQ3VDclVRDGCmUPtW2IkEQ2EcZiEAuTRg==\""
+  },
+  "author": "Niels Jansen",
+  "license": "ISC",
+  "dependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
