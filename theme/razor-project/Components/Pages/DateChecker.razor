@@ -1,0 +1,17 @@
+﻿@page "/datechecker"
+@rendermode InteractiveServer
+
+<PageTitle>Date Checker</PageTitle>
+
+<h1>Date Checker</h1>
+
+<p role="status">Current Date: @date</p>
+
+<button class="btn btn-primary" @onclick="RefreshDateTime">Click me</button>
+@code {
+    private DateTime date = DateTime.Now;
+
+    public void RefreshDateTime() {
+        date = DateTime.Now;
+    }
+}
