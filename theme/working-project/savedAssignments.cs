@@ -282,5 +282,70 @@
 //     }
 // }
 
+// namespace WorkingProject {
+//     public static class ParkingLot {
+//         private readonly static Dictionary<int, string> roles = 
+//             new Dictionary<int, string>() {
+//                 {1, "docent"},
+//                 {2, "researcher"}
+//             };
+//         public static void Main() {
+//             int role = 1;
+//             bool accessPass = true;
+
+//             Console.WriteLine(
+//                 (roles.ContainsKey(role) && accessPass) ? 
+//                     $"Medewerker \"{roles[role]}\" heeft toegang tot parkeerplaats" :
+//                     "parkeer maar ergens anders"
+//             );
+//         }
+//     }
+// }
+
+// namespace WorkingProject;
+// public static class Lists {
+//     public static void Main() {
+//         runAssignment1();
+//         runAssignment2();
+//     }   
+
+//     // Assignment 1
+//     private static void runAssignment1() {
+//         List<int> solarProfits = [10, 4, 9, 12, 90, 165];
+//         Console.WriteLine($"De totale profit is: {solarProfits.Sum()}");
+//     }
+
+//     // Assignment 2
+//     private static void runAssignment2() {
+//         List<int> solarProfits = 
+//         [
+//             3, 15, 7, 12, 9, 20, 8, 14, 6, 18, 11, 5, 22, 10, 17, 4,
+//             13, 19, 16, 21, 7, 9, 2, 29, 8, 33, 32, 15, 1, 17, 12, 11,
+//             2, 4, 5, 3, 17, 17, 17, 12, 10, 12, 11, 10, 11, 11, 12, 22,
+//             2, 4, 5, 2, 5, 6, 2, 7
+//         ];
+//         List<double> weekDataGem = [];
+        
+//         int AantalWeken = solarProfits.Count / 7;
+//         int indexLijst = AantalWeken * 7;
+//         int dagIndex = 0;
+
+//         for (int week = 1; week <= AantalWeken; week++)
+//         {
+//             int totaal = 0;
+//             for (int dag = 1; dag <= 7; dag++) {
+//                 totaal = totaal + solarProfits[dagIndex];
+//                 dagIndex++;
+//             }
+//             weekDataGem.Add(totaal/7.0);
+//         }
+
+//         foreach(double gem in weekDataGem) {
+//             Console.WriteLine(Math.Round(gem, 2));
+//         }
+//     }
+// }
+
+
 
 
