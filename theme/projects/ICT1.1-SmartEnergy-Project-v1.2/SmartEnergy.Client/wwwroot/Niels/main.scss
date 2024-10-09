@@ -1,0 +1,21 @@
+/* plaats hier je css code */
+@import './variables';
+@import './comp/comp';
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: $titleFont !important;  
+}
+
+body.dark-theme {
+    @include dark-theme;
+
+}
+
+body.light-theme {
+    @include light-theme;
+
+}
+

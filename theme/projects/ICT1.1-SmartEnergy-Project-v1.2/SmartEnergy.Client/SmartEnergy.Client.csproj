@@ -1,0 +1,18 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>b93248aa-70e8-4894-a183-8c0fcd52e850</UserSecretsId>
+    <SassCompilerIncludeRuntime>true</SassCompilerIncludeRuntime>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SmartEnergy.Library\SmartEnergy.Library.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AspNetCore.SassCompiler" Version="1.79.3" />
+  </ItemGroup>
+</Project>

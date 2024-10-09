@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SmartEnergy.Client", "SmartEnergy.Client.csproj", "{B1759E2F-FD56-43D2-B267-B2A81E0F4357}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B1759E2F-FD56-43D2-B267-B2A81E0F4357}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B1759E2F-FD56-43D2-B267-B2A81E0F4357}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B1759E2F-FD56-43D2-B267-B2A81E0F4357}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B1759E2F-FD56-43D2-B267-B2A81E0F4357}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F0E9EECD-5BDD-4B4E-987F-B6D11E3C70C5}
+	EndGlobalSection
+EndGlobal
