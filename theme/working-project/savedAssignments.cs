@@ -427,4 +427,42 @@
 //     }
 // }
 
+// namespace WorkingProject;
+// public static class Lists {
+//     private static readonly List<int> solarProfits = [ 10, 7, 255, 12, 17, 69, 28, 14, 4, 9, 12, 15, 27, 2];
+//     private static readonly List<int> solarProfitsWeek = [10, 7, 2, 12, 17, 5, 28, 14, 8, 9, 12, 15, 27, 2, 14, 17, 16, 21];
+//     public static void Main() {
+//         runAssignment1();
+//         runAssignment2();
+//     }   
 
+//     // Assignment 1
+//     private static void runAssignment1() {
+//         List<int> copySolarProfits = new List<int>(solarProfits);
+//         for(int i = 0; i < copySolarProfits.Count; i++) {
+//             if(copySolarProfits[i] > 25) {
+//                 copySolarProfits.Remove(i);
+//             }
+//         }
+//         Console.WriteLine($"Average value of the solarProfits list is: {copySolarProfits.Sum() / copySolarProfits.Count}");
+//     }
+
+//     // Assignment 2
+//     private static void runAssignment2() {
+//         List<int> savedProfits = new List<int>();
+//         List<int> removedProfits = new List<int>();
+
+//         for(int i = 0; i < solarProfitsWeek.Count; i++) {
+//             if(i == solarProfitsWeek[i]) {
+//                 removedProfits.Add(i);
+//             } else {
+//                 savedProfits.Add(i);
+//             }
+//         }
+//         solarProfitsWeek.Clear();
+//         solarProfitsWeek.AddRange(savedProfits);
+
+//         Console.WriteLine($"Er zijn {removedProfits.Count} getallen verwijderd uit de lijst en deze zijn: {string.Join(" ", removedProfits)}");
+//         Console.WriteLine($"De bijgewerkte lijst: {string.Join(", ", solarProfitsWeek)}");
+//     }
+// }
