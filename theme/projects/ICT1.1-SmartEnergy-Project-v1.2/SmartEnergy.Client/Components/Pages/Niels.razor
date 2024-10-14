@@ -17,13 +17,120 @@
 <main>
     <table>
         <td><b>Huidige prijs per kWh</b> €</td>
-        <td></td>
-        <td></td>
+        <td class="optionMenu">
+            <h2>Huishouden</h2>
+            <div class="dropdown show">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Selecteer een dag
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <a class="dropdown-item" href="">1 dag</a>
+                    <a class="dropdown-item" href="">30 dagen</a>
+                </div>
+            </div>
+        </td>
+         <td class="optionMenu">
+            <h2>Huishouden</h2>
+            <div class="dropdown show">
+                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Selecteer een dag
+                </a>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                    <a class="dropdown-item" href="">1 dag</a>
+                    <a class="dropdown-item" href="">30 dagen</a>
+                </div>
+            </div>
+        </td>
     </table>
+    <LineChart @ref="lineChart" />
 </main>
 <footer>
+    <h2 class="legend">Legenda:</h2>
+    <ul>
+        <li>Dynamische energieprijs</li>
+        <li>Huishouden</li>
+        <li>Gemiddelde huishouden</li>
+    </ul>
 </footer>
 
 @code {
+    private List<Measurement>? measurements;
+    private LineChart lineChart = default!;
+    protected override async Task OnInitializedAsync() {
+        measurements = await this.measurementRepository.GetEnergyConsumed(0xEC2AAB, 30, "1d");
 
+        try {
+            if(measurements == null) {
+                Console.WriteLine("Something went wrong while trying to get energy data");
+            } else {
+                foreach(Measurement m in measurements) {
+                    Console.WriteLine(m.Temperature);
+                }
+            }
+        } catch (Exception e) {
+            Console.WriteLine(e);
+        }
+    }
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await RenderWormAsync();
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+    }
+    private async Task RenderWormAsync()
+    {
+        var data = new ChartData
+            {
+                Labels = new List<string> { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20" },
+                Datasets = new List<IChartDataset>()
+                {
+                    new LineChartDataset()
+                    {
+                        Label = "India",
+                        Data = new List<double?>{ 9, 20, 29, 33, 50, 66, 75, 86, 91, 105, 120, 126, 141, 150, 156, 164, 177, 180, 184, 195 },
+                        BackgroundColor = "rgb(88, 80, 141)",
+                        BorderColor = "rgb(88, 80, 141)",
+                        BorderWidth = 2,
+                        HoverBorderWidth = 4,
+                        //PointBackgroundColor = "rgb(88, 80, 141)",
+                        //PointBorderColor = "rgb(88, 80, 141)",
+                        //PointRadius = 0, // hide points
+                        //PointHoverRadius = 4,
+                    },
+                    new LineChartDataset()
+                    {
+                        Label = "England",
+                        Data = new List<double?>{ 1, 1, 8, 19, 24, 26, 39, 47, 56, 66, 75, 88, 95, 100, 109, 114, 124, 129, 140, 142 },
+                        BackgroundColor = "rgb(255, 166, 0)",
+                        BorderColor = "rgb(255, 166, 0)",
+                        BorderWidth = 2,
+                        HoverBorderWidth = 4,
+                        // PointBackgroundColor = "rgb(255, 166, 0)",
+                        // PointBorderColor = "rgb(255, 166, 0)",
+                        // PointRadius = 0, // hide points
+                        // PointHoverRadius = 4,
+                    }
+                }
+            };
+
+        var options = new LineChartOptions();
+
+        options.Interaction.Mode = InteractionMode.Index;
+
+        options.Plugins.Title!.Text = "Dynamische Energieprijzen";
+        options.Plugins.Title.Display = true;
+        options.Plugins.Title.Font = new ChartFont { Size = 31 };
+
+        options.Responsive = true;
+
+        options.Scales.X!.Title = new ChartAxesTitle { Text = "Datum", Display = true };
+        options.Scales.Y!.Title = new ChartAxesTitle { Text = "Valuta = EURO (€)", Display = true };
+
+        await lineChart.InitializeAsync(data, options);
+    }
 }

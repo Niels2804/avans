@@ -34,6 +34,8 @@ public static class Program
             .AddTransient<IMeasurementRepository, InfluxMeasurementRepository>()
             .AddRazorComponents()
             .AddInteractiveServerComponents();
+        
+        builder.Services.AddBlazorBootstrap();
 
         var app = builder.Build();
 
