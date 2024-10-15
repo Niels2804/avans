@@ -1,5 +1,6 @@
 ﻿@page "/Niels"
 @rendermode InteractiveServer
+@attribute [StreamRendering]
 @inject IMeasurementRepository measurementRepository
 
 <PageTitle>Niels Jansen</PageTitle>
@@ -21,11 +22,11 @@
             <h2>Huishouden</h2>
             <div class="dropdown show">
                 <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Selecteer een dag
+                    Huishouden:
                 </a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                    <a class="dropdown-item" href="">1 dag</a>
-                    <a class="dropdown-item" href="">30 dagen</a>
+                    <a class="dropdown-item" href="?household=EC2AAB">EC2AAB</a>
+                    <a class="dropdown-item" href="?household=1078608">1078608</a>
                 </div>
             </div>
         </td>
@@ -33,11 +34,11 @@
             <h2>Huishouden</h2>
             <div class="dropdown show">
                 <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Selecteer een dag
+                    Tijd
                 </a>
                 <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                    <a class="dropdown-item" href="">1 dag</a>
-                    <a class="dropdown-item" href="">30 dagen</a>
+                    <a class="dropdown-item" href="?time=day">1 dag</a>
+                    <a class="dropdown-item" href="?time=day">30 dagen</a>
                 </div>
             </div>
         </td>
@@ -47,7 +48,7 @@
 <footer>
     <h2 class="legend">Legenda:</h2>
     <ul>
-        <li>Dynamische energieprijs</li>
+        <li>Dynamische energieprijs: €</li>
         <li>Huishouden</li>
         <li>Gemiddelde huishouden</li>
     </ul>
@@ -56,22 +57,10 @@
 @code {
     private List<Measurement>? measurements;
     private LineChart lineChart = default!;
+    
     protected override async Task OnInitializedAsync() {
-        measurements = await this.measurementRepository.GetEnergyConsumed(0xEC2AAB, 30, "1d");
-
-        try {
-            if(measurements == null) {
-                Console.WriteLine("Something went wrong while trying to get energy data");
-            } else {
-                foreach(Measurement m in measurements) {
-                    Console.WriteLine(m.Temperature);
-                }
-            }
-        } catch (Exception e) {
-            Console.WriteLine(e);
-        }
+        measurements = await this.measurementRepository.GetEnergyConsumed(0xEC2AAB, 30, "20s");
     }
-
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -82,11 +71,26 @@
 
         await base.OnAfterRenderAsync(firstRender);
     }
+
     private async Task RenderWormAsync()
     {
+        List<string> dataLabels = new List<string>();
+        
+        try {
+            if(measurements == null) {
+                Console.WriteLine("Something went wrong while trying to get energy data");
+            } else {
+                for (int i = 0; i < measurements.Count; i++) {
+                    dataLabels.Add((i + 1).ToString());
+                };
+            }
+        } catch (Exception e) {
+            Console.WriteLine(e);
+        }
+
         var data = new ChartData
             {
-                Labels = new List<string> { "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20" },
+                Labels = dataLabels,
                 Datasets = new List<IChartDataset>()
                 {
                     new LineChartDataset()
@@ -124,7 +128,7 @@
 
         options.Plugins.Title!.Text = "Dynamische Energieprijzen";
         options.Plugins.Title.Display = true;
-        options.Plugins.Title.Font = new ChartFont { Size = 31 };
+        options.Plugins.Title.Font = new ChartFont { Size = 30 };
 
         options.Responsive = true;
 
