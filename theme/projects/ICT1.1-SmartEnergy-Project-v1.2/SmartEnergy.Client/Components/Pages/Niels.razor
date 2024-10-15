@@ -19,122 +19,156 @@
     <table>
         <td><b>Huidige prijs per kWh</b> €</td>
         <td class="optionMenu">
-            <h2>Huishouden</h2>
-            <div class="dropdown show">
-                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Huishouden:
-                </a>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                    <a class="dropdown-item" href="?household=EC2AAB">EC2AAB</a>
-                    <a class="dropdown-item" href="?household=1078608">1078608</a>
-                </div>
-            </div>
+            <label for="smartmeter">Huishouden</label>
+            <select name="smartmeter" id="smartmeter" class="btn btn-secondary" @onchange="UpdateSmartmeter">
+                <option value="EC2AAB" class="dropdown-item">EC2AAB</option>
+                <option value="default" class="dropdown-item">default</option>
+            </select>
         </td>
          <td class="optionMenu">
-            <h2>Huishouden</h2>
-            <div class="dropdown show">
-                <a class="btn btn-secondary dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Tijd
-                </a>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                    <a class="dropdown-item" href="?time=day">1 dag</a>
-                    <a class="dropdown-item" href="?time=day">30 dagen</a>
-                </div>
-            </div>
+            <label for="time">Tijd</label>
+            <select name="time" id="time" class="btn btn-secondary" @onchange="UpdateTime">
+                <option value="day" class="dropdown-item">1 dag</option>
+                <option value="month" class="dropdown-item">30 dagen</option>
+            </select>
         </td>
     </table>
-    <LineChart @ref="lineChart" />
+    <div class="wormChart">
+        <LineChart @ref="lineChart"/>
+    </div>
 </main>
-<footer>
-    <h2 class="legend">Legenda:</h2>
-    <ul>
-        <li>Dynamische energieprijs: €</li>
-        <li>Huishouden</li>
-        <li>Gemiddelde huishouden</li>
-    </ul>
-</footer>
 
 @code {
+    private int smartmeterId = 0xEC2AAB;
+    private string smartmeterName = "EC2AAB";
+    private int time = 1;
     private List<Measurement>? measurements;
     private LineChart lineChart = default!;
-    
+    private LineChartOptions lineChartOptions = default!;
+    private ChartData chartData = default!;
+
+    // Method to load measurements data
     protected override async Task OnInitializedAsync() {
-        measurements = await this.measurementRepository.GetEnergyConsumed(0xEC2AAB, 30, "20s");
+        await LoadMeasurementsAsync();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await RenderWormAsync();
-        }
-
-        await base.OnAfterRenderAsync(firstRender);
+    protected override async void OnInitialized() {
+        SetChartOptions();
+        SetChartDataset();
+        await UpdateChartAsync();
     }
 
-    private async Task RenderWormAsync()
-    {
-        List<string> dataLabels = new List<string>();
-        
-        try {
-            if(measurements == null) {
-                Console.WriteLine("Something went wrong while trying to get energy data");
-            } else {
-                for (int i = 0; i < measurements.Count; i++) {
-                    dataLabels.Add((i + 1).ToString());
-                };
-            }
-        } catch (Exception e) {
-            Console.WriteLine(e);
-        }
+    private async Task LoadMeasurementsAsync() {
+        measurements = await measurementRepository.GetEnergyConsumed(smartmeterId, time, "5m");
+    }
 
-        var data = new ChartData
-            {
-                Labels = dataLabels,
-                Datasets = new List<IChartDataset>()
-                {
-                    new LineChartDataset()
-                    {
-                        Label = "India",
-                        Data = new List<double?>{ 9, 20, 29, 33, 50, 66, 75, 86, 91, 105, 120, 126, 141, 150, 156, 164, 177, 180, 184, 195 },
-                        BackgroundColor = "rgb(88, 80, 141)",
-                        BorderColor = "rgb(88, 80, 141)",
-                        BorderWidth = 2,
-                        HoverBorderWidth = 4,
-                        //PointBackgroundColor = "rgb(88, 80, 141)",
-                        //PointBorderColor = "rgb(88, 80, 141)",
-                        //PointRadius = 0, // hide points
-                        //PointHoverRadius = 4,
-                    },
-                    new LineChartDataset()
-                    {
-                        Label = "England",
-                        Data = new List<double?>{ 1, 1, 8, 19, 24, 26, 39, 47, 56, 66, 75, 88, 95, 100, 109, 114, 124, 129, 140, 142 },
-                        BackgroundColor = "rgb(255, 166, 0)",
-                        BorderColor = "rgb(255, 166, 0)",
-                        BorderWidth = 2,
-                        HoverBorderWidth = 4,
-                        // PointBackgroundColor = "rgb(255, 166, 0)",
-                        // PointBorderColor = "rgb(255, 166, 0)",
-                        // PointRadius = 0, // hide points
-                        // PointHoverRadius = 4,
-                    }
+    private async Task UpdateChart() {
+        await LoadMeasurementsAsync();
+        SetChartOptions();
+        SetChartDataset();
+        await UpdateChartAsync();
+    }
+
+    private void SetChartOptions() {
+        lineChartOptions = new LineChartOptions {
+            Interaction = new Interaction {
+                Mode = InteractionMode.Index
+            },
+            Plugins = new LineChartPlugins {
+                Title = new ChartPluginsTitle {
+                    Text = "Dynamische Energieprijzen",
+                    Display = true,
+                    Font = new ChartFont { Size = 30 }
                 }
-            };
+            },
+            Responsive = true,
+            Scales = new Scales {
+                X = new ChartAxes {
+                    Title = new ChartAxesTitle {
+                        Text = (time == 1 ? DateTime.Now.ToString("dd MMMM") : DateTime.Now.ToString("MMMM")), Display = true
+                    }
+                },
+                Y = new ChartAxes {
+                    Title = new ChartAxesTitle {
+                        Text = "Valuta = EURO (€)", Display = true
+                    }
+                },
+            }
+        };
+    }
 
-        var options = new LineChartOptions();
+    private void SetChartDataset() {
+        var labels = Enumerable.Range(1, time).Select(i => i.ToString()).ToList();
+        var datasets = new List<IChartDataset> {
+            new LineChartDataset {
+                Label = $"Dynamische energieprijs: €{smartmeterName}",
+                Data = new List<double?>{ 9, 20, 29, 33, 50, 66, 75, 86, 91, 105, 120, 126, 141, 150, 156, 164, 177, 180, 184, 195 },
+                BackgroundColor = "rgb(88, 80, 141)",
+                BorderColor = "rgb(88, 80, 141)",
+                BorderWidth = 2
+            },
+            new LineChartDataset {
+                Label = $"Smartmeter {smartmeterName}",
+                Data = new List<double?>{ 1, 1, 8, 19, 24, 26, 39, 47, 56, 66, 75, 88, 95, 100, 109, 114, 124, 129, 140, 142 },
+                BackgroundColor = "rgb(255, 166, 0)",
+                BorderColor = "rgb(255, 166, 0)",
+                BorderWidth = 2
+            },
+            new LineChartDataset {
+                Label = "Gemiddelde huishouden",
+                Data = new List<double?>{ 1, 4, 8, 4, 24, 26, 39, 3, 56, 66, 75, 88, 95, 132, 109, 114, 124, 129, 140, 250 },
+                BackgroundColor = "rgb(0, 166, 0)",
+                BorderColor = "rgb(0, 166, 0)",
+                BorderWidth = 2
+            }
+        };
 
-        options.Interaction.Mode = InteractionMode.Index;
+        chartData = new ChartData {
+            Labels = labels,
+            Datasets = datasets
+        };
+    }
 
-        options.Plugins.Title!.Text = "Dynamische Energieprijzen";
-        options.Plugins.Title.Display = true;
-        options.Plugins.Title.Font = new ChartFont { Size = 30 };
+    protected async Task UpdateChartAsync() {
+        if (lineChart != null) {
+            await lineChart.UpdateAsync(chartData, lineChartOptions);
+        }
+    }
 
-        options.Responsive = true;
+    protected async Task UpdateSmartmeter(ChangeEventArgs e) {
+        var value = e.Value?.ToString();
+        if(!string.IsNullOrEmpty(value)) {
+            if(value == "default") {
+                smartmeterName = "default";
+                smartmeterId = 1078608;
+            } else {
+                Int32 meter = Convert.ToInt32(value, 16);
+                switch(meter) {
+                    case 0xEC2AAB:
+                        smartmeterName = "EC2AAB";
+                        smartmeterId = meter;
+                        break;
+                    default:
+                        Console.WriteLine($"Smartmeter \"{meter}\" doesn't exist");
+                        break;
+                }
+            }
+            await UpdateChart();
+        }
+    }
 
-        options.Scales.X!.Title = new ChartAxesTitle { Text = "Datum", Display = true };
-        options.Scales.Y!.Title = new ChartAxesTitle { Text = "Valuta = EURO (€)", Display = true };
+    protected async Task UpdateTime(ChangeEventArgs e) {
+        var value = e.Value?.ToString();
+        if (!string.IsNullOrEmpty(value)) {
+            time = value == "day" ? 1 : 30;
+            await UpdateChart();
+        }
+    }       
 
-        await lineChart.InitializeAsync(data, options);
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        if (firstRender) {
+            await lineChart.InitializeAsync(chartData, lineChartOptions);
+        }
+        await base.OnAfterRenderAsync(firstRender);
     }
 }

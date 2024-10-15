@@ -1,1 +1,1 @@
-{"version":3,"sourceRoot":"","sources":["Niels/scss/main.scss","Niels/scss/_variables.scss"],"names":[],"mappings":"AAAA;ACAQ;ADGR;EACI;EACA;EACA;EACA;;;AAGJ;EACI","file":"main.min.css"}
+{"version":3,"sourceRoot":"","sources":["Niels/main.scss","Niels/_variables.scss"],"names":[],"mappings":"AAAA;ACAQ;ADIR;EACI;EACA;EACA;EACA;;;AAYJ;EACI;EACA;EACA","file":"main.min.css"}

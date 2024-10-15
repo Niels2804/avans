@@ -2,5 +2,345 @@
 <!-- ALLES HIERBOVEN NIET VERWIJDEREN -->
 
 <PageTitle>Rick Voermans</PageTitle>
+<style>
+    .parent {
+        position: relative;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        width: 50%;
+        height: 500px;
+        border-radius: 5px;
+        padding: 20px;
+        background-color: crimson;
+    }
+
+    .child {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        border-radius: 5px;
+        background-color: white;
+        overflow: hidden !important;
+    }
+
+    tbody {
+        position: absolute;
+        overflow-y: scroll;
+        height: 100%;
+        width: 100%;
+    }
+    
+</style>
 
 <h1>Project Rick</h1>
+
+@page "/measurements"
+@attribute [StreamRendering]
+@inject IMeasurementRepository measurementRepository;
+
+<PageTitle>Measurements</PageTitle>
+
+<h1>Measurements</h1>
+
+<p>Dit component toont hoe data getoond kan worden. De data die wordt getoond is van een voorgeprogrammeerde Smart Meter in combinatie met data van het lectoraat Smart Energy (energieprijzen, temperaturen). Pas de code aan om de data van jouw meter te tonen </p>
+
+  <div class="parent">
+        <table class="child">
+            <thead>
+                <tr>
+                    <th>rommmel</th>
+                    <th>rommmel</th>
+                    <th>rommmel</th>
+                    <th>rommmel</th>
+                    <th>rommmel</th>
+                    <th>rommmel</th>
+                    <th>rommmel</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>
+             <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>       <tr>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+                <td>rommmel</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>

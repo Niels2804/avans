@@ -16,6 +16,11 @@ body.dark-theme {
 
 body.light-theme {
     @include light-theme;
+}
 
+.wormChart {
+    position: relative;
+    width: 50%;
+    height: 50%;
 }
 

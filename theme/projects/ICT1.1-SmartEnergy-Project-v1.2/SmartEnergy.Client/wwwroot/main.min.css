@@ -7,8 +7,10 @@
   font-family: "Raleway", sans-serif !important;
 }
 
-header {
-  background-color: green;
+.wormChart {
+  position: relative;
+  width: 50%;
+  height: 50%;
 }
 
 /*# sourceMappingURL=main.min.css.map */

@@ -1,10 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <SassCompilerIncludeRuntime>true</SassCompilerIncludeRuntime>
-    <UserSecretsId>047755d3-80d3-470e-981c-d74cac03040a</UserSecretsId>
+    <UserSecretsId>0f806088-70ad-470f-89f6-b0784fd307f5</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\SmartEnergy.Library\SmartEnergy.Library.csproj"/>

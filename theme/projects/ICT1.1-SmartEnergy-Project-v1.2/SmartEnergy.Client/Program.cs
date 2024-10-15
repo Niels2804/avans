@@ -2,6 +2,9 @@ using InfluxDB.Client;
 using SmartEnergy.Client.Components;
 using SmartEnergy.Library.Measurements.Models;
 using SmartEnergy.Library.Measurements.Repository;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using System.Net.Http;
 
 namespace SmartEnergy.Client;
 
