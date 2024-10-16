@@ -264,7 +264,7 @@ public class InfluxMeasurementRepository : IMeasurementRepository
 
         // subtract 1 day to get the correct start date. From the user perspective it is more logical to
         // assume that one day is today, but the days to subtract should then be 0, thus the correction.
-        return DateTime.Now.AddDays((lastNumberOfDaysToRetrieve - 1) * -1).ToString("yyyy-MM-dd");
+        return DateTime.Now.ToUniversalTime().Date.AddDays((lastNumberOfDaysToRetrieve - 1) * -1).AddSeconds(-19).ToString("o");
     }
 
     /// <summary>
