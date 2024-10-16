@@ -16,6 +16,71 @@ body.dark-theme {
 
 body.light-theme {
     @include light-theme;
-
 }
+
+header.introduction {
+    position: relative;
+    width: 100%;
+    height: calc(20vh) !important;
+
+    p.text {
+        width: 75%;
+        text-align: start;
+    }
+
+    .credits > p {
+        margin: 0;
+    }
+
+    .data {
+        position: relative;
+        display: flex;
+        justify-content: space-between;
+        width: 50%;
+
+        .data span {
+            position: relative;
+            display: flex;
+            flex-direction: row;
+        }
+        
+        .chartSettings {
+            position: relative;
+            display: flex;
+            justify-content: space-around;
+
+            .optionMenu {
+                margin: 0 20px;
+
+                label {
+                    margin-right: 5px;
+                }
+            }
+        }
+    }
+}
+
+main.chartsContainer {
+    position: relative;
+    height: calc(80vh - 4.6rem) !important;
+    overflow: hidden;
+    padding: 3.5rem 0;
+    
+    .charts {
+        position: relative;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        width: 100%;
+        margin: 0 auto;
+    
+        .wormChart {
+            position: relative;
+            width: 45%;
+        }
+    }
+}
+
+
+
 

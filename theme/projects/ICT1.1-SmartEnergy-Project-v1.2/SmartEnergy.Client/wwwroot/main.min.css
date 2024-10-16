@@ -7,8 +7,58 @@
   font-family: "Raleway", sans-serif !important;
 }
 
-header {
-  background-color: green;
+header.introduction {
+  position: relative;
+  width: 100%;
+  height: 20vh !important;
+}
+header.introduction p.text {
+  width: 75%;
+  text-align: start;
+}
+header.introduction .credits > p {
+  margin: 0;
+}
+header.introduction .data {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  width: 50%;
+}
+header.introduction .data .data span {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+}
+header.introduction .data .chartSettings {
+  position: relative;
+  display: flex;
+  justify-content: space-around;
+}
+header.introduction .data .chartSettings .optionMenu {
+  margin: 0 20px;
+}
+header.introduction .data .chartSettings .optionMenu label {
+  margin-right: 5px;
+}
+
+main.chartsContainer {
+  position: relative;
+  height: calc(80vh - 4.6rem) !important;
+  overflow: hidden;
+  padding: 3.5rem 0;
+}
+main.chartsContainer .charts {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  width: 100%;
+  margin: 0 auto;
+}
+main.chartsContainer .charts .wormChart {
+  position: relative;
+  width: 45%;
 }
 
 /*# sourceMappingURL=main.min.css.map */

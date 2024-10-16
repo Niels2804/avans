@@ -60,7 +60,7 @@ else
     {
         /* TODO: update the value to the ID of your meter. Please note that this meterId is a decimal number and your
         P1 meter is a Hexadecimal number. Thus you need to convert the ID from HEX to Decimal and put the number here. */
-        int meterId = 1078608;
+        int meterId = 0xEC2AAB;
 
         /* TODO: Number of days to retrieve, ajust according to your needs/requirements. */
         int numberOfDays = 3;
@@ -74,7 +74,7 @@ else
         /* TODO: there are multiple data streams available. Two for the value of the power meter (consumed, produced)
         one for the gas consumption and another one for the absolute power usage. All of the possible method calls
         are listed below and you can select the one that meets your needs/requirements. */
-        measurements = await this.measurementRepository.GetEnergyConsumed(meterId, numberOfDays, aggegationWindow);
+        measurements = await this.measurementRepository.GetPower(meterId, numberOfDays, aggegationWindow);
         // measurements = await this.measurementRepository.GetEnergyProduced(meterId, numberOfDays, aggegationWindow);
         // measurements = await this.measurementRepository.GetGasDelivered(meterId, numberOfDays, aggegationWindow);
         // measurements = await this.measurementRepository.GetPower(meterId, numberOfDays, aggegationWindow);
