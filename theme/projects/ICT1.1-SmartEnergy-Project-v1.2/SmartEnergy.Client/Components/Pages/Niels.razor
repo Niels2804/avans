@@ -17,51 +17,80 @@
 </header>
 <main>
     <table>
-        <td><b>Huidige prijs per kWh</b> €</td>
+        <td><b>Huidige prijs per kWh</b> €@currentEnergyPrice</td>
         <td class="optionMenu">
             <label for="smartmeter">Huishouden</label>
             <select name="smartmeter" id="smartmeter" class="btn btn-secondary" @onchange="UpdateSmartmeter">
                 <option value="EC2AAB" class="dropdown-item">EC2AAB</option>
-                <option value="default" class="dropdown-item">default</option>
+                <option value="107550" class="dropdown-item">107550</option>
             </select>
         </td>
          <td class="optionMenu">
             <label for="time">Tijd</label>
             <select name="time" id="time" class="btn btn-secondary" @onchange="UpdateTime">
-                <option value="day" class="dropdown-item">1 dag</option>
-                <option value="month" class="dropdown-item">30 dagen</option>
+                <option value="day" class="dropdown-item">dag</option>
+                <option value="month" class="dropdown-item">maand (@DateTime.Now.ToString("MMMM")))</option>
             </select>
         </td>
     </table>
     <div class="wormChart">
-        <LineChart @ref="lineChart"/>
+        <LineChart @ref="priceChart"/>
+    </div>
+    <div class="wormChart">
+        <LineChart @ref="energyChart"/>
     </div>
 </main>
 
 @code {
+    // Main data
     private int smartmeterId = 0xEC2AAB;
+    private int numberOfDays = 1;
     private string smartmeterName = "EC2AAB";
-    private int time = 1;
     private List<Measurement>? measurements;
-    private LineChart lineChart = default!;
-    private LineChartOptions lineChartOptions = default!;
-    private ChartData chartData = default!;
+    private List<Measurement>? allMeasurements;
+    private double? currentEnergyPrice;
 
-    // Method to load measurements data
+    // Price Chart
+    private LineChart priceChart = default!;
+    private LineChartOptions priceChartOptions = default!;
+    private ChartData priceChartData = default!;
+
+    // Energy Chart
+    private LineChart energyChart = default!;
+    private LineChartOptions energyChartOptions = default!;
+    private ChartData energyChartData = default!;
+    
+    private async Task LoadMeasurementsAsync() {
+        string aggregation = numberOfDays == 1 ? "1h" : "1d";
+        measurements = await measurementRepository.GetPower(smartmeterId, numberOfDays, aggregation);
+        allMeasurements = await measurementRepository.GetPower(smartmeterId, numberOfDays, "5m");
+        if (measurements == null || !measurements.Any()) {
+            Console.WriteLine("Geen metingen gevonden.");
+        }
+    }
+
+    // Initializing
     protected override async Task OnInitializedAsync() {
         await LoadMeasurementsAsync();
-    }
-
-    protected override async void OnInitialized() {
         SetChartOptions();
         SetChartDataset();
-        await UpdateChartAsync();
     }
 
-    private async Task LoadMeasurementsAsync() {
-        measurements = await measurementRepository.GetEnergyConsumed(smartmeterId, time, "5m");
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        if(priceChartData == null || priceChartOptions == null || energyChartData == null || energyChartOptions == null) {
+            await LoadMeasurementsAsync();
+            SetChartOptions();
+            SetChartDataset();
+        }
+        
+        if (firstRender) {
+            await priceChart.InitializeAsync(priceChartData, priceChartOptions);
+            await energyChart.InitializeAsync(energyChartData, energyChartOptions);
+        }
+        await base.OnAfterRenderAsync(firstRender);
     }
-
+     
+    // Updating chart
     private async Task UpdateChart() {
         await LoadMeasurementsAsync();
         SetChartOptions();
@@ -69,23 +98,32 @@
         await UpdateChartAsync();
     }
 
+    protected async Task UpdateChartAsync() {
+        if (priceChart != null) {
+            await priceChart.UpdateAsync(priceChartData, priceChartOptions);
+        }
+        if (energyChart != null) {
+            await energyChart.UpdateAsync(energyChartData, energyChartOptions);
+        }
+    }
+
     private void SetChartOptions() {
-        lineChartOptions = new LineChartOptions {
+        priceChartOptions = new LineChartOptions {
             Interaction = new Interaction {
                 Mode = InteractionMode.Index
             },
             Plugins = new LineChartPlugins {
                 Title = new ChartPluginsTitle {
-                    Text = "Dynamische Energieprijzen",
+                    Text = $"Energiekosten {smartmeterName} (gebasseerd op energie tarief * totale verbruik)",
                     Display = true,
-                    Font = new ChartFont { Size = 30 }
+                    Font = new ChartFont { Size = 24 }
                 }
             },
             Responsive = true,
             Scales = new Scales {
                 X = new ChartAxes {
                     Title = new ChartAxesTitle {
-                        Text = (time == 1 ? DateTime.Now.ToString("dd MMMM") : DateTime.Now.ToString("MMMM")), Display = true
+                        Text = (numberOfDays == 1 ? DateTime.Now.ToString("dd MMMM") : DateTime.Now.ToString("MMMM")), Display = true
                     }
                 },
                 Y = new ChartAxes {
@@ -95,63 +133,246 @@
                 },
             }
         };
+
+        energyChartOptions = new LineChartOptions {
+            Interaction = new Interaction {
+                Mode = InteractionMode.Index
+            },
+            Plugins = new LineChartPlugins {
+                Title = new ChartPluginsTitle {
+                    Text = "Energiekosten per kWh",
+                    Display = true,
+                    Font = new ChartFont { Size = 24 }
+                }
+            },
+            Responsive = true,
+            Scales = new Scales {
+                X = new ChartAxes {
+                    Title = new ChartAxesTitle {
+                        Text = (numberOfDays == 1 ? DateTime.Now.ToString("dd MMMM") : DateTime.Now.ToString("MMMM")), Display = true
+                    }
+                },
+                Y = new ChartAxes {
+                    Title = new ChartAxesTitle {
+                        Text = "kilowattuur (kWh)", Display = true
+                    }
+                },
+            }
+        };
     }
 
     private void SetChartDataset() {
-        var labels = Enumerable.Range(1, time).Select(i => i.ToString()).ToList();
-        var datasets = new List<IChartDataset> {
-            new LineChartDataset {
-                Label = $"Dynamische energieprijs: €{smartmeterName}",
-                Data = new List<double?>{ 9, 20, 29, 33, 50, 66, 75, 86, 91, 105, 120, 126, 141, 150, 156, 164, 177, 180, 184, 195 },
-                BackgroundColor = "rgb(88, 80, 141)",
-                BorderColor = "rgb(88, 80, 141)",
-                BorderWidth = 2
-            },
-            new LineChartDataset {
-                Label = $"Smartmeter {smartmeterName}",
-                Data = new List<double?>{ 1, 1, 8, 19, 24, 26, 39, 47, 56, 66, 75, 88, 95, 100, 109, 114, 124, 129, 140, 142 },
-                BackgroundColor = "rgb(255, 166, 0)",
-                BorderColor = "rgb(255, 166, 0)",
-                BorderWidth = 2
-            },
-            new LineChartDataset {
-                Label = "Gemiddelde huishouden",
-                Data = new List<double?>{ 1, 4, 8, 4, 24, 26, 39, 3, 56, 66, 75, 88, 95, 132, 109, 114, 124, 129, 140, 250 },
-                BackgroundColor = "rgb(0, 166, 0)",
-                BorderColor = "rgb(0, 166, 0)",
-                BorderWidth = 2
+        if (measurements == null || !measurements.Any() || allMeasurements == null || !allMeasurements.Any()) {
+            Console.WriteLine("Geen metingen beschikbaar voor het instellen van de dataset.");
+            return;
+        }
+
+        List<string> labels = new List<string>();
+        List<double?> dynamicEnergyPriceList = new List<double?>(); 
+        List<double?> averageEnergyPriceList = new List<double?>(); 
+        List<double?> dynamicPrices = new List<double?>(); 
+        List<double?> averagePrices = new List<double?>(); 
+
+        if(numberOfDays == 1) {
+            // DAILY CHART
+
+            // Creates labels for the X-ChartAxes
+            foreach(var measurement in measurements) {
+                labels.Add(measurement.Timestamp.ToString("HH:mm"));
+            } 
+
+            // Filter allMeasurements by date and time, output: List<int, List<Measurements>>
+            var hourlyData = allMeasurements
+                .Where(m => m.Timestamp.Date == DateTime.Today.Date)
+                .GroupBy(m => m.Timestamp.Hour)
+                .ToList();
+
+            // Calculates the daily average energy price
+            List<double?> energyPriceList = new List<double?>(); 
+            for(int i = 0; i < hourlyData.Count(); i++) {
+                foreach (var measurement in hourlyData[i]) {
+                    energyPriceList.Add(measurement.EnergyPrice);
+                }
             }
-        };
+            double? averageEnergiePriceForDay = energyPriceList.Sum() / energyPriceList.Count();
 
-        chartData = new ChartData {
-            Labels = labels,
-            Datasets = datasets
-        };
-    }
+            // Calculates dynamic hour energy price
+            for(int i = 0; i < hourlyData.Count(); i++) {
+                Dictionary<int, (double? valueInKWh, double? energyPrice)> energyPrice = new Dictionary<int, (double?, double?)>();
+                // Loop through each measurement within the hour
+                for(int j = 0; j < hourlyData[i].Count(); j++) {
+                    double? valueInKWh = hourlyData[i].ElementAt(j).Value / 1000; // Convert to kWh
+                    double? price = hourlyData[i].ElementAt(j).EnergyPrice;
+                    energyPrice.Add(j, (valueInKWh, price));
+                }
 
-    protected async Task UpdateChartAsync() {
-        if (lineChart != null) {
-            await lineChart.UpdateAsync(chartData, lineChartOptions);
+                // Calculate average price per hour (total energy price divided by total consumption)
+                double? averageConsumptionForHour = energyPrice.Sum(item => item.Value.valueInKWh) / energyPrice.Count(); // Total energy consumption of the hour
+                double? averagePricePerHour = energyPrice.Sum(item => item.Value.energyPrice) / energyPrice.Count(); // Total price of the hour
+
+                currentEnergyPrice = Math.Round(averagePricePerHour ?? 0, 3);
+                
+                // Add values for the energyprice list
+                dynamicPrices.Add(averagePricePerHour);
+                averagePrices.Add(averageEnergiePriceForDay);
+
+                // Add values to the lists
+                dynamicEnergyPriceList.Add(averageConsumptionForHour * averagePricePerHour); // Store the average price per hour
+                averageEnergyPriceList.Add(averageConsumptionForHour * averageEnergiePriceForDay); // Total price per hour
+            }
+
+            var priceChartDatasets = new List<IChartDataset> {
+                new LineChartDataset {
+                    Label = $"dynamisch tarief (totale energieverbruik * gemiddelde uurprijs)",
+                    Data = dynamicEnergyPriceList,
+                    BackgroundColor = "#00ECFB",
+                    BorderColor = "#00ECFB",
+                    BorderWidth = 1
+                }, 
+                new LineChartDataset {
+                    Label = "gemiddelde prijs (totale energieverbruik * gemiddelde dagprijs)",
+                    Data = averageEnergyPriceList,
+                    BackgroundColor = "#FF0000",
+                    BorderColor = "#FF0000",
+                    BorderWidth = 1
+                }
+            };
+
+            priceChartData = new ChartData {
+                Labels = labels,
+                Datasets = priceChartDatasets
+            };
+
+            var energyChartDatasets = new List<IChartDataset> {
+                new LineChartDataset {
+                    Label = $"dynamisch tarief: {smartmeterName}",
+                    Data = dynamicPrices,
+                    BackgroundColor = "rgb(88, 80, 141)",
+                    BorderColor = "rgb(88, 80, 141)",
+                    BorderWidth = 1
+                },
+                new LineChartDataset {
+                    Label = "gemiddelde maandprijs",
+                    Data = averagePrices,
+                    BackgroundColor = "rgb(0, 166, 0)",
+                    BorderColor = "rgb(0, 166, 0)",
+                    BorderWidth = 1
+                }
+            };
+
+            energyChartData = new ChartData {
+                Labels = labels,
+                Datasets = energyChartDatasets
+            };
+        } else {
+            // MONTHLY CHART
+
+            // Creates labels for the X-ChartAxes (days of the month)
+            labels = Enumerable.Range(1, numberOfDays).Select(i => i.ToString()).ToList();
+
+            // Filter allMeasurements by month, output: List<int, List<Measurements>>
+            var dailyData = allMeasurements
+                .Where(m => m.Timestamp.Month == DateTime.Today.Month && m.Timestamp.Year == DateTime.Today.Year)
+                .GroupBy(m => m.Timestamp.Day)
+                .ToList();
+
+            // Calculates the monthly average energy price
+            List<double?> energyPriceList = new List<double?>(); 
+            for(int i = 0; i < dailyData.Count(); i++) {
+                foreach (var measurement in dailyData[i]) {
+                    energyPriceList.Add(measurement.EnergyPrice);
+                }
+            }
+            double? averageEnergiePriceForMonth = energyPriceList.Sum() / energyPriceList.Count();
+
+            // Calculates dynamic daily energy price
+            for(int i = 0; i < dailyData.Count(); i++) {
+                Dictionary<int, (double? valueInKWh, double? energyPrice)> energyPrice = new Dictionary<int, (double?, double?)>();
+              
+                // Loop through each measurement within the day
+                for(int j = 0; j < dailyData[i].Count(); j++) {
+                    double? valueInKWh = dailyData[i].ElementAt(j).Value / 1000; // Convert to kWh
+                    double? price = dailyData[i].ElementAt(j).EnergyPrice;
+                    energyPrice.Add(j, (valueInKWh, price));
+                }
+
+                // Calculate average price per day (total energy price divided by total consumption)
+                double? averageConsumptionForDay = energyPrice.Sum(item => item.Value.valueInKWh) / energyPrice.Count(); // Total energy consumption of the day
+                double? averagePricePerDay = energyPrice.Sum(item => item.Value.energyPrice) / energyPrice.Count(); // Average energy price of the day
+
+                currentEnergyPrice = Math.Round(averagePricePerDay ?? 0, 3);
+
+                // Add values for the energyprice list
+                dynamicPrices.Add(averagePricePerDay);
+                averagePrices.Add(averageEnergiePriceForMonth);
+
+                // Add values to the lists
+                dynamicEnergyPriceList.Add(averageConsumptionForDay * averagePricePerDay); // Store the average price per day
+                averageEnergyPriceList.Add(averageConsumptionForDay * averageEnergiePriceForMonth); // Total price for the day
+            }
+
+            var priceChartDatasets = new List<IChartDataset> {
+                new LineChartDataset {
+                    Label = $"dynamisch tarief (totale energieverbruik * gemiddelde dagprijs)",
+                    Data = dynamicEnergyPriceList,
+                    BackgroundColor = "#00ECFB",
+                    BorderColor = "#00ECFB",
+                    BorderWidth = 1
+                }, 
+                new LineChartDataset {
+                    Label = "gemiddelde prijs (totale energieverbruik * gemiddelde maandprijs)",
+                    Data = averageEnergyPriceList,
+                    BackgroundColor = "#FF0000",
+                    BorderColor = "#FF0000",
+                    BorderWidth = 1
+                }
+            };
+
+            priceChartData = new ChartData {
+                Labels = labels,
+                Datasets = priceChartDatasets
+            };
+
+            var energyChartDatasets = new List<IChartDataset> {
+                new LineChartDataset {
+                    Label = $"dynamisch tarief: {smartmeterName}",
+                    Data = dynamicPrices,
+                    BackgroundColor = "rgb(88, 80, 141)",
+                    BorderColor = "rgb(88, 80, 141)",
+                    BorderWidth = 1
+                },
+                new LineChartDataset {
+                    Label = "gemiddelde maandprijs",
+                    Data = averagePrices,
+                    BackgroundColor = "rgb(0, 166, 0)",
+                    BorderColor = "rgb(0, 166, 0)",
+                    BorderWidth = 1
+                }
+            };
+
+            energyChartData = new ChartData {
+                Labels = labels,
+                Datasets = energyChartDatasets
+            };
         }
     }
 
     protected async Task UpdateSmartmeter(ChangeEventArgs e) {
         var value = e.Value?.ToString();
         if(!string.IsNullOrEmpty(value)) {
-            if(value == "default") {
-                smartmeterName = "default";
-                smartmeterId = 1078608;
-            } else {
-                Int32 meter = Convert.ToInt32(value, 16);
-                switch(meter) {
-                    case 0xEC2AAB:
-                        smartmeterName = "EC2AAB";
-                        smartmeterId = meter;
-                        break;
-                    default:
-                        Console.WriteLine($"Smartmeter \"{meter}\" doesn't exist");
-                        break;
-                }
+            Int32 meter = Convert.ToInt32(value, 16);
+            switch(meter) {
+                case 0xEC2AAB:
+                    smartmeterName = "EC2AAB";
+                    smartmeterId = meter;
+                    break;
+                case 0x107550:
+                    smartmeterName = "107550";
+                    smartmeterId = meter;
+                    break;
+                default:
+                    Console.WriteLine($"Smartmeter \"{meter}\" doesn't exist");
+                    break;
             }
             await UpdateChart();
         }
@@ -160,15 +381,8 @@
     protected async Task UpdateTime(ChangeEventArgs e) {
         var value = e.Value?.ToString();
         if (!string.IsNullOrEmpty(value)) {
-            time = value == "day" ? 1 : 30;
+            numberOfDays = value == "day" ? 1 : DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month);
             await UpdateChart();
         }
     }       
-
-    protected override async Task OnAfterRenderAsync(bool firstRender) {
-        if (firstRender) {
-            await lineChart.InitializeAsync(chartData, lineChartOptions);
-        }
-        await base.OnAfterRenderAsync(firstRender);
-    }
 }

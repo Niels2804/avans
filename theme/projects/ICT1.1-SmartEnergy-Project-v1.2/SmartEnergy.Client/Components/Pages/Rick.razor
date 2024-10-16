@@ -1,4 +1,6 @@
 ﻿@page "/Rick"
+@attribute [StreamRendering]
+@inject IMeasurementRepository measurementRepository;
 <!-- ALLES HIERBOVEN NIET VERWIJDEREN -->
 
 <PageTitle>Rick Voermans</PageTitle>
@@ -34,14 +36,6 @@
 </style>
 
 <h1>Project Rick</h1>
-
-@page "/measurements"
-@attribute [StreamRendering]
-@inject IMeasurementRepository measurementRepository;
-
-<PageTitle>Measurements</PageTitle>
-
-<h1>Measurements</h1>
 
 <p>Dit component toont hoe data getoond kan worden. De data die wordt getoond is van een voorgeprogrammeerde Smart Meter in combinatie met data van het lectoraat Smart Energy (energieprijzen, temperaturen). Pas de code aan om de data van jouw meter te tonen </p>
 
