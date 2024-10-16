@@ -5,39 +5,51 @@
 
 <PageTitle>Niels Jansen</PageTitle>
 
-<header>   
+<header class="introduction">   
     <h1 class="assignment">Opdrachtvariant H</h1>
-    <p>
-        In onderstaande grafiek kunt u zien of een bepaald huishouden op een goedkoop of duur moment stroom verbruikt. De rode lijn geeft 
-        de gemiddelde en dynamische prijs weer. De groene lijn toont of het gemiddelde huishouden op een goedkoop of duur moment 
-        elektriciteit verbruikt. Tot slot geeft de blauwe lijn het elektriciteitsverbruik van het door u geselecteerde huishouden aan.
+    <p class="text">
+        In de onderstaande grafiek kunt u zien of een huishouden op een goedkoop of duur moment elektriciteit verbruikt. 
+        De blauwe lijn geeft de dynamische prijs van het geselecteerde huishouden weer, terwijl de rode lijn de gemiddelde 
+        prijs toont. Ligt de blauwe lijn boven de rode? Dan wordt er op dat moment tijdens een dure periode stroom verbruikt. 
+        Ligt de blauwe lijn onder de rode? Dan wordt er elektriciteit verbruikt tijdens een goedkope periode.
     </p>
-    <p><b>naam: </b>Niels Jansen</p>
-    <p><b>klas: </b>230ICTVTE2</p>
-</header>
-<main>
-    <table>
-        <td><b>Huidige prijs per kWh</b> €@currentEnergyPrice</td>
-        <td class="optionMenu">
-            <label for="smartmeter">Huishouden</label>
-            <select name="smartmeter" id="smartmeter" class="btn btn-secondary" @onchange="UpdateSmartmeter">
-                <option value="EC2AAB" class="dropdown-item">EC2AAB</option>
-                <option value="107550" class="dropdown-item">107550</option>
-            </select>
-        </td>
-         <td class="optionMenu">
-            <label for="time">Tijd</label>
-            <select name="time" id="time" class="btn btn-secondary" @onchange="UpdateTime">
-                <option value="day" class="dropdown-item">dag</option>
-                <option value="month" class="dropdown-item">maand (@DateTime.Now.ToString("MMMM")))</option>
-            </select>
-        </td>
-    </table>
-    <div class="wormChart">
-        <LineChart @ref="priceChart"/>
+    <span class="credits">
+        <p><b>Naam: </b>Niels Jansen</p>
+        <p><b>Klas: </b>230ICTVTE2</p>
+    </span>
+    <div class="data">
+        <span>
+            <p>
+                <b>Huidige prijs per kWh</b> @(currentEnergyPrice == null ? "Data wordt geladen..." : $"€{currentEnergyPrice}")
+            </p>
+        </span>
+        <span class="chartSettings">
+            <span class="optionMenu">
+                <label for="smartmeter">Huishouden</label>
+                <select name="smartmeter" id="smartmeter" class="btn btn-secondary" @onchange="UpdateSmartmeter">
+                    <option value="EC2AAB" class="dropdown-item">EC2AAB</option>
+                    <option value="107550" class="dropdown-item">107550</option>
+                    <option value="107560" class="dropdown-item">107560</option>
+                </select>
+            </span>
+            <span class="optionMenu">
+                <label for="time">Tijd</label>
+                <select name="time" id="time" class="btn btn-secondary" @onchange="UpdateTime">
+                    <option value="day" class="dropdown-item">dag</option>
+                    <option value="month" class="dropdown-item">maand (@DateTime.Now.ToString("MMMM")))</option>
+                </select>
+            </span>
+        </span>
     </div>
-    <div class="wormChart">
-        <LineChart @ref="energyChart"/>
+</header>
+<main class="chartsContainer">
+    <div class="charts">
+        <span class="wormChart">
+            <LineChart @ref="priceChart"/>
+        </span>
+        <span class="wormChart">
+            <LineChart @ref="energyChart"/>
+        </span>
     </div>
 </main>
 
@@ -82,7 +94,7 @@
             SetChartOptions();
             SetChartDataset();
         }
-        
+
         if (firstRender) {
             await priceChart.InitializeAsync(priceChartData, priceChartOptions);
             await energyChart.InitializeAsync(energyChartData, energyChartOptions);
@@ -247,15 +259,15 @@
                 new LineChartDataset {
                     Label = $"dynamisch tarief: {smartmeterName}",
                     Data = dynamicPrices,
-                    BackgroundColor = "rgb(88, 80, 141)",
-                    BorderColor = "rgb(88, 80, 141)",
+                    BackgroundColor = "#00ECFB",
+                    BorderColor = "#00ECFB",
                     BorderWidth = 1
                 },
                 new LineChartDataset {
                     Label = "gemiddelde maandprijs",
                     Data = averagePrices,
-                    BackgroundColor = "rgb(0, 166, 0)",
-                    BorderColor = "rgb(0, 166, 0)",
+                    BackgroundColor = "#FF0000",
+                    BorderColor = "#FF0000",
                     BorderWidth = 1
                 }
             };
@@ -337,15 +349,15 @@
                 new LineChartDataset {
                     Label = $"dynamisch tarief: {smartmeterName}",
                     Data = dynamicPrices,
-                    BackgroundColor = "rgb(88, 80, 141)",
-                    BorderColor = "rgb(88, 80, 141)",
+                    BackgroundColor = "#00ECFB",
+                    BorderColor = "#00ECFB",
                     BorderWidth = 1
                 },
                 new LineChartDataset {
                     Label = "gemiddelde maandprijs",
                     Data = averagePrices,
-                    BackgroundColor = "rgb(0, 166, 0)",
-                    BorderColor = "rgb(0, 166, 0)",
+                    BackgroundColor = "#FF0000",
+                    BorderColor = "#FF0000",
                     BorderWidth = 1
                 }
             };
@@ -368,6 +380,10 @@
                     break;
                 case 0x107550:
                     smartmeterName = "107550";
+                    smartmeterId = meter;
+                    break;
+                case 0x107560:
+                    smartmeterName = "107560";
                     smartmeterId = meter;
                     break;
                 default:
