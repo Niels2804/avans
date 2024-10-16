@@ -74,8 +74,8 @@
     
     private async Task LoadMeasurementsAsync() {
         string aggregation = numberOfDays == 1 ? "1h" : "1d";
-        measurements = await measurementRepository.GetPower(smartmeterId, numberOfDays, aggregation);
-        allMeasurements = await measurementRepository.GetPower(smartmeterId, numberOfDays, "5m");
+        measurements = await measurementRepository.GetEnergyConsumed(smartmeterId, numberOfDays, aggregation);
+        allMeasurements = await measurementRepository.GetEnergyConsumed(smartmeterId, numberOfDays, "5m");
         if (measurements == null || !measurements.Any()) {
             Console.WriteLine("Geen metingen gevonden.");
         }
@@ -206,7 +206,7 @@
                     energyPriceList.Add(measurement.EnergyPrice);
                 }
             }
-            double? averageEnergiePriceForDay = energyPriceList.Sum() / energyPriceList.Count();
+            double? averageEnergiePriceForHour = energyPriceList.Sum() / energyPriceList.Count();
 
             // Calculates dynamic hour energy price
             for(int i = 0; i < hourlyData.Count(); i++) {
@@ -226,11 +226,11 @@
                 
                 // Add values for the energyprice list
                 dynamicPrices.Add(averagePricePerHour);
-                averagePrices.Add(averageEnergiePriceForDay);
+                averagePrices.Add(averageEnergiePriceForHour);
 
                 // Add values to the lists
                 dynamicEnergyPriceList.Add(averageConsumptionForHour * averagePricePerHour); // Store the average price per hour
-                averageEnergyPriceList.Add(averageConsumptionForHour * averageEnergiePriceForDay); // Total price per hour
+                averageEnergyPriceList.Add(averageConsumptionForHour * averageEnergiePriceForHour); // Total price per hour
             }
 
             var priceChartDatasets = new List<IChartDataset> {
