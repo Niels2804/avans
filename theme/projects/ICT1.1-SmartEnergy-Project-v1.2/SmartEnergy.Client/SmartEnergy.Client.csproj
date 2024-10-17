@@ -1,16 +1,16 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <SassCompilerIncludeRuntime>true</SassCompilerIncludeRuntime>
-    <UserSecretsId>0f806088-70ad-470f-89f6-b0784fd307f5</UserSecretsId>
+    <UserSecretsId>ead78666-19fb-44fa-bb6c-62469e981687</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SmartEnergy.Library\SmartEnergy.Library.csproj"/>
+    <ProjectReference Include="..\SmartEnergy.Library\SmartEnergy.Library.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="AspNetCore.SassCompiler" Version="1.79.3"/>
-    <PackageReference Include="Blazor.Bootstrap" Version="3.0.0"/>
+    <PackageReference Include="AspNetCore.SassCompiler" Version="1.79.3" />
+    <PackageReference Include="Blazor.Bootstrap" Version="3.0.0" />
   </ItemGroup>
 </Project>

@@ -21,7 +21,8 @@ body.light-theme {
 header.introduction {
     position: relative;
     width: 100%;
-    height: calc(20vh) !important;
+    height: calc(30vh) !important;
+    z-index: 1;
 
     p.text {
         width: 75%;
@@ -62,7 +63,7 @@ header.introduction {
 
 main.chartsContainer {
     position: relative;
-    height: calc(80vh - 4.6rem) !important;
+    height: calc(70vh - 4.6rem) !important;
     overflow: hidden;
     padding: 3.5rem 0;
     

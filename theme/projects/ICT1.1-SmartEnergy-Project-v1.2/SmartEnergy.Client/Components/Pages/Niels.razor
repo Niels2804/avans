@@ -1,5 +1,4 @@
 ﻿@page "/Niels"
-@rendermode InteractiveServer
 @attribute [StreamRendering]
 @inject IMeasurementRepository measurementRepository
 
@@ -74,8 +73,8 @@
     
     private async Task LoadMeasurementsAsync() {
         string aggregation = numberOfDays == 1 ? "1h" : "1d";
-        measurements = await measurementRepository.GetEnergyConsumed(smartmeterId, numberOfDays, aggregation);
-        allMeasurements = await measurementRepository.GetEnergyConsumed(smartmeterId, numberOfDays, "5m");
+        measurements = await measurementRepository.GetPower(smartmeterId, numberOfDays, aggregation);
+        allMeasurements = await measurementRepository.GetPower(smartmeterId, numberOfDays, "5m");
         if (measurements == null || !measurements.Any()) {
             Console.WriteLine("Geen metingen gevonden.");
         }
