@@ -29,6 +29,7 @@
                     <option value="EC2AAB" class="dropdown-item">EC2AAB</option>
                     <option value="107550" class="dropdown-item">107550</option>
                     <option value="107560" class="dropdown-item">107560</option>
+                    <option value="EB80B6" class="dropdown-item">EB80B6</option>
                 </select>
             </span>
             <span class="optionMenu">
@@ -383,6 +384,10 @@
                     break;
                 case 0x107560:
                     smartmeterName = "107560";
+                    smartmeterId = meter;
+                    break;
+                case 0xEB80B6:
+                    smartmeterName = "EB80B6";
                     smartmeterId = meter;
                     break;
                 default:

@@ -63,7 +63,7 @@ else
         int meterId = 0xEC2AAB;
 
         /* TODO: Number of days to retrieve, ajust according to your needs/requirements. */
-        int numberOfDays = 3;
+        int numberOfDays = 4;
 
         /* TODO: The time window to summarize the data. Examples are 20s (20 seconds), 5m (5 minutes) or 1h (1 hour). The
         smaller the value you set the more records and details you will retrieve from the meter. But it will also take
@@ -74,7 +74,7 @@ else
         /* TODO: there are multiple data streams available. Two for the value of the power meter (consumed, produced)
         one for the gas consumption and another one for the absolute power usage. All of the possible method calls
         are listed below and you can select the one that meets your needs/requirements. */
-        measurements = await this.measurementRepository.GetEnergyConsumed(meterId, numberOfDays, aggegationWindow);
+        measurements = await this.measurementRepository.GetPower(meterId, numberOfDays, aggegationWindow);
         // measurements = await this.measurementRepository.GetEnergyProduced(meterId, numberOfDays, aggegationWindow);
         // measurements = await this.measurementRepository.GetGasDelivered(meterId, numberOfDays, aggegationWindow);
         // measurements = await this.measurementRepository.GetPower(meterId, numberOfDays, aggegationWindow);
