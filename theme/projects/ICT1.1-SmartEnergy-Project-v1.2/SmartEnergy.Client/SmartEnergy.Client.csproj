@@ -4,7 +4,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <SassCompilerIncludeRuntime>true</SassCompilerIncludeRuntime>
-    <UserSecretsId>1bc47470-c934-476e-821c-4db506b4795e</UserSecretsId>
+    <UserSecretsId>95643452-823f-4701-a040-abc900d152ae</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\SmartEnergy.Library\SmartEnergy.Library.csproj" />

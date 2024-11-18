@@ -1,340 +1,164 @@
 ﻿@page "/Rick"
-@attribute [StreamRendering]
-@inject IMeasurementRepository measurementRepository;
-<!-- ALLES HIERBOVEN NIET VERWIJDEREN -->
+@rendermode InteractiveServer
+@inject IMeasurementRepository measurementRepository
 
-<PageTitle>Rick Voermans</PageTitle>
-<style>
-    .parent {
-        position: relative;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        width: 50%;
-        height: 500px;
-        border-radius: 5px;
-        padding: 20px;
-        background-color: crimson;
-    }
+<PageTitle>Voorbeelden</PageTitle>
 
-    .child {
-        position: relative;
-        width: 100%;
-        height: 100%;
-        border-radius: 5px;
-        background-color: white;
-        overflow: hidden !important;
-    }
+<h1>Rick Voermans</h1>
+<h2>Uitleg algoritme</h2>
+<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc convallis, massa non commodo porttitor, sapien tortor ornare arcu, eget viverra diam eros non purus. Morbi turpis leo, dignissim ac urna id, ullamcorper convallis justo. Ut et mauris leo. Proin in rutrum turpis. Nulla accumsan rhoncus diam, nec viverra metus facilisis quis. Vestibulum eget lacinia velit, at varius augue. Duis id sapien accumsan magna mollis congue nec nec ipsum. Phasellus feugiat auctor nibh. Vivamus ac tortor vitae odio suscipit viverra ut sed nisl. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.</p>
+<div class="mt-2 mb-2">
+    <label for="aantalDagenInput" class="form-label">Geselecteerd aantal dagen:</label>
+    <input type="number" id="aantalDagenInput" class="form-control" min="1" max="30" value="@GeselecteerdAantalDagen"
+           @onchange="HandleAantalDagenChange" />
+    <small class="form-text text-muted">Geselecteerd aantal dagen: @GeselecteerdAantalDagen</small>
+</div>
 
-    tbody {
-        position: absolute;
-        overflow-y: scroll;
-        height: 100%;
-        width: 100%;
-    }
-    
-</style>
-
-<h1>Project Rick</h1>
-
-<p>Dit component toont hoe data getoond kan worden. De data die wordt getoond is van een voorgeprogrammeerde Smart Meter in combinatie met data van het lectoraat Smart Energy (energieprijzen, temperaturen). Pas de code aan om de data van jouw meter te tonen </p>
-
-  <div class="parent">
-        <table class="child">
-            <thead>
+<h1>Energieprijs + (gasverbruik * 10.55 kWh) * energieprijs</h1>
+@if (IsLoading)
+{
+    <p><em>Data wordt geladen...</em></p>
+}
+else if (energyMeasurements == null || !energyMeasurements.Any())
+{
+    <p><em>Geen energiemetingen gevonden.</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Datum</th>
+                <th>Gasverbruik in m3</th>
+                <th>Energieverbruik in kWh</th>
+                <th>energieprijs</th>
+                <th>totale kosten (gasverbruik * 10.55 kWh) * energieprijs</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for(int i = 1; i < energyMeasurements.Count; i++){
                 <tr>
-                    <th>rommmel</th>
-                    <th>rommmel</th>
-                    <th>rommmel</th>
-                    <th>rommmel</th>
-                    <th>rommmel</th>
-                    <th>rommmel</th>
-                    <th>rommmel</th>
+                    <td>@energyMeasurements[i].Timestamp</td>
+                    <td>@Math.Round((gasMeasurements[i].Value - gasMeasurements[i - 1].Value) ?? 0, 2)</td>
+                    <td>@energyMeasurements[i].Value</td>
+                    <td>€@Math.Round(energyMeasurements[i].EnergyPrice ?? 0, 3)</td>
+                    <td>€@(
+                        Math.Round(
+                            (
+                                ((energyMeasurements[i].Value / 1000) * energyMeasurements[i].EnergyPrice) + 
+                                (
+                                    ((gasMeasurements[i].Value - gasMeasurements[i - 1].Value) * 10.55) * 
+                                    (energyMeasurements[i].EnergyPrice)
+                                )
+                            ) ?? 0, 3)
+                        )
+                    </td>
                 </tr>
-            </thead>
-            <tbody>
+            }
+        </tbody>
+    </table>
+}
+
+<h1>Energieprijs + gasprijs</h1>
+@if (IsLoading)
+{
+    <p><em>Data wordt geladen...</em></p>
+}
+else if (energyMeasurements == null || !energyMeasurements.Any())
+{
+    <p><em>Geen gasmetingen gevonden.</em></p>
+}
+else
+{
+    <table class="table">
+       <thead>
+            <tr>
+                <th>Datum</th>
+                <th>Gasverbruik in m3</th>
+                <th>Energieverbruik in kWh</th>
+                <th>energieprijs</th>
+                <th>gasprijs</th>
+                <th>totale kosten (energieprijs + gasprijs)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for(int i = 1; i < energyMeasurements.Count; i++){
                 <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>
-             <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>       <tr>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-                <td>rommmel</td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
+                    <td>@energyMeasurements[i].Timestamp</td>
+                    <td>@Math.Round((gasMeasurements[i].Value - gasMeasurements[i - 1].Value) ?? 0, 2)</td>
+                    <td>@energyMeasurements[i].Value</td>
+                    <td>€@Math.Round(energyMeasurements[i].EnergyPrice ?? 0, 3)</td>
+                    <td>€@Math.Round(gasMeasurements[i].EnergyPrice ?? 0, 3)</td>
+                    <td>€@(
+                        Math.Round(
+                            (
+                                ((energyMeasurements[i].Value / 1000) * energyMeasurements[i].EnergyPrice) + 
+                                (
+                                    ((gasMeasurements[i].Value - gasMeasurements[i - 1].Value) * gasMeasurements[i].EnergyPrice)
+                                )
+                            ) ?? 0, 3)
+                        )
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Measurement>? energyMeasurements;
+    private List<Measurement>? gasMeasurements;
+    private int GeselecteerdAantalDagen { get; set; } = 3;
+    private bool IsLoading { get; set; } = false;
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMeasurementsAsync();
+    }
+    private async Task LoadMeasurementsAsync()
+    {
+        IsLoading = true;
+        StateHasChanged(); // Zorgt ervoor dat de loading-indicator wordt weergegeven
+
+        try
+        {
+            int meterId = 10017979;
+            string aggregationWindow = "1d";
+
+            // Ophalen van extra dagen om volledige dagen te waarborgen
+            int extraDays = GeselecteerdAantalDagen + 2;
+
+            // Ophalen van energie- en gasmetingen
+            var allEnergyMeasurements = await measurementRepository.GetPower(meterId, extraDays, aggregationWindow);
+            var allGasMeasurements = await measurementRepository.GetGasDelivered(meterId, extraDays, aggregationWindow);
+
+            // Filter voor volledige dagen en beperk het aantal weergegeven dagen
+            energyMeasurements = allEnergyMeasurements
+                .Where(m => m.Timestamp.TimeOfDay == TimeSpan.Zero)
+                .ToList();
+
+            gasMeasurements = allGasMeasurements
+                .Where(m => m.Timestamp.TimeOfDay == TimeSpan.Zero)
+                .ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Fout bij het laden van gegevens: {ex.Message}");
+            energyMeasurements = null;
+            gasMeasurements = null;
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged(); // Zorgt ervoor dat de UI wordt bijgewerkt
+        }
+    }
+
+    private async Task HandleAantalDagenChange(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int aantalDagen) && aantalDagen >= 1 && aantalDagen <= 30)
+        {
+            GeselecteerdAantalDagen = aantalDagen;
+            await LoadMeasurementsAsync();
+        }
+    }
+}

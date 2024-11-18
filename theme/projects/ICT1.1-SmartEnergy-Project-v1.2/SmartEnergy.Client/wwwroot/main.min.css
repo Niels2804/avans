@@ -24,7 +24,7 @@ header.introduction .data {
   position: relative;
   display: flex;
   justify-content: space-between;
-  width: 50%;
+  width: 75%;
 }
 header.introduction .data .data span {
   position: relative;
