@@ -8,6 +8,6 @@ build_property.PlatformNeutralAssembly =
 build_property.EnforceExtendedAnalyzerRules = 
 build_property._SupportedPlatformList = Linux,macOS,Windows
 build_property.RootNamespace = console_three_games
-build_property.ProjectDir = C:\Users\niels\Documents\GitHub\school\avans\theme\console-three-games\
+build_property.ProjectDir = c:\Users\niels\Documents\GitHub\school\avans\periode_1\theme\console-three-games\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
