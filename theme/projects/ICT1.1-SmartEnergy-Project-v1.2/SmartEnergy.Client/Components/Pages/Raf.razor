@@ -1,8 +1,203 @@
 ﻿@page "/Raf"
-<!-- ALLES HIERBOVEN NIET VERWIJDEREN -->
+@inject IMeasurementRepository measurementRepository
+@inject NavigationManager NavigationManager
 
-<PageTitle>Raf van Hooijdonk</PageTitle>
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Raf van Hooijdonk</title>
+    <link rel="stylesheet" href="Raf.css">
+</head>
+<body>
+    <div class="tabel-vak">
+        @if (!isDateRangeValid)
+        {
+            <p><em>Vul eerst geldige start- en einddatums in.</em></p>
+        }
+        else if (measurements == null)
+        {
+            <p><em>Vul een start- en einddatum in, vervolgens zal de data worden geladen...</em></p>
+        }
+        else if (measurements.Count == 0)
+        {
+            <p><em>Geen gegevens gevonden voor de opgegeven periode.</em></p>
+        }
+        else
+        {
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Datum</th>
+                        <th>Smartmeter</th>
+                        <th>Energieverbruik (kWh)</th>
+                        <th>Vaste prijs (€)</th>
+                        <th>Dynamische prijs (€)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (measurements.Count > 1) 
+                    {
+                        {
+                            decimal previousValue = (decimal)(measurements[0].Value ?? 0); // Gebruik de eerste waarde voor berekeningen
 
-<h1>Project Raf</h1>
+                            for (int i = 1; i < measurements.Count; i++) // Starten vanaf de tweede meting
+                            {
+                                var measurement = measurements[i];
+                                decimal currentValue = (decimal)(measurement.Value ?? 0);
+                                decimal dailyConsumption = currentValue - previousValue;
 
+                                previousValue = currentValue;
 
+                                // Bereken de dynamische prijs voor de huidige dag
+                                decimal dynamicPrice = dailyConsumption * Convert.ToDecimal(measurement.EnergyPrice ?? 0);
+
+                                <tr>
+                                    <td>@measurement.Timestamp</td>
+                                    <td>@measurement.LocationId</td>
+                                    <td>@dailyConsumption</td> <!-- Verbruik per dag -->
+                                    <td>@(dailyConsumption * fixedRate)</td> <!-- Kosten voor vast tarief -->
+                                    <td>@dynamicPrice</td> <!-- Dynamische prijs -->
+                                </tr>
+                            }
+                        }
+                    }
+                </tbody>
+            </table>
+        }
+    </div>
+
+    <div class="vak1">
+        Raf van Hooijdonk <br>
+        Opdrachtvariant D - Project Smart Energy
+    </div>
+    <div class="vak2">
+        <br>
+        Opdrachtbeschrijving: <br>
+        .............................................................................................
+    </div>
+
+    <div class="datumbox-container">
+        <div class="datumbox1"> Vul start datum in:</div>
+        <div class="datumbox2">Vul eind datum in:</div>
+    </div>
+    <div class="datum-container">
+        <div class="datum1">
+            <input type="date" @bind="startDate" max="@DateTime.Now.ToString("yyyy-MM-dd")">
+        </div>
+        <div class="datum2">
+            <input type="date" @bind="endDate" max="@DateTime.Now.ToString("yyyy-MM-dd")">
+        </div>
+    </div>
+
+    <div class="invul-container">
+        <div class="invul1">Vul vaste tarief in (€ per kWh):</div>
+        <div class="invul2"><input type="number" @bind="fixedRate" placeholder="Bijvoorbeeld 0.25"></div>
+    </div>
+
+    <div class="outputbox-container">
+        <div class="outputbox1">Totale kosten vast tarief over de periode:</div>
+        <div class="outputbox2">Totale kosten dynamisch tarief over de periode:</div>
+    </div>
+
+    <div class="output-container">
+        <div class="output1">@totalFixedCost.ToString("C")</div> <!-- Totale kosten vast tarief -->
+        <div class="output2">@totalDynamicCost.ToString("C")</div> <!-- Totale kosten dynamisch tarief -->
+    </div>
+
+    <div class="totaal-container">
+        <div class="totaal1">Totaal verbruik over de periode:</div>
+        <div class="totaal2">@totalConsumption.ToString("N3") kWh</div> <!-- Totaal verbruik -->
+    </div>
+
+    <div class="update">
+        <button @onclick="UpdateTabel">Update tabel en berekeningen</button>
+    </div>
+</body>
+</html>
+
+@code {
+    private List<Measurement>? measurements;
+    private DateTime startDate = DateTime.Now.AddDays(-1); // Default start date (gisteren)
+    private DateTime endDate = DateTime.Now; // Default end date (vandaag)
+    private decimal fixedRate = 0.25m; // Default fixed rate
+
+    // Nieuwe variabelen voor de totalen
+    private decimal totalFixedCost = 0;
+    private decimal totalDynamicCost = 0;
+    private decimal totalConsumption = 0;
+
+    // Variabele om te controleren of de datums correct zijn
+    private bool isDateRangeValid => startDate <= endDate && endDate <= DateTime.Now;
+
+    private async Task LoadMeasurements()
+    {
+        // Niet laden als de datums niet geldig zijn
+        if (!isDateRangeValid) return;
+
+        try
+        {
+            int meterId = 6478131;
+            int numberOfDays = (endDate - startDate).Days + 3; // Correctie om alle dagen mee te nemen
+
+            string aggregationWindow = "24h";
+
+            measurements = await measurementRepository.GetEnergyConsumed(meterId, numberOfDays, aggregationWindow);
+
+            if (measurements == null)
+            {
+                measurements = new List<Measurement>();
+            }
+            else if (measurements.Count > 1) // Zorg dat er minstens twee metingen zijn
+            {
+                decimal previousValue = (decimal)(measurements[0].Value ?? 0); // Eerste meting als startwaarde
+                totalFixedCost = 0;
+                totalDynamicCost = 0;
+                totalConsumption = 0;
+
+                for (int i = 1; i < measurements.Count; i++) // Starten vanaf de tweede meting
+                {
+                    var measurement = measurements[i];
+                    decimal currentValue = (decimal)(measurement.Value ?? 0);
+                    decimal dailyConsumption = currentValue - previousValue;
+
+                    previousValue = currentValue;
+
+                    // Bereken de dagelijkse kosten
+                    decimal dailyFixedCost = dailyConsumption * fixedRate;
+                    decimal dailyDynamicCost = dailyConsumption * Convert.ToDecimal(measurement.EnergyPrice ?? 0);
+
+                    // Tel bij de totalen op
+                    totalFixedCost += dailyFixedCost;
+                    totalDynamicCost += dailyDynamicCost;
+                    totalConsumption += dailyConsumption;
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error while loading measurements: {ex.Message}");
+            measurements = new List<Measurement>();
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task UpdateTabel()
+    {
+        // Alleen updaten als de datums geldig zijn
+        if (!isDateRangeValid) return;
+
+        try
+        {
+            await LoadMeasurements();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading measurements: {ex.Message}");
+        }
+
+        StateHasChanged();
+    }
+}

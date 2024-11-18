@@ -126,7 +126,7 @@
             },
             Plugins = new LineChartPlugins {
                 Title = new ChartPluginsTitle {
-                    Text = $"Energiekosten {smartmeterName} (gebasseerd op energie tarief * totale verbruik)",
+                    Text = $"Energiekosten {smartmeterName} (gebasseerd op totale energieverbruik * energietarief)",
                     Display = true,
                     Font = new ChartFont { Size = 24 }
                 }
@@ -152,7 +152,7 @@
             },
             Plugins = new LineChartPlugins {
                 Title = new ChartPluginsTitle {
-                    Text = "Energiekosten per kWh",
+                    Text = "Energieprijs per kWh",
                     Display = true,
                     Font = new ChartFont { Size = 24 }
                 }
@@ -264,7 +264,7 @@
                     BorderWidth = 1
                 },
                 new LineChartDataset {
-                    Label = "gemiddelde maandprijs",
+                    Label = "gemiddelde dagprijs",
                     Data = averagePrices,
                     BackgroundColor = "#FF0000",
                     BorderColor = "#FF0000",

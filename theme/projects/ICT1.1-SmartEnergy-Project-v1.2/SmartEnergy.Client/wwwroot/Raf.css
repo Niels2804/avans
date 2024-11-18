@@ -1,1 +1,270 @@
-/* plaats hier je css code */
+body {
+    font-family: Arial, sans-serif;
+    background-color: white;
+    background-image: url(bgraf.jpg);
+    background-position: center;
+    background-attachment: fixed;
+    background-size: cover;
+}
+.tabel-vak {
+    width: 700px; 
+    height: 330px; 
+    position: fixed; 
+    top: 70px; 
+    left: 75%;
+    transform: translateX(-50%); 
+    background-color: #B00F2E;
+    border-radius: 20px;
+    z-index: 0;
+    display: flex;
+    justify-content: center; 
+    align-items: center; 
+    color: white;
+    overflow: hidden;
+}
+
+.table {
+    width: 95%; 
+    max-height: 300px;
+    overflow-y: auto; 
+    display: block; 
+    border-collapse: collapse; 
+    margin: 0 auto;
+    border-radius: 20px;
+}
+
+.table th, .table td {
+    padding: 10px;
+    text-align: center; 
+    border: 1px solid #000000; 
+    display: table-cell; 
+}
+
+.vak1 {
+    background-color: #B00F2E;
+    height: 15%;
+    width: 30%;
+    color: white;
+    position: fixed;
+    top: 70px;
+    left: 265px;
+    right: 50%;
+    border-radius: 20px;
+    display: flex;
+    text-align: center;
+    font-size: 1vw;
+    font-weight: bold;
+    justify-content: center;
+    align-items: center;
+}
+.vak1:hover {
+    background-color: #D51A3C;
+    transition: background .3s ease-out;
+    color: white;
+}
+.vak2 {
+    background-color: #B00F2E;
+    height: 30%;
+    width: 30%;
+    color: white;
+    position: fixed;
+    top: 185px;
+    left: 265px;
+    right: 50%;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; 
+    padding: 10px;
+}
+.vak2:hover {
+    background-color: #D51A3C;
+    transition: background .3s ease-out;
+    color: white;
+}
+.datumbox-container {
+    background-color: transparent;
+    display: flex;
+    justify-content: space-between;
+    width: 30%;
+    height: 70%;
+    position: fixed;
+    top: 405px;
+    left: 265px;
+}
+.datumbox1, .datumbox2 {
+    background-color: #B00F2E;
+    height: 10%;
+    width: 49%;
+    color: rgb(251, 251, 251);
+    border-radius: 20px;
+    display: flex;
+    text-align: center;
+    font-size: 1vw;
+    justify-content: center;
+    align-items: center;
+}
+.datum-container {
+    background-color: transparent;
+    display: flex;
+    justify-content: space-between;
+    width: 30%;
+    height: 70%;
+    position: fixed;
+    top: 465px;
+    left: 265px;
+}
+.datum1, .datum2 {
+    background-color: #B00F2E;
+    height: 10%;
+    width: 49%;
+    color: white;
+    border-radius: 20px;
+    display: flex;
+    text-align: center;
+    font-size: 1vw;
+    justify-content: center;
+    align-items: center;
+}
+input[type="date"]{
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    border: none;
+    font-size: 1vw;
+    text-align: center;
+    border-radius: 20px;
+    width: 90%;
+}
+.invul-container {
+    background-color: transparent;
+    display: flex;
+    justify-content: space-between;
+    width: 30%;
+    height: 70%;
+    position: fixed;
+    top: 525px;
+    left: 265px;
+}
+.invul1, .invul2 {
+    background-color: #B00F2E;
+    height: 10%;
+    width: 49%;
+    color: rgb(251, 251, 251);
+    border-radius: 20px;
+    display: flex;
+    text-align: center;
+    font-size: 1vw;
+    justify-content: center;
+    align-items: center;
+}
+input[type=number] {
+    background-color: #ffffff;
+    color: rgb(0, 0, 0);
+    border: none;
+    border-color: #B00F2E;
+    font-size: 1vw;
+    text-align: center;
+    border-radius: 20px;
+  }
+::placeholder {
+    color: rgb(190, 190, 190);
+}
+.update {
+    display: flex;                
+    justify-content: center;      
+    align-items: center;          
+    background-color: #B00F2E;
+    width: 30%;                   
+    height: 6%;
+    position: fixed;
+    top: 610px;
+    left: 265px;                 
+    border-radius: 20px;
+}
+button {
+    width: 100%;
+    height: 100%;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: large;
+    color: white;
+    background-color: transparent;
+    border-color: #B00F2E;
+    border-width: 5px;
+}
+button:hover, .update:hover {
+    background-color: transparent;
+    transition: background, .60s ease-in;
+    color: black;
+}
+button:active, .update:active {
+    background-color: #B00F2E;
+    transition: background .3s ease-out;
+    color: white;
+}
+.outputbox-container {
+    background-color: transparent;
+    display: flex;
+    justify-content: space-between;
+    width: 45%;
+    height: 70%;
+    position: fixed;
+    top: 440px;
+    left: 800px;
+}
+.outputbox1, .outputbox2 {
+    background-color: #B00F2E;
+    height: 10%;
+    width: 49%;
+    color: rgb(251, 251, 251);
+    border-radius: 20px;
+    display: flex;
+    text-align: center;
+    font-size: 1vw;
+    justify-content: center;
+    align-items: center;
+}
+.output-container {
+    background-color: transparent;
+    display: flex;
+    justify-content: space-between;
+    width: 45%;
+    height: 70%;
+    position: fixed;
+    top: 500px;
+    left: 800px;
+}
+.output1, .output2 {
+    background-color: #B00F2E;
+    height: 10%;
+    width: 49%;
+    color: rgb(251, 251, 251);
+    border-radius: 20px;
+    display: flex;
+    text-align: center;
+    font-size: 1vw;
+    justify-content: center;
+    align-items: center;
+}
+.totaal-container {
+    background-color: transparent;
+    display: flex;
+    justify-content: space-between;
+    width: 45%;
+    height: 70%;
+    position: fixed;
+    top: 600px;
+    left: 800px;
+}
+.totaal1, .totaal2 {
+    background-color: #B00F2E;
+    height: 10%;
+    width: 49%;
+    color: rgb(251, 251, 251);
+    border-radius: 20px;
+    display: flex;
+    text-align: center;
+    font-size: 1vw;
+    justify-content: center;
+    align-items: center;
+}
