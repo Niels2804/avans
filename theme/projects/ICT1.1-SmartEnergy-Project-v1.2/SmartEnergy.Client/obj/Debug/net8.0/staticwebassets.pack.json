@@ -1,0 +1,77 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\niels\\Documents\\Niels\\GitHub\\school\\avans\\theme\\projects\\ICT1.1-SmartEnergy-Project-v1.2\\SmartEnergy.Client\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\SmartEnergy.Client.bundle.scp.css",
+      "PackagePath": "staticwebassets\\SmartEnergy.Client.bundle.scp.css"
+    },
+    {
+      "Id": "C:\\Users\\niels\\Documents\\Niels\\GitHub\\school\\avans\\theme\\projects\\ICT1.1-SmartEnergy-Project-v1.2\\SmartEnergy.Client\\wwwroot\\Jelle.css",
+      "PackagePath": "staticwebassets\\Jelle.css"
+    },
+    {
+      "Id": "C:\\Users\\niels\\Documents\\Niels\\GitHub\\school\\avans\\theme\\projects\\ICT1.1-SmartEnergy-Project-v1.2\\SmartEnergy.Client\\wwwroot\\Martin.css",
+      "PackagePath": "staticwebassets\\Martin.css"
+    },
+    {
+      "Id": "C:\\Users\\niels\\Documents\\Niels\\GitHub\\school\\avans\\theme\\projects\\ICT1.1-SmartEnergy-Project-v1.2\\SmartEnergy.Client\\wwwroot\\Maurits.css",
+      "PackagePath": "staticwebassets\\Maurits.css"
+    },
+    {
+      "Id": "C:\\Users\\niels\\Documents\\Niels\\GitHub\\school\\avans\\theme\\projects\\ICT1.1-SmartEnergy-Project-v1.2\\SmartEnergy.Client\\wwwroot\\Niels\\_variables.scss",
+      "PackagePath": "staticwebassets\\Niels\\_variables.scss"
+    },
+    {
+      "Id": "C:\\Users\\niels\\Documents\\Niels\\GitHub\\school\\avans\\theme\\projects\\ICT1.1-SmartEnergy-Project-v1.2\\SmartEnergy.Client\\wwwroot\\Niels\\comp\\_comp.scss",
+      "PackagePath": "staticwebassets\\Niels\\comp\\_comp.scss"
+    },
+    {
+      "Id": "C:\\Users\\niels\\Documents\\Niels\\GitHub\\school\\avans\\theme\\projects\\ICT1.1-SmartEnergy-Project-v1.2\\SmartEnergy.Client\\wwwroot\\Niels\\main.scss",
+      "PackagePath": "staticwebassets\\Niels\\main.scss"
+    },
+    {
+      "Id": "C:\\Users\\niels\\Documents\\Niels\\GitHub\\school\\avans\\theme\\projects\\ICT1.1-SmartEnergy-Project-v1.2\\SmartEnergy.Client\\wwwroot\\Raf.css",
+      "PackagePath": "staticwebassets\\Raf.css"
+    },
+    {
+      "Id": "C:\\Users\\niels\\Documents\\Niels\\GitHub\\school\\avans\\theme\\projects\\ICT1.1-SmartEnergy-Project-v1.2\\SmartEnergy.Client\\wwwroot\\Rick.css",
+      "PackagePath": "staticwebassets\\Rick.css"
+    },
+    {
+      "Id": "C:\\Users\\niels\\Documents\\Niels\\GitHub\\school\\avans\\theme\\projects\\ICT1.1-SmartEnergy-Project-v1.2\\SmartEnergy.Client\\wwwroot\\Sinan.css",
+      "PackagePath": "staticwebassets\\Sinan.css"
+    },
+    {
+      "Id": "C:\\Users\\niels\\Documents\\Niels\\GitHub\\school\\avans\\theme\\projects\\ICT1.1-SmartEnergy-Project-v1.2\\SmartEnergy.Client\\wwwroot\\app.css",
+      "PackagePath": "staticwebassets\\app.css"
+    },
+    {
+      "Id": "C:\\Users\\niels\\Documents\\Niels\\GitHub\\school\\avans\\theme\\projects\\ICT1.1-SmartEnergy-Project-v1.2\\SmartEnergy.Client\\wwwroot\\favicon.png",
+      "PackagePath": "staticwebassets\\favicon.png"
+    },
+    {
+      "Id": "C:\\Users\\niels\\Documents\\Niels\\GitHub\\school\\avans\\theme\\projects\\ICT1.1-SmartEnergy-Project-v1.2\\SmartEnergy.Client\\wwwroot\\main.min.css",
+      "PackagePath": "staticwebassets\\main.min.css"
+    },
+    {
+      "Id": "C:\\Users\\niels\\Documents\\Niels\\GitHub\\school\\avans\\theme\\projects\\ICT1.1-SmartEnergy-Project-v1.2\\SmartEnergy.Client\\wwwroot\\main.min.css.map",
+      "PackagePath": "staticwebassets\\main.min.css.map"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.SmartEnergy.Client.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.SmartEnergy.Client.props",
+      "PackagePath": "build\\SmartEnergy.Client.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.SmartEnergy.Client.props",
+      "PackagePath": "buildMultiTargeting\\SmartEnergy.Client.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.SmartEnergy.Client.props",
+      "PackagePath": "buildTransitive\\SmartEnergy.Client.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

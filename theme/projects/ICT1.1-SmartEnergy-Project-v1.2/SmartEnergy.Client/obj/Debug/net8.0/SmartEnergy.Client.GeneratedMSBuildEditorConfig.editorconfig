@@ -1,0 +1,79 @@
+is_global = true
+build_property.TargetFramework = net8.0
+build_property.TargetPlatformMinVersion = 
+build_property.UsingMicrosoftNETSdkWeb = true
+build_property.ProjectTypeGuids = 
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = SmartEnergy.Client
+build_property.RootNamespace = SmartEnergy.Client
+build_property.ProjectDir = C:\Users\niels\Documents\Niels\GitHub\school\avans\theme\projects\ICT1.1-SmartEnergy-Project-v1.2\SmartEnergy.Client\
+build_property.EnableComHosting = 
+build_property.EnableGeneratedComInterfaceComImportInterop = 
+build_property.RazorLangVersion = 8.0
+build_property.SupportLocalizedComponentNames = 
+build_property.GenerateRazorMetadataSourceChecksumAttributes = 
+build_property.MSBuildProjectDirectory = C:\Users\niels\Documents\Niels\GitHub\school\avans\theme\projects\ICT1.1-SmartEnergy-Project-v1.2\SmartEnergy.Client
+build_property._RazorSourceGeneratorDebug = 
+
+[C:/Users/niels/Documents/Niels/GitHub/school/avans/theme/projects/ICT1.1-SmartEnergy-Project-v1.2/SmartEnergy.Client/Components/App.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBcHAucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/niels/Documents/Niels/GitHub/school/avans/theme/projects/ICT1.1-SmartEnergy-Project-v1.2/SmartEnergy.Client/Components/Pages/Error.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xFcnJvci5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/niels/Documents/Niels/GitHub/school/avans/theme/projects/ICT1.1-SmartEnergy-Project-v1.2/SmartEnergy.Client/Components/Pages/Home.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xIb21lLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/niels/Documents/Niels/GitHub/school/avans/theme/projects/ICT1.1-SmartEnergy-Project-v1.2/SmartEnergy.Client/Components/Pages/Jelle.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xKZWxsZS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/niels/Documents/Niels/GitHub/school/avans/theme/projects/ICT1.1-SmartEnergy-Project-v1.2/SmartEnergy.Client/Components/Pages/Martin.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xNYXJ0aW4ucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/niels/Documents/Niels/GitHub/school/avans/theme/projects/ICT1.1-SmartEnergy-Project-v1.2/SmartEnergy.Client/Components/Pages/Maurits.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xNYXVyaXRzLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/niels/Documents/Niels/GitHub/school/avans/theme/projects/ICT1.1-SmartEnergy-Project-v1.2/SmartEnergy.Client/Components/Pages/Measurements.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xNZWFzdXJlbWVudHMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/niels/Documents/Niels/GitHub/school/avans/theme/projects/ICT1.1-SmartEnergy-Project-v1.2/SmartEnergy.Client/Components/Pages/Niels.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xOaWVscy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/niels/Documents/Niels/GitHub/school/avans/theme/projects/ICT1.1-SmartEnergy-Project-v1.2/SmartEnergy.Client/Components/Pages/Raf.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xSYWYucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/niels/Documents/Niels/GitHub/school/avans/theme/projects/ICT1.1-SmartEnergy-Project-v1.2/SmartEnergy.Client/Components/Pages/Rick.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xSaWNrLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/niels/Documents/Niels/GitHub/school/avans/theme/projects/ICT1.1-SmartEnergy-Project-v1.2/SmartEnergy.Client/Components/Pages/Sinan.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xTaW5hbi5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/niels/Documents/Niels/GitHub/school/avans/theme/projects/ICT1.1-SmartEnergy-Project-v1.2/SmartEnergy.Client/Components/Routes.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xSb3V0ZXMucmF6b3I=
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/niels/Documents/Niels/GitHub/school/avans/theme/projects/ICT1.1-SmartEnergy-Project-v1.2/SmartEnergy.Client/Components/_Imports.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xfSW1wb3J0cy5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = 
+
+[C:/Users/niels/Documents/Niels/GitHub/school/avans/theme/projects/ICT1.1-SmartEnergy-Project-v1.2/SmartEnergy.Client/Components/Layout/MainLayout.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcTWFpbkxheW91dC5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-b2ghb8qtsk
+
+[C:/Users/niels/Documents/Niels/GitHub/school/avans/theme/projects/ICT1.1-SmartEnergy-Project-v1.2/SmartEnergy.Client/Components/Layout/NavMenu.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcTmF2TWVudS5yYXpvcg==
+build_metadata.AdditionalFiles.CssScope = b-jnm82fa79v
