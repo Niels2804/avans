@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "kJbIKnuaNfw=",
+  "dgSpecHash": "uZIiwZ0GI/I=",
   "success": true,
-  "projectFilePath": "C:\\Users\\niels\\Documents\\Niels\\GitHub\\school\\avans\\periode_2\\assignments\\weather-app\\weather-app.csproj",
+  "projectFilePath": "C:\\Users\\niels\\Documents\\GitHub\\school\\avans\\periode_2\\assignments\\weather-app\\weather-app.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\niels\\.nuget\\packages\\dotnetenv\\3.1.1\\dotnetenv.3.1.1.nupkg.sha512",
     "C:\\Users\\niels\\.nuget\\packages\\microsoft.extensions.configuration\\1.1.2\\microsoft.extensions.configuration.1.1.2.nupkg.sha512",
