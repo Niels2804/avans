@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "yCgaWGIaGpc=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\niels\\Documents\\GitHub\\school\\avans\\periode_2\\ICT1.2-Empty-Robot-Project\\RobotProject.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\niels\\.nuget\\packages\\system.device.gpio\\3.2.0\\system.device.gpio.3.2.0.nupkg.sha512"
+  ],
+  "logs": []
+}
