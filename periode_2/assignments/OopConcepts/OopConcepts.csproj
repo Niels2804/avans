@@ -7,4 +7,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Avans.StatisticalRobot" Version="1.0.4" />
+  </ItemGroup>
+
 </Project>
