@@ -1,0 +1,22 @@
+@page "/magicnumber"
+@inject MagicNumberService magicNumberService
+
+<div class="border border-primary rounded p-3">
+    <h2>MagicNumber</h2>
+    <p class="text-center">The 6 magic numbers are: </p>
+        <div class="container-fluid">
+            @foreach(var magicNumber in magicNumbers) {
+                <div class="row">
+                    @magicNumber
+                </div>
+            }
+        </div>
+</div>
+
+@code {
+    private List<int> magicNumbers;
+    protected override async Task OnInitializedAsync()
+    {
+        this.magicNumbers = magicNumberService.GetMagicNumberList(6);
+    }
+}
