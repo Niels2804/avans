@@ -1,11 +1,18 @@
+using BlazorMqttDatabase.Services;
 using robot_app.Components;
+using SimpleMqtt;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-    
+
+builder.Services.AddSingleton<IUserRepository>(new SqlUserRepository());
+var simpleMqttClient = SimpleMqttClient.CreateSimpleMqttClientForHiveMQ("webapp");
+builder.Services.AddSingleton(simpleMqttClient); 
+builder.Services.AddHostedService<MqttMessageProcessingService>();
+
 #if DEBUG
     builder.Services.AddSassCompiler();
 #endif
