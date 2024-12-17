@@ -5,31 +5,44 @@ namespace BlazorMqttDatabase.Services;
 
 public class SqlUserRepository : IUserRepository
 {
-    public void InsertUser(User user)
+    // Reads .env file and building a connection string
+    private string BuildSqlConnectionString() 
     {
-        // Reading .env file and building a connection string
-        EnvReader.Load(".env");
-        var builder = new SqlConnectionStringBuilder
-        {
-            DataSource = Environment.GetEnvironmentVariable("DB_SERVER").Trim('\''),
-            InitialCatalog = Environment.GetEnvironmentVariable("DB_DATABASE").Trim('\''),
-            UserID = Environment.GetEnvironmentVariable("DB_UID").Trim('\''),
-            Password = Environment.GetEnvironmentVariable("DB_PASSWORD").Trim('\''),
-            TrustServerCertificate = bool.Parse(Environment.GetEnvironmentVariable("DB_TRUSTSERVERCERTIFICATE").Trim('\''))
-        };
-
-        using (var connection = new SqlConnection(builder.ConnectionString))
-        {
-            connection.OpenAsync();
-            using (var command = connection.CreateCommand())
+        try {
+            EnvReader.Load(".env");
+            var builder = new SqlConnectionStringBuilder
             {
-                command.CommandText = $"INSERT INTO [User] (Name, Age, IsActive) VALUES (@Name, @Age, @IsActive)"; 
-                command.Parameters.AddWithValue("@Name", user.Name);
-                command.Parameters.AddWithValue("@Age", user.Age);
-                command.Parameters.AddWithValue("@IsActive", user.IsActive);
-                command.ExecuteNonQuery();
+                DataSource = Environment.GetEnvironmentVariable("DB_SERVER").Trim('\''),
+                InitialCatalog = Environment.GetEnvironmentVariable("DB_DATABASE").Trim('\''),
+                UserID = Environment.GetEnvironmentVariable("DB_UID").Trim('\''),
+                Password = Environment.GetEnvironmentVariable("DB_PASSWORD").Trim('\''),
+                TrustServerCertificate = bool.Parse(Environment.GetEnvironmentVariable("DB_TRUSTSERVERCERTIFICATE").Trim('\''))
+            };
+            return builder.ConnectionString;
+        } catch (Exception e) {
+            Console.WriteLine($"Failed to build a SqlConnectionString: {e}");
+            return "";
+        }
+    }
+
+    private async void InsertUser(User user)
+    {
+        try {
+            using (var connection = new SqlConnection(BuildSqlConnectionString()))
+            {
+                await connection.OpenAsync();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = $"INSERT INTO [User] (Name, Age, IsActive) VALUES (@Name, @Age, @IsActive)"; 
+                    command.Parameters.AddWithValue("@Name", user.Name);
+                    command.Parameters.AddWithValue("@Age", user.Age);
+                    command.Parameters.AddWithValue("@IsActive", user.IsActive);
+                    await command.ExecuteNonQueryAsync();
+                }
+                await connection.CloseAsync();
             }
-            connection.CloseAsync();
+        } catch (Exception e) {
+            Console.WriteLine($"Failed to insert an user to the database: {e}");
         }
     }
 
@@ -40,6 +53,6 @@ public class SqlUserRepository : IUserRepository
 
     public void SaveUser(User user)
     {
-        throw new NotImplementedException();
+        InsertUser(user);
     }
 }

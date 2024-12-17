@@ -1,5 +1,29 @@
+@use './variables' as *;
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
+
+body.normal-font-size {
+    @include normal-font-size;
+}
+
+body.large-font-size {
+    @include large-font-size;
+}
+
+body.dark-theme {
+    @include dark-theme;
+}
+
+body.light-theme {
+    @include light-theme;
+}
+
+body {
+    background-color: var(--clr-300);
+    color: var(--clr-100);
+}
+
