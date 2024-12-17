@@ -7,15 +7,18 @@ public class SqlUserRepository : IUserRepository
 {
     public void InsertUser(User user)
     {
+        // Reading .env file and building a connection string
         EnvReader.Load(".env");
-        string server = Environment.GetEnvironmentVariable("DB_SERVER").Trim('\'');
-        string database = Environment.GetEnvironmentVariable("DB_DATABASE").Trim('\'');
-        string uid = Environment.GetEnvironmentVariable("DB_UID").Trim('\'');
-        string password = Environment.GetEnvironmentVariable("DB_PASSWORD").Trim('\'');
-        bool trustServerCertificate = bool.Parse(Environment.GetEnvironmentVariable("DB_TRUSTSERVERCERTIFICATE").Trim('\''));
-        var sqlConnectionString = $"Server={server};Database={database};UID={uid};Password={password};TrustServerCertificate={trustServerCertificate};";
+        var builder = new SqlConnectionStringBuilder
+        {
+            DataSource = Environment.GetEnvironmentVariable("DB_SERVER").Trim('\''),
+            InitialCatalog = Environment.GetEnvironmentVariable("DB_DATABASE").Trim('\''),
+            UserID = Environment.GetEnvironmentVariable("DB_UID").Trim('\''),
+            Password = Environment.GetEnvironmentVariable("DB_PASSWORD").Trim('\''),
+            TrustServerCertificate = bool.Parse(Environment.GetEnvironmentVariable("DB_TRUSTSERVERCERTIFICATE").Trim('\''))
+        };
 
-        using (var connection = new SqlConnection(sqlConnectionString))
+        using (var connection = new SqlConnection(builder.ConnectionString))
         {
             connection.OpenAsync();
             using (var command = connection.CreateCommand())

@@ -13,11 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("console-variables-expressions")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-<<<<<<< HEAD
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d360d80f6c41d134f47df539efa7272b7fcff57d")]
-=======
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+363b1d90405421807e097fea233ad4f2b1bb636e")]
->>>>>>> MQttFirstAttempt
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+22b5255542f003f03ad929dde5bc72054be108f8")]
 [assembly: System.Reflection.AssemblyProductAttribute("console-variables-expressions")]
 [assembly: System.Reflection.AssemblyTitleAttribute("console-variables-expressions")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

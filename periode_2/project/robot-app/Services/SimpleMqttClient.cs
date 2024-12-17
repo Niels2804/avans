@@ -152,10 +152,10 @@ public class SimpleMqttClient : IDisposable
     public static SimpleMqttClient CreateSimpleMqttClientForHiveMQ(string clientId)
     {
         EnvReader.Load(".env");
-        string host = Environment.GetEnvironmentVariable("HOST").Trim('\'');
-        int port = int.Parse(Environment.GetEnvironmentVariable("PORT").Trim('\''));
-        string username = Environment.GetEnvironmentVariable("USERNAME").Trim('\'');
-        string password = Environment.GetEnvironmentVariable("PASSWORD").Trim('\'');
+        string host = Environment.GetEnvironmentVariable("HIVEMQ_HOST").Trim('\'');
+        int port = int.Parse(Environment.GetEnvironmentVariable("HIVEMQ_PORT").Trim('\''));
+        string username = Environment.GetEnvironmentVariable("HIVEMQ_USERNAME").Trim('\'');
+        string password = Environment.GetEnvironmentVariable("HIVEMQ_PASSWORD").Trim('\'');
 
         var mqttWrapper = new SimpleMqttClient(new()
         {
