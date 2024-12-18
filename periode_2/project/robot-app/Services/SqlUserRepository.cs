@@ -34,7 +34,7 @@ public class SqlUserRepository : IUserRepository
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = $"INSERT INTO [User] (Name, Age, IsActive) VALUES (@Name, @Age, @IsActive)"; 
-                    command.Parameters.AddWithValue("@Name", user.Name);
+                    command.Parameters.AddWithValue("@Name", user.Name);    
                     command.Parameters.AddWithValue("@Age", user.Age);
                     command.Parameters.AddWithValue("@IsActive", user.IsActive);
                     await command.ExecuteNonQueryAsync();
