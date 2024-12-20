@@ -1,15 +1,9 @@
-using System.Device.Gpio;
-using Avans.StatisticalRobot;
-using System;
-using System.Threading;
+using Speaker;
 
 internal class Program {
-    private static Walle _walle = new();
-    private static void Main() {
-        while (true) {
-            Console.WriteLine($"Current voltage is {Robot.ReadBatteryMillivolts()}");
-            _walle.CheckBatteryVoltage();
-            Robot.Wait(2000);
-        }
+    static readonly WavSpeaker _wavSpeaker = new WavSpeaker("/mnt/usb/Francis-Wells-Live-a-Little.wav", true);
+    static async Task Main() {
+        await _wavSpeaker.PlayAsync();
     }
 }
+ 
