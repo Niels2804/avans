@@ -1,6 +1,13 @@
 using Avans.StatisticalRobot;
 
-public class Walle { 
+public class Rompi
+{
+    public string name {get; set;}
+    public Rompi(string name)
+    {
+        this.name = name;
+    }
+
     public void CheckBatteryVoltage() 
     {
         if (Robot.ReadBatteryMillivolts() <= 3000) 
@@ -18,52 +25,3 @@ public class Walle {
         }
     }
 }
-public class Drive
-{
-    private Ultrasonic? _distanceSensor;
-    private Led? _led;
-    private readonly short _ForwardSpeed = 100;
-    private readonly short _ReverseSpeed = -50;
-    private readonly short _SafeDistance = 20;
-    private void Main() 
-    {
-        this._distanceSensor= new Ultrasonic(24);
-        this._led = new Led(5);
-    }
-
-    public void Forward() 
-    {
-    }
-
-    public void Reverse() 
-    {
-    }
-
-    public void TurnRight() 
-    {
-
-    }
-
-    public void TurnLeft() 
-    {
-        
-    }
-
-    public void Rotate() {
-
-    }
-} 
-
-public class MotionSensor 
-{
-    public bool DetectMotionSensor() 
-    {
-        return true;
-    }
-}
-
-// public class UltrasonicDistance {
-//     public double ForwardCenterDistance() {
-
-//     }
-// }
