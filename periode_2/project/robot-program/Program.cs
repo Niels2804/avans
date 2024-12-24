@@ -1,6 +1,7 @@
 using Avans.StatisticalRobot;
 using RobotMotors;
 using SensorLibrary;
+using Speaker.Sound;
 
 namespace RompiRobot
 {
@@ -14,11 +15,12 @@ namespace RompiRobot
         }
 
         public static async Task Main() {
-            _drivingController.hasPermissionToDrive = true;
-            Task backgroundJob = Task.Run(_drivingController.Drive);
-            Robot.Wait(120000);
-            _drivingController.hasPermissionToDrive = false;
-            await backgroundJob;
+            // _drivingController.hasPermissionToDrive = true;
+            // Task backgroundJob = Task.Run(_drivingController.Drive);
+            await new Music().PlayMusic();
+            // Robot.Wait(5000);
+            // _drivingController.hasPermissionToDrive = false;
+            // await backgroundJob;
         }    
     }
 }

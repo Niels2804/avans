@@ -38,12 +38,12 @@ namespace RobotMotors
                     break;
                 }
 
-                Console.WriteLine($"Obstacle detected on the {_ultrasonicSensors.triggeredEmergencySensor}");
-                DrivingTextAnimation.isActive = false;
                 Robot.Motors(0, 0);
-                Sensors.lcd.SetText("Obstacle \ndetected");
                 _robotIsCurrentlyDriving = false;
+                DrivingTextAnimation.isActive = false;
 
+                Console.WriteLine($"Obstacle detected on the {_ultrasonicSensors.triggeredEmergencySensor}");
+                Sensors.lcd.SetText("Obstacle \ndetected");
 
                 // Robot always turns right preventing for driving circles
                 switch (_ultrasonicSensors.triggeredEmergencySensor)
@@ -62,15 +62,16 @@ namespace RobotMotors
                         throw new InvalidOperationException("No driving direction is set!");
                 }        
                 Robot.Motors(0, 0);
-                Sensors.lcd.SetText("Continuing driving...");
+                Sensors.lcd.SetText("Continuing \ndriving...");
                 Robot.Wait(500);
             }
 
-            Console.WriteLine($"Robot stopped driving");
-            DrivingTextAnimation.isActive = false;
             Robot.Motors(0, 0);
-            Sensors.lcd.SetText("Robot stopped \ndriving");
             _robotIsCurrentlyDriving = false;
+            DrivingTextAnimation.isActive = false;
+
+            Console.WriteLine($"Robot stopped driving");
+            Sensors.lcd.SetText("Robot stopped \ndriving");
         }
     }
 }
