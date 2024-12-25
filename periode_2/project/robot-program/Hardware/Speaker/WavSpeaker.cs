@@ -137,7 +137,7 @@ namespace Speaker
                 waitTimeUs = (int)(1000000.0 / (_sampleRate / 1.65));
             }
             else{
-                waitTimeUs = (int)(1000000.0 / (_sampleRate * 1.5));
+                waitTimeUs = (int)(1000000.0 / (_sampleRate * 1.6));
             }
             for (int i = 0; i < _dutyCycles.Length; i++)
             {
