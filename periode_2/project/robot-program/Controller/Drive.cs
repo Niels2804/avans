@@ -2,6 +2,7 @@ using Avans.StatisticalRobot;
 using SensorLibrary;
 using UltrasonicLibrary;
 using LCDScreen;
+using SoundLibrary;
 
 namespace RobotMotors
 {
@@ -18,11 +19,17 @@ namespace RobotMotors
         {   
             while(hasPermissionToDrive)
             {
+                Task warnMessage = Task.Run(() => speaker.PlayMusic(Mentions.Warning));
+                await warnMessage;
+                Task startMessage = Task.Run(() => speaker.PlayMusic(Mentions.Start));
+                await startMessage;
                 while (!ultrasonicSensors.IsObstacleDetected() && hasPermissionToDrive) 
                 {
+
                     if(!_robotIsCurrentlyDriving)
                     {
-                        Robot.Motors(100, 100);
+                        Robot.Motors(100, 106
+                        );
                         _robotIsCurrentlyDriving = true;
                         TextAnimation.isActive = true;
                         _ = Task.Run(TextAnimation.DrivingAnimation);                    
@@ -40,7 +47,9 @@ namespace RobotMotors
                 TextAnimation.isActive = false;
 
                 Console.WriteLine($"Obstacle detected on the {ultrasonicSensors.triggeredEmergencySensor}");
+                Task obstacleMessage = Task.Run(() => speaker.PlayMusic(Mentions.ObstacleDetected));
                 lcd.SetText("Obstacle \ndetected");
+                await obstacleMessage;
 
                 // Robot always turns right preventing for driving circles
                 switch (ultrasonicSensors.triggeredEmergencySensor)
@@ -48,12 +57,12 @@ namespace RobotMotors
                     case SensorPosition.FrontCenter:
                     case SensorPosition.BackCenter:
                         Robot.Motors(90, -90);
-                        Robot.Wait(600);
+                        Robot.Wait(650);
                         break;
                     case SensorPosition.FrontRight:
                     case SensorPosition.FrontLeft:
                         Robot.Motors(90, -90);
-                        Robot.Wait(300);
+                        Robot.Wait(325);
                         break;
                     default:
                         throw new InvalidOperationException("No driving direction is set!");
@@ -67,8 +76,10 @@ namespace RobotMotors
             _robotIsCurrentlyDriving = false;
             TextAnimation.isActive = false;
 
+            Task finalMention = Task.Run(() => speaker.PlayMusic(Mentions.Stop));
             Console.WriteLine($"Robot stopped driving");
             lcd.SetText("Robot stopped \ndriving");
+            await finalMention;
         }
     }
 }

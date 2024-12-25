@@ -1,36 +1,30 @@
-using System.Device.Gpio;
+using System.Diagnostics;
+using System.Reflection;
 using Avans.StatisticalRobot;
-using RobotMotors;
-using SensorLibrary;
-using SoundLibrary;
 
-namespace RompiRobot
-{
-    public class Program : Sensors { 
-        private static Rompi _rompiRobot {get; set;}
-        private static DrivingController _drivingController {get; set;}
-        static Program()
-        {
-            _rompiRobot = new Rompi("Wall-E");
-            _drivingController = new DrivingController();
-        }
-        public static async Task Main() {
-            // _drivingController.hasPermissionToDrive = true;
-            // Task backgroundJob = Task.Run(_drivingController.Drive);
-            // Task backgroundJob = Task.Run(() => speaker.PlayMusic(Mentions.ObstacleDetected));
-            // Robot.Wait(5000);
-            // _drivingController.hasPermissionToDrive = false;
-            // await backgroundJob;
-            while (true) {
-                led.SetOn();
-                Robot.Wait(1000);
-                led.SetOff();
-                Robot.Wait(1000);
-            }
-        }    
-    }
+// display version and build timestamp
+FileVersionInfo vi = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location);
+FileInfo fileInfo = new FileInfo(vi.FileName);
+DateTime createTime = fileInfo.CreationTime;
+Console.WriteLine($"RompiRobot (Wall-E) started (v{vi.FileVersion} @ {createTime}) ");
+Robot.PlayNotes("g>g"); // Start-up sound
+
+// Checking battery voltage
+int batteryMillivolts = Robot.ReadBatteryMillivolts();
+if (batteryMillivolts >= 7500) {
+    Console.WriteLine($"Current batterylevel is FULL: {batteryMillivolts}mV");
+} else if (batteryMillivolts >= 6000)  {
+    Console.WriteLine($"Current batterylevel is STABLE: {batteryMillivolts}mV");
+} else {
+    Console.WriteLine($"WARNING: Current batterylevel is LOW: {batteryMillivolts}mV");
 }
 
+RompiRobot robot = new RompiRobot();
+await robot.Init();
 
-
-
+while (true) 
+{
+    await robot.Update();
+    Robot.Wait(200);
+}
+    

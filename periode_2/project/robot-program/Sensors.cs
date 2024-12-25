@@ -20,6 +20,7 @@ namespace SensorLibrary
             lcd = new LCD16x2(0x3E);
             speaker = new Music();
             led = new Led(5);
+            button = new Button(6);
             gyro = new Acceleration();
         }
     }
