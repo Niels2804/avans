@@ -1,4 +1,4 @@
-namespace Speaker.Library
+namespace SoundLibrary
 {
     public enum Mentions
     {
@@ -77,17 +77,17 @@ namespace Speaker.Library
         TutorialStep1, // "De robot rijdt zelfstandig rond en stopt op verschillende plekken om activiteiten te meten."
         TutorialStep2, // "Op de robot zit een rode knop die knippert wanneer de robot actief is. Als u op het knipperende lampje drukt, pauzeert de robot en heeft u 60 seconden om de robot weer te heractiveren." 
         TutorialStep3, // "U kunt de robot ook opnieuw activeren door opnieuw op de rode knop te drukken. Tussendoor kan de robot u herinneringen geven als uw zorgverlener deze heeft ingesteld."
-        TutorialStep4 // "Wanneer u een herinnering ontvangt, zal het rode lampje knipperen. Druk op het lampje om aan te geven dat u de herinnering heeft ontvangen."
+        TutorialStep4, // "Wanneer u een herinnering ontvangt, zal het rode lampje knipperen. Druk op het lampje om aan te geven dat u de herinnering heeft ontvangen."
 
         // Music
 
         FrancisWells, // Classic music
         Portal // 1 minute countdown...
     }  
-    public static class SoundLibrary 
+    public class MusicLibrary 
     {
         private static readonly string _mainRoot = "/mnt/usb/SoundLibrary";
-        public static Dictionary<Mentions, string> soundLibrary = new()
+        protected static readonly Dictionary<Mentions, string> soundLibrary = new()
         {
             // Driving
 
@@ -112,10 +112,10 @@ namespace Speaker.Library
             { Mentions.Paused, $"{_mainRoot}/paused.wav" },
             { Mentions.RobotActive, $"{_mainRoot}/robot-active.wav" },
             { Mentions.TutorialMention, $"{_mainRoot}/tutorial-mention.wav" },
-            { Mentions.TutorialStep1, $"{_mainRoot}/tutorial-step1.wav" },
-            { Mentions.TutorialStep2, $"{_mainRoot}/tutorial-step2.wav" },
-            { Mentions.TutorialStep3, $"{_mainRoot}/tutorial-step3.wav" },
-            { Mentions.TutorialStep4, $"{_mainRoot}/tutorial-step4.wav" },
+            { Mentions.TutorialStep1, $"{_mainRoot}/tutorial-step-1.wav" },
+            { Mentions.TutorialStep2, $"{_mainRoot}/tutorial-step-2.wav" },
+            { Mentions.TutorialStep3, $"{_mainRoot}/tutorial-step-3.wav" },
+            { Mentions.TutorialStep4, $"{_mainRoot}/tutorial-step-4.wav" },
 
             // Mentions
 

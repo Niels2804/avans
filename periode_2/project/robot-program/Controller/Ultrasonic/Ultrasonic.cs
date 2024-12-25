@@ -29,7 +29,7 @@ namespace UltrasonicLibrary
             int minimumDistance;
             foreach (var sensor in _sensors)
             {
-                if(sensor.Key == SensorPosition.FrontLeft || sensor.Key == SensorPosition.FrontRight) {
+                if(sensor.Key == SensorPosition.FrontLeft || sensor.Key == SensorPosition.FrontRight || sensor.Key == SensorPosition.BackCenter) {
                     minimumDistance = 2;
                 } else {
                     minimumDistance = 5;
