@@ -7,6 +7,7 @@ namespace LCDScreen
     public class TextAnimation : Sensors
     {
         public static bool isActive {get; set;}
+        public static bool countDownIsCanceled {get; set;}
         public async static Task DrivingAnimation()
         {
             int countingDots = 0;
@@ -29,30 +30,45 @@ namespace LCDScreen
 
         public async static Task CountDown60()
         {
+            Task countDownMention = Task.Run(() => speaker.PlayMusic(Mentions.Remaining30));
+            await countDownMention;
             _ = Task.Run(() => speaker.PlayMusic(Mentions.Portal));
-
-            // 1 minute countdown loop
-            for(int i = 0; i < 60; i++) 
+            
+            // 30 seconds countdown loop
+            for(int i = 30; i > 0; i--) 
             {
-                // Starts 3, 2, 1 countdown
-                if(i == 4) 
+                if(!countDownIsCanceled) 
                 {
-                    speaker.StopMusic();
-                    _ = Task.Run(() => speaker.PlayMusic(Mentions.CountDown321));
-                } 
+                    // Starts 3, 2, 1 countdown
+                    if(i == 3) 
+                    {
+                        speaker.StopMusic();
+                        _ = Task.Run(() => speaker.PlayMusic(Mentions.CountDown321));
+                    } 
 
-                // Prints current countdown on LCD screen
-                lcd.SetText(i.ToString());
-                await Task.Delay(750);
+                    // Prints current countdown on LCD screen
+                    lcd.SetText(i.ToString());
+                    await Task.Delay(750);
 
-                // Clean-up LCD screen
-                lcd.SetText("");
-                await Task.Delay(250);
+                    // Clean-up LCD screen
+                    lcd.SetText("");
+                    await Task.Delay(250);
+                } else {
+                    break;
+                }
             }
 
             // Clean-up
             speaker.StopMusic();
-            lcd.SetText("Robot is \ngedeactiveerd");
+            if(countDownIsCanceled)
+            {
+                lcd.SetText("Robot is \ngeheractiveerd");
+                await speaker.PlayMusic(Mentions.RobotActive);
+            } else {
+                lcd.SetText("Robot is \ngedeactiveerd");
+                await speaker.PlayMusic(Mentions.Warning);
+                await speaker.PlayMusic(Mentions.Shutdown);
+            }
         }
     }
 }

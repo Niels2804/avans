@@ -12,6 +12,7 @@ namespace RobotMotors
         private bool _robotIsCurrentlyDriving;
         public DrivingController()
         {
+            hasPermissionToDrive = true;
             _robotIsCurrentlyDriving = false;
         }
 
