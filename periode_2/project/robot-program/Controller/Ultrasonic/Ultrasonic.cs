@@ -1,4 +1,5 @@
 using Avans.StatisticalRobot;
+using SensorLibrary;
 
 namespace UltrasonicLibrary 
 {
@@ -29,7 +30,7 @@ namespace UltrasonicLibrary
             int minimumDistance;
             foreach (var sensor in _sensors)
             {
-                if(sensor.Key == SensorPosition.FrontLeft || sensor.Key == SensorPosition.FrontRight || sensor.Key == SensorPosition.BackCenter) {
+                if(sensor.Key == SensorPosition.FrontLeft || sensor.Key == SensorPosition.FrontRight) {
                     minimumDistance = 2;
                 } else {
                     minimumDistance = 5;
@@ -41,6 +42,21 @@ namespace UltrasonicLibrary
                     emergencyStop = true;
                 } 
             }
+            return emergencyStop;
+        }
+
+        public bool IsObstacleDetectedInReverse()
+        {
+            bool emergencyStop = false;
+            int minimumDistance = 5;
+            Ultrasonic backSensor = _sensors[SensorPosition.BackCenter];
+
+            if (backSensor.GetUltrasoneDistance() <= minimumDistance)
+            {
+                triggeredEmergencySensor = SensorPosition.BackCenter;
+                emergencyStop = true;
+            } 
+            
             return emergencyStop;
         }
     }

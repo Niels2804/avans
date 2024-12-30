@@ -17,19 +17,21 @@ namespace RobotMotors
         public void GrantPermissionToDrive() => HasPermissionToDrive = true;
         public void RevokePermissionToDrive() => HasPermissionToDrive = false;
         public bool StatusPermissionToDrive() => HasPermissionToDrive;
+        private void DriveForward() => Robot.Motors(100, 106); // Right motor needs more power to drive straight forward
+        private void TurnRight() => Robot.Motors(90, -90);
+        private void DriveBackward() => Robot.Motors(-100, -106);
 
         public async Task Drive()
         {   
+            await PlayAnnouncement($"Warning", Mentions.Warning);
+            await PlayAnnouncement($"Robot starts \ndriving", Mentions.Start);
             while(HasPermissionToDrive)
             {
-                await PlayAnnouncement($"Warning", Mentions.Warning);
-                await PlayAnnouncement($"Robot starts \ndriving", Mentions.Start);
-
                 while (!ultrasonicSensors.IsObstacleDetected() && HasPermissionToDrive) 
                 {
                     if(!RobotIsCurrentlyDriving)
                     {
-                        Robot.Motors(100, 106); // Right motor needs more power to drive straight forward
+                        DriveForward();
                         RobotIsCurrentlyDriving = true;
 
                         lcdTextAnimation.StartDrivingAnimation();
@@ -54,17 +56,31 @@ namespace RobotMotors
         private async Task ObstacleDetectedHandler()
         {
             DrivingReset();
-            await PlayAnnouncement("Obstacle \ndetected", Mentions.ObstacleDetected);
+            _ = Task.Run(() => PlayAnnouncement("Obstacle \ndetected", Mentions.ObstacleDetected));
+            int rotationTime;
 
-            int rotationTime = ultrasonicSensors.triggeredEmergencySensor switch
+            switch(ultrasonicSensors.triggeredEmergencySensor)
             {
-                SensorPosition.FrontCenter or SensorPosition.BackCenter => 650,
-                SensorPosition.FrontRight or SensorPosition.FrontLeft => 325,
-                _ => throw new InvalidOperationException("No driving direction is set!")
-            };
+                case SensorPosition.FrontCenter:
+                    await DriveReverse(1000);
+                    rotationTime = 625;
+                    break;
+                case SensorPosition.FrontLeft:
+                case SensorPosition.FrontRight:
+                    await DriveReverse(500);
+                    rotationTime = 325;
+                    break;
+                case SensorPosition.BackCenter:
+                    rotationTime = 625;
+                    break;
+                default:
+                    rotationTime = 0;
+                    Console.WriteLine("No driving direction is set!");
+                    break;
+            }
             
             // Robot always turns right preventing for driving circles
-            Robot.Motors(90, -90);
+            TurnRight();
             Robot.Wait(rotationTime);
             Robot.Motors(0, 0);
             
@@ -79,6 +95,28 @@ namespace RobotMotors
             {
                 await Task.Run(() => speaker.PlayMusic((Mentions)mention));
             }
+        }
+
+        private async Task DriveReverse(int driveTime) {
+            bool isDriving = false;
+            using var cts = new CancellationTokenSource();
+            Task drivingTask = Task.Run(async () =>
+            {
+                while (!cts.Token.IsCancellationRequested && !ultrasonicSensors.IsObstacleDetectedInReverse())
+                {   
+                    if(!isDriving)
+                    {
+                        DriveBackward();
+                        isDriving = true;
+                    }
+                    await Task.Delay(50);
+                }
+                Robot.Motors(0, 0);
+            }, cts.Token);
+
+            await Task.Delay(driveTime);
+            await cts.CancelAsync();
+            await drivingTask;
         }
 
         // Cleans up the driving functionality
