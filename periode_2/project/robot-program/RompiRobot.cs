@@ -5,23 +5,25 @@ using SensorLibrary;
 using SoundLibrary;
 
 public class RompiRobot : Sensors { 
-    private string _name {get; set;}
-    private DrivingController _drivingController {get; set;}
-    private bool _robotIsDriving {get; set;}
-    private Task _drivingRobot {get; set;}
-    private Task _countDownAnimation {get; set;}    
+    private string Name {get;}
+    private DrivingController DrivingController {get;}
+    private Task DrivingTask {get; set;}
+    private Task CountDownAnimationTask {get; set;}    
     public RompiRobot()
     {
-        _name = "Wall-E";
-        _drivingController = new DrivingController();
-        _robotIsDriving = false;
+        Name = "Wall-E";
+        DrivingController = new DrivingController();
     }
+
+    // On start-up initializing
     public async Task Init() 
     {
-        Robot.Wait(20000);
+        // Resetting robot to default settings
         led.SetOff();
-        lcd.SetText("Welkom! Mijn \nnaam is Wall-E");
+        lcd.SetText($"Welkom! Mijn \nnaam is {Name}");
         await speaker.PlayMusic(Mentions.Welcome);
+
+        // Announcing a tutorial how to use the robot
         // await speaker.PlayMusic(Mentions.TutorialMention);
         // await speaker.PlayMusic(Mentions.TutorialStep1);
         // await speaker.PlayMusic(Mentions.TutorialStep2);
@@ -30,58 +32,71 @@ public class RompiRobot : Sensors {
         // await speaker.PlayMusic(Mentions.Bye_1);
     }    
 
+    // Every 200 milliseconds this Update() method will run
     public async Task Update()
     {
-        await CheckBatteryVoltage();
+        // Updating battery status
+        CheckBatteryVoltage();
         
-        if(!_robotIsDriving && _drivingController.hasPermissionToDrive) 
+        // Checking or robot is already driving
+        if(!DrivingController.StatusPermissionToDrive() && !lcdTextAnimation.StatusCountDownAnimation()) 
         {
-            _robotIsDriving = true;
-            _drivingRobot = Task.Run(_drivingController.Drive);
+            DrivingController.GrantPermissionToDrive();
+            DrivingTask = Task.Run(DrivingController.Drive);
         }
 
-        if (button.GetState() == "Pressed" && _drivingController.hasPermissionToDrive)
+        // Checking or the emergency stop button is pressed
+        if (button.GetState() == "Pressed" && DrivingController.StatusPermissionToDrive())
         {
-            TextAnimation.countDownIsCanceled = false;
-            _drivingController.hasPermissionToDrive = false;
-            _robotIsDriving = false;
+            DrivingController.RevokePermissionToDrive();
+            lcdTextAnimation.StartCountDownAnimation();
+            await DrivingTask; // awaiting for currently running driving task before starting a new task
+            
             led.SetOn();
-            await _drivingRobot;
-            _countDownAnimation = Task.Run(TextAnimation.CountDown60);
+            CountDownAnimationTask = Task.Run(lcdTextAnimation.CountDown30);
             Robot.Wait(2000);
         }
-        else if (button.GetState() == "Pressed" && !_drivingController.hasPermissionToDrive)
+        else if (button.GetState() == "Pressed" && !DrivingController.StatusPermissionToDrive())
         {
-            if(!TextAnimation.countDownIsCanceled)
+            Console.WriteLine(lcdTextAnimation.StatusCountDownAnimation());
+            if(lcdTextAnimation.StatusCountDownAnimation())
             {
-                TextAnimation.countDownIsCanceled = true;
-                _drivingController.hasPermissionToDrive = true;
-            }
-            await _countDownAnimation;
+                lcdTextAnimation.CancelCountDownAnimation();
+            } 
+            await CountDownAnimationTask; // awaiting for currently running countDownAnimation task before continuing
             led.SetOff();
         }
     }
 
-    private async Task CheckBatteryVoltage() 
+    private void CheckBatteryVoltage()
     {
-        int batteryMillivolts = Robot.ReadBatteryMillivolts();
-        
-        if (batteryMillivolts >= 7500) 
+        try
         {
-            Robot.LEDs(0, 0, 255);
-        }
-        else if (batteryMillivolts >= 6000)
-        {
-            Robot.LEDs(0, 255, 0);
-        }
-        else
-        {
-            Robot.LEDs(255, 0, 0);
-        }
+            int batteryMillivolts = Robot.ReadBatteryMillivolts();
 
-        Robot.Wait(100);
-        Robot.LEDs(0, 0, 0);
-        Robot.Wait(3000);
+            if (batteryMillivolts >= 7500) // Full battery
+            {
+                Robot.LEDs(0, 0, 255);
+            }
+            else if (batteryMillivolts >= 6000) // Stable battery
+            {
+                Robot.LEDs(0, 255, 0);
+            }
+            else // Battery is low and needs to recharge
+            {
+                Robot.LEDs(255, 0, 0);
+            }
+
+            // Flickering animation
+            Robot.Wait(100);
+            Robot.LEDs(0, 0, 0);
+            Robot.Wait(3000);
+
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error while checking battery voltage: {ex.Message}");
+        }
     }
 }
 

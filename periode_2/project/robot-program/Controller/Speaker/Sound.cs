@@ -1,18 +1,30 @@
 using SoundLibrary;
-using Speaker;
-using SoundLibrary;
 
 namespace Speaker.Sound 
 {
     public class Music : MusicLibrary {
-        private WavSpeaker _sound {get; set;}
+        private WavSpeaker? Sound {get; set;}
         public async Task PlayMusic(Mentions mentionType) {
-            _sound = new WavSpeaker(soundLibrary[mentionType], true);
-            await _sound.PlayAsync();
+            if (soundLibrary.ContainsKey(mentionType))
+            {
+                Sound = new WavSpeaker(soundLibrary[mentionType], true);
+                await Sound.PlayAsync();
+            }
+            else
+            {
+                throw new ArgumentException("Invalid mention type", nameof(mentionType)); // Foutmelding als mentionType niet bestaat
+            }
         }
         
         public void StopMusic() {
-            _sound.Stop();
+            if(Sound != null)
+            {
+                Sound.Stop();
+            }
+            else 
+            {
+                throw new InvalidOperationException("No music is currently playing.");
+            }
         }
     }
 }

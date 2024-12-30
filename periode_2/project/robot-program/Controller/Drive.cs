@@ -1,86 +1,92 @@
 using Avans.StatisticalRobot;
 using SensorLibrary;
 using UltrasonicLibrary;
-using LCDScreen;
 using SoundLibrary;
 
 namespace RobotMotors
 {
     public class DrivingController : Sensors
     {
-        public bool hasPermissionToDrive {get; set;}
-        private bool _robotIsCurrentlyDriving;
+        private bool HasPermissionToDrive {get; set;}
+        private bool RobotIsCurrentlyDriving {get; set;}
         public DrivingController()
         {
-            hasPermissionToDrive = true;
-            _robotIsCurrentlyDriving = false;
+            HasPermissionToDrive = false;
+            RobotIsCurrentlyDriving = false;
         }
+        public void GrantPermissionToDrive() => HasPermissionToDrive = true;
+        public void RevokePermissionToDrive() => HasPermissionToDrive = false;
+        public bool StatusPermissionToDrive() => HasPermissionToDrive;
 
         public async Task Drive()
         {   
-            while(hasPermissionToDrive)
+            while(HasPermissionToDrive)
             {
-                Task warnMessage = Task.Run(() => speaker.PlayMusic(Mentions.Warning));
-                await warnMessage;
-                Task startMessage = Task.Run(() => speaker.PlayMusic(Mentions.Start));
-                await startMessage;
-                while (!ultrasonicSensors.IsObstacleDetected() && hasPermissionToDrive) 
-                {
+                await PlayAnnouncement($"Warning", Mentions.Warning);
+                await PlayAnnouncement($"Robot starts \ndriving", Mentions.Start);
 
-                    if(!_robotIsCurrentlyDriving)
+                while (!ultrasonicSensors.IsObstacleDetected() && HasPermissionToDrive) 
+                {
+                    if(!RobotIsCurrentlyDriving)
                     {
-                        Robot.Motors(100, 106
-                        );
-                        _robotIsCurrentlyDriving = true;
-                        TextAnimation.isActive = true;
-                        _ = Task.Run(TextAnimation.DrivingAnimation);                    
+                        Robot.Motors(100, 106); // Right motor needs more power to drive straight forward
+                        RobotIsCurrentlyDriving = true;
+
+                        lcdTextAnimation.StartDrivingAnimation();
+                        _ = Task.Run(lcdTextAnimation.DrivingAnimation);                    
                     }
-                    Robot.Wait(50); // Prevents CPU-overload
+                    await Task.Delay(50); // Prevents CPU-overload
                 }
 
-                if (!hasPermissionToDrive)
+                if (!HasPermissionToDrive)
                 {
                     break;
                 }
 
-                Robot.Motors(0, 0);
-                _robotIsCurrentlyDriving = false;
-                TextAnimation.isActive = false;
-
-                Console.WriteLine($"Obstacle detected on the {ultrasonicSensors.triggeredEmergencySensor}");
-                Task obstacleMessage = Task.Run(() => speaker.PlayMusic(Mentions.ObstacleDetected));
-                lcd.SetText("Obstacle \ndetected");
-                await obstacleMessage;
-
-                // Robot always turns right preventing for driving circles
-                switch (ultrasonicSensors.triggeredEmergencySensor)
-                {
-                    case SensorPosition.FrontCenter:
-                    case SensorPosition.BackCenter:
-                        Robot.Motors(90, -90);
-                        Robot.Wait(650);
-                        break;
-                    case SensorPosition.FrontRight:
-                    case SensorPosition.FrontLeft:
-                        Robot.Motors(90, -90);
-                        Robot.Wait(325);
-                        break;
-                    default:
-                        throw new InvalidOperationException("No driving direction is set!");
-                }        
-                Robot.Motors(0, 0);
-                lcd.SetText("Continuing \ndriving...");
-                Robot.Wait(500);
+                await ObstacleDetectedHandler();
             }
 
-            Robot.Motors(0, 0);
-            _robotIsCurrentlyDriving = false;
-            TextAnimation.isActive = false;
+            // Clean-up and stops the robot driving
+            DrivingReset();
+            await PlayAnnouncement($"Robot stopped \ndriving", Mentions.Stop);
+        }
 
-            Task finalMention = Task.Run(() => speaker.PlayMusic(Mentions.Stop));
-            Console.WriteLine($"Robot stopped driving");
-            lcd.SetText("Robot stopped \ndriving");
-            await finalMention;
+        private async Task ObstacleDetectedHandler()
+        {
+            DrivingReset();
+            await PlayAnnouncement("Obstacle \ndetected", Mentions.ObstacleDetected);
+
+            int rotationTime = ultrasonicSensors.triggeredEmergencySensor switch
+            {
+                SensorPosition.FrontCenter or SensorPosition.BackCenter => 650,
+                SensorPosition.FrontRight or SensorPosition.FrontLeft => 325,
+                _ => throw new InvalidOperationException("No driving direction is set!")
+            };
+            
+            // Robot always turns right preventing for driving circles
+            Robot.Motors(90, -90);
+            Robot.Wait(rotationTime);
+            Robot.Motors(0, 0);
+            
+            await PlayAnnouncement("Continuing driving...");
+            Robot.Wait(500);   
+        }
+
+        private async Task PlayAnnouncement(string lcdMessage, Mentions? mention = null)
+        {
+            lcd.SetText(lcdMessage);
+            if(mention.HasValue)
+            {
+                await Task.Run(() => speaker.PlayMusic((Mentions)mention));
+            }
+        }
+
+        // Cleans up the driving functionality
+        private void DrivingReset()
+        {
+            Robot.Motors(0, 0);
+            RobotIsCurrentlyDriving = false;
+            lcdTextAnimation.CancelDrivingAnimation();
         }
     }
 }

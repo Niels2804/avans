@@ -11,12 +11,17 @@ Robot.PlayNotes("g>g"); // Start-up sound
 
 // Checking battery voltage
 int batteryMillivolts = Robot.ReadBatteryMillivolts();
-if (batteryMillivolts >= 7500) {
+if (batteryMillivolts >= 7500) 
+{
     Console.WriteLine($"Current batterylevel is FULL: {batteryMillivolts}mV");
-} else if (batteryMillivolts >= 6000)  {
+} 
+else if (batteryMillivolts >= 6000)  
+{
     Console.WriteLine($"Current batterylevel is STABLE: {batteryMillivolts}mV");
-} else {
-    Console.WriteLine($"WARNING: Current batterylevel is LOW: {batteryMillivolts}mV");
+} 
+else 
+{
+    Console.WriteLine($"WARNING: Current batterylevel is LOW: {batteryMillivolts}mV");   
 }
 
 RompiRobot robot = new RompiRobot();
