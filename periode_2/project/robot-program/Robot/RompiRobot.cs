@@ -1,5 +1,5 @@
 using Avans.StatisticalRobot;
-using LCDScreen;
+using Mqtt;
 using RobotMotors;
 using SensorLibrary;
 using SoundLibrary;
@@ -8,7 +8,9 @@ public class RompiRobot : Sensors {
     private string Name {get;}
     private DrivingController DrivingController {get;}
     private Task DrivingTask {get; set;}
-    private Task CountDownAnimationTask {get; set;}    
+    private Task CountDownAnimationTask {get; set;}  
+    private Task MeasureTask {get; set;}
+    private bool isMeasuring {get; set;}
     public RompiRobot()
     {
         Name = "Wall-E";
@@ -34,29 +36,32 @@ public class RompiRobot : Sensors {
 
     // Every 200 milliseconds this Update() method will run
     public async Task Update()
-    {
+    {    
         // Updating battery status
         CheckBatteryVoltage();
         
         // Checking or robot is already driving
-        if(!DrivingController.StatusPermissionToDrive() && !lcdTextAnimation.StatusCountDownAnimation()) 
+        if(!DrivingController.StatusPermissionToDrive() && !lcdTextAnimation.StatusCountDownAnimation() && !isMeasuring) 
         {
+            led.SetOn();
             DrivingController.GrantPermissionToDrive();
             DrivingTask = Task.Run(DrivingController.Drive);
+            MeasureTask = Task.Run(CountDownForMeasureMovement);
         }
 
         // Checking or the emergency stop button is pressed
-        if (button.GetState() == "Pressed" && DrivingController.StatusPermissionToDrive())
+        if (button.GetState() == "Pressed" && DrivingController.StatusPermissionToDrive() && !isMeasuring)
         {
+            led.SetOff();
             DrivingController.RevokePermissionToDrive();
             lcdTextAnimation.StartCountDownAnimation();
-            await DrivingTask; // awaiting for currently running driving task before starting a new task
+            await Task.WhenAll(DrivingTask, MeasureTask); // awaiting for currently running driving task before starting a new task
+            await PlayAnnouncement("Robot paused", Mentions.Paused);
             
-            led.SetOn();
             CountDownAnimationTask = Task.Run(lcdTextAnimation.CountDown30);
-            Robot.Wait(2000);
+            await Task.Delay(2000);
         }
-        else if (button.GetState() == "Pressed" && !DrivingController.StatusPermissionToDrive())
+        else if (button.GetState() == "Pressed" && !DrivingController.StatusPermissionToDrive() && !isMeasuring)
         {
             Console.WriteLine(lcdTextAnimation.StatusCountDownAnimation());
             if(lcdTextAnimation.StatusCountDownAnimation())
@@ -65,6 +70,40 @@ public class RompiRobot : Sensors {
             } 
             await CountDownAnimationTask; // awaiting for currently running countDownAnimation task before continuing
             led.SetOff();
+        }    
+    }
+
+    private async Task CountDownForMeasureMovement()
+    {
+        int countdownTimer = new Random().Next(10, 40);
+        while(DrivingController.StatusPermissionToDrive() && !isMeasuring)
+        {
+            countdownTimer--;
+            await Task.Delay(1000);
+
+            if (countdownTimer <= 0)
+            {
+                isMeasuring = true;
+                motionSensor.StartMeasuringMovement();
+                DrivingController.RevokePermissionToDrive();
+                await DrivingTask; // Robot needs to be stopped before start measuring for movement
+                await PlayAnnouncement("Robot paused", Mentions.Paused);
+                
+                // Measuring for movement
+                try
+                {
+                    Task measuring = Task.Run(motionSensor.MeasureMovement);
+                    await Task.Delay(new Random().Next(10000, 15000));
+                    motionSensor.StopMeasuringMovement();
+                    await measuring;
+                    isMeasuring = false;
+                } catch (Exception ex)
+                {
+                    Console.WriteLine($"Error during measurement: {ex.Message}");
+                }
+                Console.WriteLine($"Data heeft {Data.motionDetectedData.Count()} item(s) en de eerste item is {Data.motionDetectedData[0]}.");
+                return;
+            }
         }
     }
 

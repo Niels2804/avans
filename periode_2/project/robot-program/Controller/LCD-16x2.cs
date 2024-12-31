@@ -19,7 +19,6 @@ namespace LCDScreen
         public bool StatusCountDownAnimation() => CountDownAnimationIsActive;
         public void StartDrivingAnimation() => DrivingAnimationIsActive = true;
         public void CancelDrivingAnimation() => DrivingAnimationIsActive = false;
-
         public async Task DrivingAnimation()
         {
             int countingDots = 0;
@@ -46,7 +45,7 @@ namespace LCDScreen
             _ = Task.Run(() => speaker.PlayMusic(Mentions.Portal)); // Playing background music while the timer is running
             
             // 30 seconds countdown loop animation
-            for(int i = 10; i > 0; i--) 
+            for(int i = 30; i > 0; i--) 
             {
                 if(!CountDownAnimationIsActive) 
                 {
@@ -61,6 +60,7 @@ namespace LCDScreen
                 } 
 
                 // Prints current countdown timer on the LCD screen
+                _ = Task.Run(led.Blink);
                 lcd.SetText(i.ToString());
                 await Task.Delay(750);
 

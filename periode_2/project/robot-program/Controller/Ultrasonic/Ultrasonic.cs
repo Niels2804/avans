@@ -30,6 +30,12 @@ namespace UltrasonicLibrary
             int minimumDistance;
             foreach (var sensor in _sensors)
             {
+                // The BackCenter Ultrasone is not needed while driving forward
+                if(sensor.Key == SensorPosition.BackCenter) 
+                {
+                    break; 
+                }
+
                 if(sensor.Key == SensorPosition.FrontLeft || sensor.Key == SensorPosition.FrontRight) {
                     minimumDistance = 2;
                 } else {

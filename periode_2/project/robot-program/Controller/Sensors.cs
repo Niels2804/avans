@@ -3,6 +3,8 @@ using GyroscopeCompass.Calculations;
 using UltrasonicLibrary;
 using Avans.StatisticalRobot;
 using LCDScreen;
+using PIRmotion;
+using SoundLibrary;
 
 // All sensors what are used for the robot
 namespace SensorLibrary
@@ -14,6 +16,7 @@ namespace SensorLibrary
         public static Music speaker {get; set;}
         public static Led led {get; set;}
         public static Button button {get; set;}
+        public static MotionDetection motionSensor {get; set;}
         public static Acceleration gyro {get; set;}
 
         // This constructor needs to be static for a good initializing process
@@ -25,7 +28,18 @@ namespace SensorLibrary
             speaker = new Music();
             led = new Led(5);
             button = new Button(6);
+            motionSensor = new MotionDetection(16);
             gyro = new Acceleration();
+        }
+
+        public async Task PlayAnnouncement(string lcdMessage, Mentions? mention = null)
+        {
+            lcd.SetText(lcdMessage);
+            if(mention.HasValue)
+            {
+                speaker.StopMusic();
+                await Task.Run(() => speaker.PlayMusic((Mentions)mention));
+            }
         }
     }
 }

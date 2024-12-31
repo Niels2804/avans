@@ -17,9 +17,10 @@ namespace RobotMotors
         public void GrantPermissionToDrive() => HasPermissionToDrive = true;
         public void RevokePermissionToDrive() => HasPermissionToDrive = false;
         public bool StatusPermissionToDrive() => HasPermissionToDrive;
-        private void DriveForward() => Robot.Motors(100, 106); // Right motor needs more power to drive straight forward
+        private void DriveForward() => Robot.Motors(100, 100); // Right motor needs more power to drive straight forward
         private void TurnRight() => Robot.Motors(90, -90);
-        private void DriveBackward() => Robot.Motors(-100, -106);
+        private void TurnLeft() => Robot.Motors(-90, 90);
+        private void DriveBackward() => Robot.Motors(-100, -100);
 
         public async Task Drive()
         {   
@@ -56,22 +57,25 @@ namespace RobotMotors
         private async Task ObstacleDetectedHandler()
         {
             DrivingReset();
-            _ = Task.Run(() => PlayAnnouncement("Obstacle \ndetected", Mentions.ObstacleDetected));
+            // await PlayAnnouncement("Obstacle \ndetected", Mentions.ObstacleDetected);
             int rotationTime;
 
             switch(ultrasonicSensors.triggeredEmergencySensor)
             {
                 case SensorPosition.FrontCenter:
                     await DriveReverse(1000);
+                    TurnRight();
                     rotationTime = 625;
                     break;
                 case SensorPosition.FrontLeft:
-                case SensorPosition.FrontRight:
-                    await DriveReverse(500);
+                    await DriveReverse(250);
+                    TurnRight();
                     rotationTime = 325;
                     break;
-                case SensorPosition.BackCenter:
-                    rotationTime = 625;
+                case SensorPosition.FrontRight:
+                    await DriveReverse(250);
+                    TurnLeft();
+                    rotationTime = 325;
                     break;
                 default:
                     rotationTime = 0;
@@ -80,21 +84,11 @@ namespace RobotMotors
             }
             
             // Robot always turns right preventing for driving circles
-            TurnRight();
             Robot.Wait(rotationTime);
             Robot.Motors(0, 0);
             
             await PlayAnnouncement("Continuing driving...");
             Robot.Wait(500);   
-        }
-
-        private async Task PlayAnnouncement(string lcdMessage, Mentions? mention = null)
-        {
-            lcd.SetText(lcdMessage);
-            if(mention.HasValue)
-            {
-                await Task.Run(() => speaker.PlayMusic((Mentions)mention));
-            }
         }
 
         private async Task DriveReverse(int driveTime) {

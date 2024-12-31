@@ -24,4 +24,12 @@ public class Led
     {
         Robot.WriteDigitalPin(_pin, PinValue.Low);
     }
+    public async Task Blink()
+    {
+        await Task.Delay(250);
+        Robot.WriteDigitalPin(_pin, PinValue.High);
+        await Task.Delay(500);
+        Robot.WriteDigitalPin(_pin, PinValue.Low);
+        await Task.Delay(250);
+    }
 }
