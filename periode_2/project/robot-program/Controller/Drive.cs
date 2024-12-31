@@ -17,9 +17,9 @@ namespace RobotMotors
         public void GrantPermissionToDrive() => HasPermissionToDrive = true;
         public void RevokePermissionToDrive() => HasPermissionToDrive = false;
         public bool StatusPermissionToDrive() => HasPermissionToDrive;
-        private void DriveForward() => Robot.Motors(100, 100); // Right motor needs more power to drive straight forward
-        private void TurnRight() => Robot.Motors(90, -90);
-        private void TurnLeft() => Robot.Motors(-90, 90);
+        private void DriveForward() => Robot.Motors(100, 100);
+        private void TurnRight() => Robot.Motors(100, -100);
+        private void TurnLeft() => Robot.Motors(-100, 100);
         private void DriveBackward() => Robot.Motors(-100, -100);
 
         public async Task Drive()
