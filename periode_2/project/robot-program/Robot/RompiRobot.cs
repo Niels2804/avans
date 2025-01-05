@@ -3,6 +3,7 @@ using Mqtt;
 using RobotMotors;
 using SensorLibrary;
 using SoundLibrary;
+using MessageService;
 
 public class RompiRobot : Sensors { 
     private string Name {get;}
@@ -24,7 +25,6 @@ public class RompiRobot : Sensors {
         led.SetOff();
         lcd.SetText($"Welkom! Mijn \nnaam is {Name}");
         await speaker.PlayMusic(Mentions.Welcome);
-
         // Announcing a tutorial how to use the robot
         // await speaker.PlayMusic(Mentions.TutorialMention);
         // await speaker.PlayMusic(Mentions.TutorialStep1);
@@ -39,10 +39,12 @@ public class RompiRobot : Sensors {
     {    
         // Updating battery status
         CheckBatteryVoltage();
+        _ = Task.Run(() => new ResponseService().ReceiveMessage("Wall-E"));
         
         // Checking or robot is already driving
         if(!DrivingController.StatusPermissionToDrive() && !lcdTextAnimation.StatusCountDownAnimation() && !isMeasuring) 
         {
+            _ = Task.Run(() => new SendService().SendMessage("Wall-E", "Robot rijdt!"));
             led.SetOn();
             DrivingController.GrantPermissionToDrive();
             DrivingTask = Task.Run(DrivingController.Drive);

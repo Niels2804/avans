@@ -13,11 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("weather-app")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-<<<<<<< HEAD
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+22b5255542f003f03ad929dde5bc72054be108f8")]
-=======
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+27af7697efc7e16f95e2f8c4ba7fcdf141b04fa6")]
->>>>>>> project-fzh-robot
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e135ce87d2b44eba24c3ca2685329d10f7fc6648")]
 [assembly: System.Reflection.AssemblyProductAttribute("weather-app")]
 [assembly: System.Reflection.AssemblyTitleAttribute("weather-app")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

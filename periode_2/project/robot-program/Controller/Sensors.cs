@@ -10,14 +10,14 @@ using SoundLibrary;
 namespace SensorLibrary
 {
     public class Sensors {
-        public static UltrasonicDistance ultrasonicSensors {get; set;}
-        public static LCD16x2 lcd {get; set;}
-        public static TextAnimation lcdTextAnimation {get; set;} // Only this property is not a sensor!
-        public static Music speaker {get; set;}
-        public static Led led {get; set;}
-        public static Button button {get; set;}
-        public static MotionDetection motionSensor {get; set;}
-        public static Acceleration gyro {get; set;}
+        public static UltrasonicDistance ultrasonicSensors {get;}
+        public static LCD16x2 lcd {get;}
+        public static TextAnimation lcdTextAnimation {get;} // Only this property is not a sensor!
+        public static Music speaker {get;}
+        public static Led led {get;}
+        public static Button button {get;}
+        public static MotionDetection motionSensor {get;}
+        public static Acceleration gyro {get;}
 
         // This constructor needs to be static for a good initializing process
         static Sensors()

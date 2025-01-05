@@ -2,7 +2,7 @@ class EnvReader
 {
     public static void Load(string filePath)
     {
-        if (!File.Exists(filePath))
+        if (!File.Exists($@"C:\Users\niels\Documents\Niels\GitHub\school\avans\periode_2\project\robot-program\{filePath}"))
             throw new FileNotFoundException($"The file '{filePath}' does not exist.");
 
         foreach (var line in File.ReadAllLines(filePath))

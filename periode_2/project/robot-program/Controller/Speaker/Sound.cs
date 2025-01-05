@@ -3,12 +3,12 @@ using SoundLibrary;
 namespace Speaker.Sound 
 {
     public class Music : MusicLibrary {
-        private WavSpeaker? Sound {get; set;}
+        private WavSpeaker? _sound {get; set;}
         public async Task PlayMusic(Mentions mentionType) {
             if (soundLibrary.ContainsKey(mentionType))
             {
-                Sound = new WavSpeaker(soundLibrary[mentionType], true);
-                await Sound.PlayAsync();
+                _sound = new WavSpeaker(soundLibrary[mentionType], true);
+                await _sound.PlayAsync();
             }
             else
             {
@@ -17,9 +17,9 @@ namespace Speaker.Sound
         }
         
         public void StopMusic() {
-            if(Sound != null)
+            if(_sound != null)
             {
-                Sound.Stop();
+                _sound.Stop();
             }
             else 
             {
