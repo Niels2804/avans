@@ -15,7 +15,8 @@ public class MqttMessageProcessingService : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        await _mqttClient.SubscribeToTopic("#");
+        
+        await _mqttClient.SubscribeToTopic("Wall-E");
     }
 
     public async Task StopAsync(CancellationToken cancellationToken)
