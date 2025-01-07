@@ -3,19 +3,32 @@ using Mqtt;
 using RobotMotors;
 using SensorLibrary;
 using SoundLibrary;
-using MessageService;
+using HiveMQtt.Service;
+using HiveMQtt.MessageService;
 
 public class RompiRobot : Sensors { 
     private string Name {get;}
     private DrivingController DrivingController {get;}
+    private MessageService MessageSender {get;}
+    private MessageService MessageReceiver {get;}
     private Task DrivingTask {get; set;}
     private Task CountDownAnimationTask {get; set;}  
     private Task MeasureTask {get; set;}
-    private bool isMeasuring {get; set;}
+    private Task MentionTask {get; set;}
+    private bool IsMeasuring {get; set;}
+    private bool IsBusyWithCheckingBatteryState {get; set;}
+    private bool IsBusyWithReceivingMessage {get; set;}
+    private bool IsBusyWithDriving {get; set;}
     public RompiRobot()
     {
         Name = "Wall-E";
         DrivingController = new DrivingController();
+        MessageSender = new MessageService("robot");
+        MessageReceiver = new MessageService("web");
+        IsMeasuring = false;
+        IsBusyWithCheckingBatteryState = false;
+        IsBusyWithReceivingMessage = false;
+        IsBusyWithDriving = false;
     }
 
     // On start-up initializing
@@ -25,6 +38,7 @@ public class RompiRobot : Sensors {
         led.SetOff();
         lcd.SetText($"Welkom! Mijn \nnaam is {Name}");
         await speaker.PlayMusic(Mentions.Welcome);
+
         // Announcing a tutorial how to use the robot
         // await speaker.PlayMusic(Mentions.TutorialMention);
         // await speaker.PlayMusic(Mentions.TutorialStep1);
@@ -38,13 +52,23 @@ public class RompiRobot : Sensors {
     public async Task Update()
     {    
         // Updating battery status
-        CheckBatteryVoltage();
-        await new ResponseService().ReceiveMessage("Wall-E", "Dit is een testbericht");
+        if(!IsBusyWithCheckingBatteryState)
+        {
+            IsBusyWithCheckingBatteryState = true;
+            _ = CheckBatteryVoltage();
+        }
+
+        // Checking on received messages
+        if(!IsBusyWithReceivingMessage) 
+        {
+            IsBusyWithReceivingMessage = true;
+            _ = CheckForReceivedMessages();
+        }
         
         // Checking or robot is already driving
-        if(!DrivingController.StatusPermissionToDrive() && !lcdTextAnimation.StatusCountDownAnimation() && !isMeasuring) 
+        if(DrivingController.StatusPermissionToDrive() && !IsBusyWithDriving && !IsMeasuring && !lcdTextAnimation.StatusCountDownAnimation()) 
         {
-            await new SendService().SendMessage("Wall-E", "Robot rijdt!");
+            IsBusyWithDriving = true;
             led.SetOn();
             DrivingController.GrantPermissionToDrive();
             DrivingTask = Task.Run(DrivingController.Drive);
@@ -52,10 +76,11 @@ public class RompiRobot : Sensors {
         }
 
         // Checking or the emergency stop button is pressed
-        if (button.GetState() == "Pressed" && DrivingController.StatusPermissionToDrive() && !isMeasuring)
+        if (button.GetState() == "Pressed" && DrivingController.StatusPermissionToDrive() && IsBusyWithDriving && !IsMeasuring)
         {
             led.SetOff();
             DrivingController.RevokePermissionToDrive();
+            IsBusyWithDriving = false;
             lcdTextAnimation.StartCountDownAnimation();
             await Task.WhenAll(DrivingTask, MeasureTask); // awaiting for currently running driving task before starting a new task
             await PlayAnnouncement("Robot paused", Mentions.Paused);
@@ -63,9 +88,8 @@ public class RompiRobot : Sensors {
             CountDownAnimationTask = Task.Run(lcdTextAnimation.CountDown30);
             await Task.Delay(2000);
         }
-        else if (button.GetState() == "Pressed" && !DrivingController.StatusPermissionToDrive() && !isMeasuring)
+        else if (button.GetState() == "Pressed" && !DrivingController.StatusPermissionToDrive() && !IsBusyWithDriving && !IsMeasuring)
         {
-            Console.WriteLine(lcdTextAnimation.StatusCountDownAnimation());
             if(lcdTextAnimation.StatusCountDownAnimation())
             {
                 lcdTextAnimation.CancelCountDownAnimation();
@@ -75,20 +99,84 @@ public class RompiRobot : Sensors {
         }    
     }
 
+    private async Task CheckForReceivedMessages()
+    {
+        MessageData messageData;
+        string? message = await MessageReceiver.StartReceivingMessages();
+        if(message == null || !message.Contains('|'))
+        {
+            Console.WriteLine($"1: Ongeldige bericht formaat: {message}");
+            IsBusyWithReceivingMessage = false;
+            return;
+        } 
+   
+        var messageParts = message.Split('|'); // De ontvangen berichten bestaan uit: "type|value"
+        if (messageParts.Length == 2)
+        {
+            messageData = new MessageData(messageParts[0], messageParts[1]);
+        } else {
+            Console.WriteLine($"2: Ongeldige bericht formaat: {message}");
+            IsBusyWithReceivingMessage = false;
+            return;
+        }
+
+        switch (messageData.Type) {
+            case "mention":
+                MentionTask = Task.Run(async () => {
+                    if (Enum.TryParse(messageData.Value, out Mentions mention)) // Let op!! Is case-sensitive!!
+                    {
+                        DrivingController.RevokePermissionToDrive();
+                        IsBusyWithDriving = false;
+                        await PlayAnnouncement("Warning", Mentions.Warning);
+                        await PlayAnnouncement("Herinnerings \nmelding!!", (Mentions)Enum.Parse(typeof(Mentions), messageData.Value));
+                        DrivingController.GrantPermissionToDrive();
+                    } 
+                    else 
+                    {
+                        Console.WriteLine($"Mention type {messageData.Value} bestaat niet.");
+                    }
+
+                });
+                break;
+            case "hasPermissionToDrive":
+                try {
+                    if (bool.Parse(messageData.Value) == true)
+                    {
+                        DrivingController.GrantPermissionToDrive();
+                    }
+                    else 
+                    {
+                        DrivingController.RevokePermissionToDrive();
+                        IsBusyWithDriving = false;
+                    }
+                } 
+                catch (Exception ex) 
+                {
+                    Console.WriteLine($"Error: Fout bij het parsen van een bool: {ex.Message}");
+                }
+                break;
+            default:
+                Console.WriteLine("Geen geldige datatype gevonden.");
+                break;
+        }
+        IsBusyWithReceivingMessage = false;
+    }
+
     private async Task CountDownForMeasureMovement()
     {
         int countdownTimer = new Random().Next(10, 40);
-        while(DrivingController.StatusPermissionToDrive() && !isMeasuring)
+        while(DrivingController.StatusPermissionToDrive() && !IsMeasuring)
         {
             countdownTimer--;
             await Task.Delay(1000);
 
             if (countdownTimer <= 0)
             {
-                isMeasuring = true;
+                IsMeasuring = true;
                 motionSensor.StartMeasuringMovement();
                 DrivingController.RevokePermissionToDrive();
                 await DrivingTask; // Robot needs to be stopped before start measuring for movement
+                await MentionTask; // Robot needs to wait until the mention ended before the measuring starts
                 await PlayAnnouncement("Robot paused", Mentions.Paused);
                 
                 // Measuring for movement
@@ -98,7 +186,7 @@ public class RompiRobot : Sensors {
                     await Task.Delay(new Random().Next(10000, 15000));
                     motionSensor.StopMeasuringMovement();
                     await measuring;
-                    isMeasuring = false;
+                    IsMeasuring = false;
                 } catch (Exception ex)
                 {
                     Console.WriteLine($"Error during measurement: {ex.Message}");
@@ -109,7 +197,7 @@ public class RompiRobot : Sensors {
         }
     }
 
-    private void CheckBatteryVoltage()
+    private async Task CheckBatteryVoltage()
     {
         try
         {
@@ -129,10 +217,12 @@ public class RompiRobot : Sensors {
             }
 
             // Flickering animation
-            Robot.Wait(100);
+            await Task.Delay(100);
             Robot.LEDs(0, 0, 0);
-            Robot.Wait(3000);
+            await Task.Delay(3000);
 
+            await MessageSender.SendMessage($"batteryVoltage|{batteryMillivolts}");
+            IsBusyWithCheckingBatteryState = false;
         }
         catch (Exception ex)
         {
