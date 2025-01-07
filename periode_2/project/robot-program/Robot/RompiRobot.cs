@@ -14,7 +14,6 @@ public class RompiRobot : Sensors {
     private Task DrivingTask {get; set;}
     private Task CountDownAnimationTask {get; set;}  
     private Task MeasureTask {get; set;}
-    private Task MentionTask {get; set;}
     private bool IsMeasuring {get; set;}
     private bool IsBusyWithCheckingBatteryState {get; set;}
     private bool IsBusyWithReceivingMessage {get; set;}
@@ -110,7 +109,7 @@ public class RompiRobot : Sensors {
             return;
         } 
    
-        var messageParts = message.Split('|'); // De ontvangen berichten bestaan uit: "type|value"
+        var messageParts = message.Split('|'); // The receiving messages are: "type|value"
         if (messageParts.Length == 2)
         {
             messageData = new MessageData(messageParts[0], messageParts[1]);
@@ -122,21 +121,19 @@ public class RompiRobot : Sensors {
 
         switch (messageData.Type) {
             case "mention":
-                MentionTask = Task.Run(async () => {
-                    if (Enum.TryParse(messageData.Value, out Mentions mention)) // Let op!! Is case-sensitive!!
-                    {
-                        DrivingController.RevokePermissionToDrive();
-                        IsBusyWithDriving = false;
-                        await PlayAnnouncement("Warning", Mentions.Warning);
-                        await PlayAnnouncement("Herinnerings \nmelding!!", (Mentions)Enum.Parse(typeof(Mentions), messageData.Value));
-                        DrivingController.GrantPermissionToDrive();
-                    } 
-                    else 
-                    {
-                        Console.WriteLine($"Mention type {messageData.Value} bestaat niet.");
-                    }
-
-                });
+                if (Enum.TryParse(messageData.Value, out Mentions mention)) // Warning!! Is case-sensitive!!
+                {
+                    await PlayAnnouncement("Warning", Mentions.Warning);
+                    DrivingController.RevokePermissionToDrive();
+                    IsBusyWithDriving = false;
+                    await PlayAnnouncement("Robot paused", Mentions.Paused);
+                    await PlayAnnouncement("Reminder \nmessage!!", (Mentions)Enum.Parse(typeof(Mentions), messageData.Value));
+                    DrivingController.GrantPermissionToDrive();
+                } 
+                else 
+                {
+                    Console.WriteLine($"Mention type {messageData.Value} bestaat niet.");
+                }
                 break;
             case "hasPermissionToDrive":
                 try {
@@ -164,7 +161,7 @@ public class RompiRobot : Sensors {
 
     private async Task CountDownForMeasureMovement()
     {
-        int countdownTimer = new Random().Next(10, 40);
+        int countdownTimer = new Random().Next(10, 15);
         while(DrivingController.StatusPermissionToDrive() && !IsMeasuring)
         {
             countdownTimer--;
@@ -175,8 +172,8 @@ public class RompiRobot : Sensors {
                 IsMeasuring = true;
                 motionSensor.StartMeasuringMovement();
                 DrivingController.RevokePermissionToDrive();
+                IsBusyWithDriving = false;
                 await DrivingTask; // Robot needs to be stopped before start measuring for movement
-                await MentionTask; // Robot needs to wait until the mention ended before the measuring starts
                 await PlayAnnouncement("Robot paused", Mentions.Paused);
                 
                 // Measuring for movement
@@ -187,6 +184,7 @@ public class RompiRobot : Sensors {
                     motionSensor.StopMeasuringMovement();
                     await measuring;
                     IsMeasuring = false;
+                    DrivingController.GrantPermissionToDrive();
                 } catch (Exception ex)
                 {
                     Console.WriteLine($"Error during measurement: {ex.Message}");

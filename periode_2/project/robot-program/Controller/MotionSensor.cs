@@ -3,6 +3,7 @@ using Avans.StatisticalRobot;
 using SensorLibrary;
 using Mqtt;
 using SoundLibrary;
+using HiveMQtt.Service;
 
 namespace PIRmotion
 {
@@ -10,6 +11,7 @@ namespace PIRmotion
     {
         private int PinNumber {get; set;}
         private bool IsMeasuring {get; set;}
+        private MessageService MessageSender {get;}
         public void StartMeasuringMovement() => IsMeasuring = true;
         public void StopMeasuringMovement() => IsMeasuring = false;
         public bool StatusMeasuringMovement() => IsMeasuring;
@@ -17,6 +19,7 @@ namespace PIRmotion
         {
             this.PinNumber = PinNumber;
             IsMeasuring = false;
+            MessageSender = new MessageService("robot");
         }
 
         public async Task MeasureMovement() 
@@ -51,6 +54,15 @@ namespace PIRmotion
                 // Getting the current time from Europe/Amsterdam
                 DateTime amsterdamTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, timeZone); // UtcNow grabs the correct summer- or wintertime
                 Data.motionDetectedData.Add(amsterdamTime.TimeOfDay.ToString(@"hh\:mm\:ss"));
+
+                // Sending message to HiveMQ
+                try {
+                    await MessageSender.SendMessage("motionDetection|true");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error while sending measurement message: {ex}");
+                }
             } 
             else 
             {

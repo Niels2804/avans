@@ -57,7 +57,6 @@ namespace HiveMQtt.Service
             try
             {
                 await _mqttClient.PublishMessage(message, _topic);      
-                Console.WriteLine($"Bericht; topic={_topic}; message={message} is succesvol verzonden!");          
             }
             catch (Exception ex)
             {
