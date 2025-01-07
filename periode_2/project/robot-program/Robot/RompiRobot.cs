@@ -39,12 +39,12 @@ public class RompiRobot : Sensors {
     {    
         // Updating battery status
         CheckBatteryVoltage();
-        // _ = Task.Run(() => new ResponseService().ReceiveMessage("Wall-E"));
+        await new ResponseService().ReceiveMessage("Wall-E", "Dit is een testbericht");
         
         // Checking or robot is already driving
         if(!DrivingController.StatusPermissionToDrive() && !lcdTextAnimation.StatusCountDownAnimation() && !isMeasuring) 
         {
-            _ = Task.Run(() => new SendService().SendMessage("Wall-E", "Robot rijdt!"));
+            await new SendService().SendMessage("Wall-E", "Robot rijdt!");
             led.SetOn();
             DrivingController.GrantPermissionToDrive();
             DrivingTask = Task.Run(DrivingController.Drive);
