@@ -1,14 +1,34 @@
 ﻿@inherits LayoutComponentBase
 
+<NavMenu />
 <div class="page">
-    <NavMenu />
+     <nav class="left-navigation">
+            <ul>
+                <li>
+                    <a href="/Dashboard">Dashboard</a>
+                </li>
+                <li>
+                    <a href="/Reminders">Reminders</a>
+                </li>       
+                <li>
+                    <a href="/FAQ">FAQ</a>
+                </li>
+            </ul>
+        </nav>
     <main>
-        @Body
+        @Body  
+        <div class="navDots">
+            <div class="circles">
+                <div class="circle"></div>
+                <div class="circle"></div>
+                <div class="circle"></div>
+            </div>
+        </div>
     </main>
 </div>
 
-<div id="blazor-error-ui">
+@* <div id="blazor-error-ui">
     An unhandled error has occurred.
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
-</div>
+</div> *@

@@ -24,6 +24,14 @@ body.light-theme {
     @include light-theme;
 }
 
+body {
+    position: relative;
+    height: 100vh;
+    width: 100vw;
+    color: var(--clr-100);
+    background-color: var(--clr-300);
+}
+
 // Needed to prevent overwritten by _reboot.scss
 p {
     margin: 0;
@@ -109,8 +117,97 @@ p {
     } 
 }
 
-body {
-    background-color: var(--clr-300);
-    color: var(--clr-100);
+.page {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    width: 100%;
+    height: calc(100vh - 100px);
+ 
+    nav.left-navigation {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        width: 300px;
+        height: calc(100vh - 100px);
+        background-color: var(--clr-300);
+        padding-top: 20px;
+    
+        ul {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            width: 80%;
+            height: auto;
+            list-style: none;
+    
+            li {
+                position: relative;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 250px;
+                height: 75px;
+                border-radius: 25px;
+                margin-bottom: 20px;
+                background-color: var(--clr-200);
+                transition: 150ms linear;
+    
+                a {
+                    text-decoration: none;
+                    color: var(--clr-400);
+                    font-size: var(--fs-xl);
+                }
+            }
+    
+            li:hover, li.active {
+                background-color: var(--clr-100);
+            }
+    
+            li:hover {
+                transform: scale(0.95);
+            }
+        }
+    }
+
+    main {
+        position: relative;
+        height: 100%;
+        width: calc(100vw - 300px);
+        border-radius: 40px 0px 0px 0px;
+        background-color: var(--clr-100);
+
+        .navDots {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+
+            .circles {
+                .circle {
+                    width: 16px;
+                    height: 16px;
+                    border-radius: 25px;
+                    opacity: 50%;
+                    background-color: var(--clr-400);
+                }
+
+                .circle.active {
+                    width: 24px;
+                    height: 24px;
+                    opacity: 25%;
+                    background-color: var(--clr-400);
+                }
+            }
+        }
+    }
 }
+
+
+
 
