@@ -22,7 +22,7 @@ public class RompiRobot : Sensors {
     {
         Name = "Wall-E";
         DrivingController = new DrivingController();
-        MessageSender = new MessageService("#");
+        MessageSender = new MessageService("robot");
         MessageReceiver = new MessageService("web");
         IsMeasuring = false;
         IsBusyWithCheckingBatteryState = false;
