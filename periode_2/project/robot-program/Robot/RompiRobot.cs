@@ -94,6 +94,7 @@ public class RompiRobot : Sensors {
                 lcdTextAnimation.CancelCountDownAnimation();
             } 
             await CountDownAnimationTask; // awaiting for currently running countDownAnimation task before continuing
+            DrivingController.GrantPermissionToDrive();
             led.SetOff();
         }    
     }
