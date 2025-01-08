@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+:root {
+    --font-family: "Lato", sans-serif;
+    --icon-xs: 16px;
+    --icon-sm: 24px;
+    --icon-md: 32px;
+    --icon-lg: 48px;
+    --icon-xl: 64px;
+}
+
+@mixin normal-font-size() {
+    --fs-xs: 12px;
+    --fs-sm: 14px;
+    --fs-md: 16px;
+    --fs-lg: 18px;
+    --fs-xl: 20px;
+    --fs-xxl: 22px;
+    --fs-xxxl: 24px;
+}
+
+@mixin large-font-size() {
+    --fs-xs: 14px;
+    --fs-sm: 16px;
+    --fs-md: 18px;
+    --fs-lg: 20px;
+    --fs-xl: 22px;
+    --fs-xxl: 24px;
+    --fs-xxxl: 26px;
+}
+
+@mixin light-theme() {
+    --clr-100: #ECEBDE;
+    --clr-200: #D7D3BF;
+    --clr-300: #C1BAA1;
+    --clr-400: #293132;
+
+    --active-color: #156064;
+    --slider-bg: #ECEBDE;
+    
+    --robot-online: #6CEE52;
+    --robot-offline: #EE5252;
+    --robot-on: #8FDD7F;
+    --robot-off: #D8726F;
+}
+
+@mixin dark-theme() {
+    --clr-100: #424242;
+    --clr-200: #5F5F5F;
+    --clr-300: #1E1E1E;
+    --clr-400: #DDDDDD;
+
+    --active-color: #00D0FF;
+    --slider-bg: #8D8D8D;
+    
+    --robot-online: #6CEE52;
+    --robot-offline: #EE5252;
+    --robot-on: #8FDD7F;
+    --robot-off: #D8726F;
+}

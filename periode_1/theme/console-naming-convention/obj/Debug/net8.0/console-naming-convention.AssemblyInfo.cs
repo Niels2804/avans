@@ -13,7 +13,11 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("console-naming-convention")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d360d80f6c41d134f47df539efa7272b7fcff57d")]
+<<<<<<< HEAD
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+22b5255542f003f03ad929dde5bc72054be108f8")]
+=======
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+27af7697efc7e16f95e2f8c4ba7fcdf141b04fa6")]
+>>>>>>> project-fzh-robot
 [assembly: System.Reflection.AssemblyProductAttribute("console-naming-convention")]
 [assembly: System.Reflection.AssemblyTitleAttribute("console-naming-convention")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,0 +1,24 @@
+﻿@page "/"
+@using BlazorMqttDatabase.Services
+@inject IUserRepository UserRepository;
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<button class="btn btn-primary" @onclick="AddUser">Voeg gebruiker toe</button>
+
+@code 
+{
+    public void AddUser()
+    {
+        UserRepository.SaveUser(new User()
+        {
+            Name = "Johan",
+            Age = 40,
+            IsActive = true
+        });
+    }
+}

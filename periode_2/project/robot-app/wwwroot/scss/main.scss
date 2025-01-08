@@ -1,0 +1,116 @@
+@use './variables' as *;
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    text-decoration: none;
+    font-family: var(--font-family);
+}
+
+body.normal-font-size {
+    @include normal-font-size;
+}
+
+body.large-font-size {
+    @include large-font-size;
+}
+
+body.dark-theme {
+    @include dark-theme;
+}
+
+body.light-theme {
+    @include light-theme;
+}
+
+// Needed to prevent overwritten by _reboot.scss
+p {
+    margin: 0;
+}
+
+.top-navigation {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100px;
+    width: auto;
+    padding: 20px;
+    color: var(--clr-400);
+
+    .project-title {
+        font-size: var(--fs-xxxl);
+    }
+
+    .status-navigation {
+        position: relative;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        height: auto;
+        color: var(--clr-400);
+    
+        .wifi, .online-status, .settings {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }  
+
+        .wifi, .settings {
+            width: var(--icon-lg);
+            height: var(--icon-lg);
+        }
+
+        .online-status {
+            justify-content: space-between;
+            margin: 0 20px;
+
+            .online-status-text {
+                font-size: var(--fs-xl);
+                margin-right: 10px;
+            }
+
+            .online-status-circle {
+                width: var(--icon-sm);
+                height: var(--icon-sm);
+                border-radius: 25px;
+                transition: 200ms linear;
+            }
+
+            .online-status-circle[data-status="true"] {
+                background-color: var(--robot-online);
+            }
+
+            .online-status-circle[data-status="false"] {
+                background-color: var(--robot-offline);
+            }
+        }
+
+        .settings-button {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            border: none;
+            
+            i {
+                transition: 150ms linear;
+                font-size: var(--icon-lg);
+            }
+        }
+
+        .settings-button:hover {
+            i {
+                transform: rotate(10deg) scale(0.99);
+                opacity: 0.75;
+            }
+        }
+    } 
+}
+
+body {
+    background-color: var(--clr-300);
+    color: var(--clr-100);
+}
+
