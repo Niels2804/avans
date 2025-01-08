@@ -22,7 +22,7 @@ public class RompiRobot : Sensors {
     {
         Name = "Wall-E";
         DrivingController = new DrivingController();
-        MessageSender = new MessageService("robot");
+        MessageSender = new MessageService("#");
         MessageReceiver = new MessageService("web");
         IsMeasuring = false;
         IsBusyWithCheckingBatteryState = false;
@@ -124,11 +124,8 @@ public class RompiRobot : Sensors {
                 if (Enum.TryParse(messageData.Value, out Mentions mention)) // Warning!! Is case-sensitive!!
                 {
                     await PlayAnnouncement("Warning", Mentions.Warning);
-                    DrivingController.RevokePermissionToDrive();
-                    IsBusyWithDriving = false;
-                    await PlayAnnouncement("Robot paused", Mentions.Paused);
                     await PlayAnnouncement("Reminder \nmessage!!", (Mentions)Enum.Parse(typeof(Mentions), messageData.Value));
-                    DrivingController.GrantPermissionToDrive();
+                    await PlayAnnouncement("Reminder \nmessage!!", (Mentions)Enum.Parse(typeof(Mentions), messageData.Value));
                 } 
                 else 
                 {
@@ -161,7 +158,7 @@ public class RompiRobot : Sensors {
 
     private async Task CountDownForMeasureMovement()
     {
-        int countdownTimer = new Random().Next(10, 15);
+        int countdownTimer = new Random().Next(10, 40);
         while(DrivingController.StatusPermissionToDrive() && !IsMeasuring)
         {
             countdownTimer--;

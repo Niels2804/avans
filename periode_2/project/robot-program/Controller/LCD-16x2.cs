@@ -82,6 +82,7 @@ namespace LCDScreen
                 await speaker.PlayMusic(Mentions.Warning);
                 await speaker.PlayMusic(Mentions.Shutdown);
             }
+            lcdTextAnimation.CancelCountDownAnimation();
         }
     }
 }
