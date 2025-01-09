@@ -1,15 +1,12 @@
-@page "/"
+@page "/Reminders"
 @using System.ComponentModel.DataAnnotations
 @using BlazorMqttDatabase.Services
 @using robot_app.Components.Pages
 @rendermode InteractiveServer
 @inject IUserRepository userRepository
 
-<div class="pages">
-    <Dash/>
-    <Reminders/>
-    <FAQ/>
-</div>
+
+<div id="reminders" class="page scroll-snappable"></div>
 
 @code {
 

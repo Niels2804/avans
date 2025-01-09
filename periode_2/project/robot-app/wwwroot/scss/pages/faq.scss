@@ -1,0 +1,6 @@
+@use '../variables' as *;
+@mixin faq() {
+   #faq {
+      background-color: var(--clr-400);
+   }
+}

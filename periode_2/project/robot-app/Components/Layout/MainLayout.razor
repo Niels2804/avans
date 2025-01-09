@@ -1,35 +1,40 @@
 ﻿@inherits LayoutComponentBase
 
 <NavMenu />
-<div class="page">
+<div class="main-page">
      <nav class="left-navigation">
             <ul>
-                <li class="active">
-                    <a href="/Dashboard">Dashboard</a>
+                <li class="nav-item" data-item="dashboard">
+                    <a href="#dashboard">Dashboard</a>
                 </li>
-                <li>
-                    <a href="/Reminders">Reminders</a>
-                </li>       
-                <li>
-                    <a href="/FAQ">FAQ</a>
-                </li>
+                <li class="nav-item" data-item="reminders">
+                    <a href="#reminders">Reminders</a>
+                </li>          
+                <li class="nav-item" data-item="faq">
+                    <a href="#faq">FAQ</a>
+                </li>  
             </ul>
         </nav>
     <main>
-        @* <h1 class="pageTitle">Dashboard</h1> *@
+        <h1 class="pageTitle">Dashboard</h1>
         @Body  
-        <div class="navDots">
-            <div class="circles">
-                <div class="circle active"></div>
-                <div class="circle"></div>
-                <div class="circle"></div>
-            </div>
-        </div>
+        <nav class="navDots">
+            <ul class="circles">
+                <li class="circle nav-item" data-item="dashboard">
+                    <a href="#dashboard"></a>
+                </li>
+                <li class="circle nav-item" data-item="reminders">
+                    <a href="#reminders"></a>
+                </li>    
+                <li class="circle nav-item" data-item="faq">
+                    <a href="#faq"></a>
+                </li>
+            </ul>
+        </nav>
     </main>
+    <div id="loader-overlay">
+        <h2>Aan het laden...</h2>
+        <div class="spinner"></div>
+    </div>
 </div>
 
-@* <div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
-</div> *@

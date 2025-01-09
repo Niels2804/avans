@@ -1,6 +1,11 @@
-﻿<Router AppAssembly="typeof(Program).Assembly">
+﻿@using robot_app.Components.Pages
+<Router AppAssembly="typeof(Program).Assembly">
     <Found Context="routeData">
         <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
         <FocusOnNavigate RouteData="routeData" Selector="h1" />
     </Found>
+    <NotFound>
+        <PageTitle>Pagina niet gevonden</PageTitle>
+        <Error />
+    </NotFound>
 </Router>

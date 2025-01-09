@@ -28,11 +28,23 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
 app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+// 404 Middleware
+app.Use(async (context, next) =>
+{
+    await next();
+
+    if (context.Response.StatusCode == 404 && !context.Response.HasStarted)
+    {
+        context.Response.Clear();
+        context.Response.StatusCode = 404;
+        context.Response.Redirect("/Error"); // Verwijst naar mijn 404-error pagina
+    }
+});
 
 app.Run();
