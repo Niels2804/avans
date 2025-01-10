@@ -47,7 +47,7 @@ namespace PIRmotion
                 await Task.Delay(200); // Prevents CPU-overload
             }
 
-            await PlayAnnouncement("Stopped measuring \nenvironment", Mentions.Stopped);
+            await PlayAnnouncement("Stopped \nmeasuring", Mentions.Stopped);
             double movementPercentage = detectedMovement / (detectedMovement + detectedNoMovement) * 100; // Calculates percentage
             if(movementPercentage >= 40) // Better calculation to decide or there was some movement
             {

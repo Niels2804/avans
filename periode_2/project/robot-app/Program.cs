@@ -8,8 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddSingleton<IUserRepository>(new SqlUserRepository());
 var simpleMqttClient = SimpleMqttClient.CreateSimpleMqttClientForHiveMQ("webapp");
+builder.Services.AddSingleton<SqlUserRepository>();
 builder.Services.AddSingleton(simpleMqttClient); 
 builder.Services.AddHostedService<MqttMessageProcessingService>();
 
@@ -18,6 +18,16 @@ builder.Services.AddHostedService<MqttMessageProcessingService>();
 #endif
 
 var app = builder.Build();
+
+// Verplichte asynchrone initialisatie, zodat de database gegevens goed zijn ingeladen bij het eerste keer inladen van de pagina
+using (var scope = app.Services.CreateScope())
+{
+    var sqlUserRepository = scope.ServiceProvider.GetRequiredService<SqlUserRepository>();
+
+    Console.WriteLine("Initialiseren van gebruikersdata...");
+    await sqlUserRepository.InitializeData();
+    Console.WriteLine("Data succesvol geladen!");
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

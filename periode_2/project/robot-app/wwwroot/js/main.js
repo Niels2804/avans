@@ -9,8 +9,19 @@ window.onload = () => {
         document.getElementById('loader-overlay').style.visibility = 'visible';
     });
 
+    // Functie om de eerste letter van een string te kapitaliseren
+    function capitalizeFirstLetter(string) {
+        if (string.toLowerCase() === "faq") {
+            return string.toUpperCase(); // Maak alles hoofdletters
+        }
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    let observerCooldown = false; // Houdt bij of de observer op cooldown is
+
     // Maak de observer aan
     const observer = new IntersectionObserver((entries) => {
+        if (observerCooldown) return;
         entries.forEach(entry => {
             // Wanneer de sectie zichtbaar is (drempel van 50%)
             if (entry.isIntersecting) {
@@ -25,10 +36,11 @@ window.onload = () => {
 
                 // Voeg de 'active' klasse toe aan het juiste nav-item
                 document.querySelectorAll(`.nav-item[data-item="${sectionId}"]`).forEach(el => el.classList.add('active'));
+                document.querySelector('.pageTitle').textContent = capitalizeFirstLetter(sectionId);
             }
         });
     }, {
-        threshold: 0.5 // Zorg ervoor dat 50% van de sectie zichtbaar is om deze te detecteren
+        threshold: 0.2 // Zorg ervoor dat 20% van de sectie zichtbaar is om deze te detecteren
     });
 
     // Selecteer de elementen waarop je de observer wilt toepassen
@@ -38,9 +50,14 @@ window.onload = () => {
 
     document.querySelectorAll('.nav-item').forEach(link => {
         link.addEventListener('click', () => {
+            observerCooldown = true;
             const item = link.getAttribute('data-item');
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.querySelectorAll(`.nav-item[data-item="${item}"]`).forEach(el => el.classList.add('active'));
+            document.querySelector('.pageTitle').textContent = capitalizeFirstLetter(item);
+            setTimeout(() => {
+                observerCooldown = false;
+            }, 500);        
         });
     });
     

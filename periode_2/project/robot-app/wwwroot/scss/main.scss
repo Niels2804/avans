@@ -226,6 +226,7 @@ p {
         h1.pageTitle {
             text-align: start;
             font-size: var(--fs-xxxl);
+            transition: 150ms linear;
         }
 
         .pages {

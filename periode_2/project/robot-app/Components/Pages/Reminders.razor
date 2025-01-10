@@ -2,12 +2,310 @@
 @using System.ComponentModel.DataAnnotations
 @using BlazorMqttDatabase.Services
 @using robot_app.Components.Pages
+@using static System.Runtime.InteropServices.JavaScript.JSType
+
 @rendermode InteractiveServer
-@inject IUserRepository userRepository
 
+@inject SqlUserRepository SqlUserRepository
 
-<div id="reminders" class="page scroll-snappable"></div>
+<div id="reminders" class="page">
+    <div class="filters">
+        <button class="filter-by-category">Filteren op categorie</button>
+        <button class="filter-by-day">Filteren op dag</button>
+        <button class="filter-by-time">Filteren op tijd</button>
+    </div>
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Datum</th>
+                <th>Tijd</th>
+                <th>Categorie</th>
+                <th>Opmerkingen</th>
+                <th>Snelle acties</th>
+            </tr>
+            @foreach(Timer timer in SqlUserRepository.Timers.Values) {
+            <tr>
+                <td>@timer.Date.ToString("dd-MM-yyyy")</td>
+                <td>@timer.Date.ToString("HH:mm")e</td>
+                <td>@timer.Category</td>
+                <td>@timer.Comment</td>
+                <td>
+                    <p data-type="@(timer.IsActive ? "true" : "false")"></p>
+                    <button class="edit" @onclick="async () => await StartEditingForm(timer.TimerId)">edit</button>
+                    <button class="delete" @onclick="async () => await DeleteRow(timer.TimerId)">delete</button>
+                </td>
+            </tr>
+            }
+        </table>
+    </div>
+    <button class="add-reminder" @onclick="StartEditingNewForm">Voeg een nieuwe herinnering toe</button>
+
+    @* Rij updaten *@
+    @if(editForm) {
+        <p>Rij updaten</p>
+        <EditForm Model="@timerFormModelEdit" OnValidSubmit="SaveChanges">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="col-sm-6">
+           <div class="form-group mt-2">
+                <label for="inputDate">Datum</label>
+                <InputDate id="inputDate" class="form-control" @bind-Value="timerFormModelEdit.Date" />
+            </div>
+            <div class="form-group mt-2">
+                <label for="inputTime">Tijd</label>
+                <input type="time" id="inputTime" class="form-control" @bind="timerFormModelEdit.Time"/>
+            </div>
+            <div class="form-group mt-2">
+                <label for="inputCategory">Categorie</label>
+                <select id="inputCategory" class="form-control" @bind="timerFormModelEdit.Category">
+                        <option value="" disabled selected>@("Selecteer hier een categorie")</option>
+                        @foreach (var category in categories)
+                        {
+                            <option value="@category.Value">@category.Text</option>
+                        }
+                </select>
+                <ValidationMessage For="@(() => timerFormModelEdit.Category)" />
+            </div>
+            <div class="form-group mt-2">
+                <label for="inputComment">Commentaar</label>
+                <textarea id="inputComment" class="form-control" rows="4" @bind="timerFormModelEdit.Comment" style="resize: none;"></textarea>
+            </div>
+            <div class="form-check mt-2">
+                <InputCheckbox id="isActief" class="form-check-input" @bind-Value="timerFormModelEdit.IsActive" />
+                <label class="form-check-label" for="isActief">Melding staat aan</label>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary">Opslaan</button>
+            </div>
+        </div>
+    </EditForm>
+        <button class="edit" @onclick="CancelEditingForm">stop editing</button>
+    }
+
+    @* Rij toevoegen *@
+       @if(newForm) {
+        <p>Rij Toevoegen</p>
+        <EditForm Model="@timerFormModelNew" OnValidSubmit="SaveConceptForm">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="col-sm-6">
+           <div class="form-group mt-2">
+                <label for="inputDate">Datum</label>
+                <InputDate id="inputDate" class="form-control" @bind-Value="timerFormModelNew.Date" />
+            </div>
+            <div class="form-group mt-2">
+                <label for="inputTime">Tijd</label>
+                <input type="time" id="inputTime" class="form-control" @bind="timerFormModelNew.Time"/>
+            </div>
+            <div class="form-group mt-2">
+                <label for="inputCategory">Categorie</label>
+                <select id="inputCategory" class="form-control" @bind="timerFormModelNew.Category">
+                        <option value="" disabled selected>@("Selecteer hier een categorie")</option>
+                        @foreach (var category in categories)
+                        {
+                            <option value="@category.Value">@category.Text</option>
+                        }
+                </select>
+                <ValidationMessage For="@(() => timerFormModelNew.Category)" />
+            </div>
+            <div class="form-group mt-2">
+                <label for="inputComment">Commentaar</label>
+                <textarea id="inputComment" class="form-control" rows="4" @bind="timerFormModelNew.Comment" style="resize: none;"></textarea>
+            </div>
+            <div class="form-check mt-2">
+                <InputCheckbox id="isActief" class="form-check-input" @bind-Value="timerFormModelNew.IsActive" />
+                <label class="form-check-label" for="isActief">Melding staat aan</label>
+            </div>
+            <div>
+                <button type="submit" class="btn btn-primary">Opslaan</button>
+            </div>
+        </div>
+    </EditForm>
+        <button class="delete-concept" @onclick="CancelConceptForm">Verwijder concept</button>
+    }
+</div>
 
 @code {
+    private bool editForm = false;
+    private bool newForm = false;
+    private bool isSubmitted = false;
+    TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Amsterdam");
+    private TimerFormModelNew? timerFormModelNew {get; set;}
+    private TimerFormModelEdit? timerFormModelEdit {get; set;}
+    private List<CategoryOption> categories = new List<CategoryOption>
+    {
+        new CategoryOption { Value = "TimeToEat", Text = "Het is tijd om te eten." },
+        new CategoryOption { Value = "TimeToBrushTeeth", Text = "Het is tijd om uw tanden te poetsen." },
+        new CategoryOption { Value = "TimeToSleep", Text = "Het is tijd om te slapen." },
+        new CategoryOption { Value = "TimeToWakeUp", Text = "Het is tijd om op te staan." },
+        new CategoryOption { Value = "TurnOffLivingRoomLight", Text = "Vergeet niet de huiskamerverlichting uit te schakelen." },
+        new CategoryOption { Value = "TimeForMedication", Text = "Het is tijd voor uw medicatie." },
+        new CategoryOption { Value = "TimeToRest", Text = "Het is tijd om uit te rusten." },
+        new CategoryOption { Value = "TimeForExercise", Text = "Laten we een korte wandeling maken." },
+        new CategoryOption { Value = "TimeToDrink", Text = "Vergeet niet om wat water te drinken." },
+        new CategoryOption { Value = "TimeToCheckBloodSugar", Text = "Vergeet niet om uw bloedsuiker te controleren." },
+        new CategoryOption { Value = "TimeForAppointment", Text = "U heeft een afspraak, controleer uw agenda." },
+        new CategoryOption { Value = "TimeToRelax", Text = "Laten we wat ontspannen." },
+        new CategoryOption { Value = "TimeToRead", Text = "Laten we samen een boek lezen." },
+        new CategoryOption { Value = "TimeToListenMusic", Text = "Laten we naar wat muziek luisteren." },
+        new CategoryOption { Value = "TimeToCallHealthCareProvider", Text = "Het is tijd om uw zorgverlener te bellen." },
+        new CategoryOption { Value = "TimeToCheckMail", Text = "Vergeet niet uw post te controleren." },
+        new CategoryOption { Value = "TimeToWaterPlants", Text = "Laten we de planten water geven." },
+        new CategoryOption { Value = "TimeToFeedPet", Text = "Het is tijd om uw huisdier te voeren." },
+        new CategoryOption { Value = "TimeToShower", Text = "Het is tijd om een douche te nemen." },
+        new CategoryOption { Value = "TimeToChangeClothes", Text = "Laten we uw kleding verwisselen." },
+        new CategoryOption { Value = "TimeToCheckCalendar", Text = "Bekijk uw agenda voor de komende afspraken." },
+        new CategoryOption { Value = "TimeToDoExercise", Text = "Laten we wat lichte oefeningen doen." },
+        new CategoryOption { Value = "TimeToDoBreathingExercise", Text = "Laten we een ademhalingsoefening doen." },
+        new CategoryOption { Value = "TimeToDoStretching", Text = "Laten we wat rek- en strekoefeningen doen." },
+        new CategoryOption { Value = "TimeToDoMemoryGame", Text = "Laten we een geheugenspel spelen." },
+        new CategoryOption { Value = "TimeToDoPuzzle", Text = "Laten we samen een puzzel maken." },
+        new CategoryOption { Value = "TimeToDoCraft", Text = "Laten we wat knutselen." },
+        new CategoryOption { Value = "TimeToDoGardening", Text = "Laten we wat tuinieren." },
+        new CategoryOption { Value = "TimeToDoCooking", Text = "Het is tijd om te koken." },
+        new CategoryOption { Value = "TimeToDoCleaning", Text = "Laten we wat opruimen." },
+        new CategoryOption { Value = "TimeToDoShopping", Text = "Het is tijd om de boodschappen te doen." },
+        new CategoryOption { Value = "TimeToDoLaundry", Text = "Laten we de was doen." },
+        new CategoryOption { Value = "TimeToDoIroning", Text = "Laten we strijken." },
+        new CategoryOption { Value = "TimeToDoDishes", Text = "Vergeet de afwas niet te doen." },
+        new CategoryOption { Value = "TimeToDoReading", Text = "Laten we samen een boek lezen." },
+        new CategoryOption { Value = "TimeToDoWriting", Text = "Laten we samen schrijven." },
+        new CategoryOption { Value = "TimeToDoDrawing", Text = "Laten we samen tekenen." },
+        new CategoryOption { Value = "TimeToDoPainting", Text = "Laten we samen schilderen." },
+        new CategoryOption { Value = "TimeToDoSinging", Text = "Laten we samen zingen." },
 
+        // Music
+        new CategoryOption { Value = "FrancisWells", Text = "Francis Wells - Live a Little" },
+        new CategoryOption { Value = "Portal", Text = "Portal 4000 Degrees Kelvin" }
+    };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+    }
+
+    // UPDATE form
+
+    private async Task StartEditingForm(int timerId) 
+    {
+        Timer selectedTimerData = SqlUserRepository.Timers[timerId];
+        timerFormModelEdit = new TimerFormModelEdit();
+
+        timerFormModelEdit.TimerId = timerId;
+        timerFormModelEdit.Date = selectedTimerData.Date;
+        timerFormModelEdit.Time = selectedTimerData.Date;
+        timerFormModelEdit.Category = selectedTimerData.Category;
+        timerFormModelEdit.Comment = selectedTimerData.Comment;
+        timerFormModelEdit.IsActive = selectedTimerData.IsActive;
+        editForm = true;
+    }
+
+    private void CancelEditingForm()
+    {
+        timerFormModelEdit = null; // Prevents corrupted data
+        editForm = false;
+    }
+
+    private async Task SaveChanges()
+    {
+        DateTime combinedDateTime = new DateTime(
+            timerFormModelEdit.Date.Year, 
+            timerFormModelEdit.Date.Month, 
+            timerFormModelEdit.Date.Day, 
+            timerFormModelEdit.Time.Hour, 
+            timerFormModelEdit.Time.Minute, 
+            timerFormModelEdit.Time.Second
+        );
+
+        // Opslaan logica
+        Timer newTimer = new Timer();
+        newTimer.TimerId = timerFormModelEdit.TimerId;
+        newTimer.Date = combinedDateTime;
+        newTimer.Category = timerFormModelEdit.Category;
+        newTimer.Comment = timerFormModelEdit.Comment;
+        newTimer.IsActive = timerFormModelEdit.IsActive;
+        await SqlUserRepository.UpdateTimer(newTimer);
+        editForm = false;
+        await SqlUserRepository.InitializeData();
+    }
+
+    // NEW form
+    private void StartEditingNewForm() 
+    {
+        timerFormModelNew = new TimerFormModelNew(); // Creating new form
+        timerFormModelNew.Date = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
+        timerFormModelNew.Time = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
+        timerFormModelNew.IsActive = true;
+        newForm = true;
+    }
+
+    private void CancelConceptForm()
+    {
+        timerFormModelNew = null; // Prevents corrupted data
+        newForm = false;
+    }
+
+    private async Task SaveConceptForm()
+    {
+        DateTime combinedDateTime = new DateTime(
+            timerFormModelNew.Date.Year, 
+            timerFormModelNew.Date.Month, 
+            timerFormModelNew.Date.Day, 
+            timerFormModelNew.Time.Hour, 
+            timerFormModelNew.Time.Minute, 
+            timerFormModelNew.Time.Second
+        );
+
+        // Opslaan logica
+        Timer newTimer = new Timer();
+        newTimer.Date = combinedDateTime;
+        newTimer.Category = timerFormModelNew.Category;
+        newTimer.Comment = timerFormModelNew.Comment;
+        newTimer.IsActive = timerFormModelNew.IsActive;
+        await SqlUserRepository.AddNewTimer(newTimer);
+        newForm = false;
+        await SqlUserRepository.InitializeData();
+    }
+
+    // DELETE form
+    private async Task DeleteRow(int timerId) 
+    {
+        await SqlUserRepository.DeleteTimer(timerId);
+        await SqlUserRepository.InitializeData();
+    }
+    public class TimerFormModelEdit
+    {
+        public int TimerId { get; set; }
+
+        [Required(ErrorMessage = "Datum is verplicht!")]
+        public DateTime Date { get; set; }
+        
+        [Required(ErrorMessage = "Tijd is verplicht!")]
+        public DateTime Time { get; set; }
+        
+        [Required(ErrorMessage = "Categorie is verplicht!")]
+        public string Category { get; set; }
+        public string? Comment { get; set; }
+        public bool IsActive { get; set; } = true;
+    }
+
+    public class TimerFormModelNew
+    {
+        [Required(ErrorMessage = "Datum is verplicht!")]
+        public DateTime Date { get; set; }
+        
+        [Required(ErrorMessage = "Tijd is verplicht!")]
+        public DateTime Time { get; set; }
+        
+        [Required(ErrorMessage = "Categorie is verplicht!")]
+        public string Category { get; set; }
+        public string? Comment { get; set; }
+        public bool IsActive { get; set; } = true;
+    }
+
+    public class CategoryOption
+    {
+        public string Value { get; set; }
+        public string Text { get; set; }
+    }
 }

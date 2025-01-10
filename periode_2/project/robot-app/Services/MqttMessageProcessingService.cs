@@ -2,12 +2,10 @@ using BlazorMqttDatabase.Services;
 using SimpleMqtt;
 public class MqttMessageProcessingService : IHostedService
 {
-    private readonly IUserRepository _userRepository;    
     private readonly SimpleMqttClient _mqttClient;
-    public MqttMessageProcessingService(IUserRepository userRepository, SimpleMqttClient mqttClient)
+    public MqttMessageProcessingService(SimpleMqttClient mqttClient)
     {
       	_mqttClient = mqttClient;
-        _userRepository = userRepository;  
         _mqttClient.OnMessageReceived += (sender, args) => {
             Console.WriteLine($"Incoming MQTT message on {args.Topic}:{args.Message}");
         };
@@ -15,10 +13,9 @@ public class MqttMessageProcessingService : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        
-        await _mqttClient.SubscribeToTopic("Wall-E");
+        await _mqttClient.SubscribeToTopic("robot");
     }
-
+ 
     public async Task StopAsync(CancellationToken cancellationToken)
     {
         _mqttClient.Dispose();  
