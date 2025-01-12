@@ -106,6 +106,7 @@ public class RompiRobot : Sensors {
         if(message == null || !message.Contains('|'))
         {
             Console.WriteLine($"1: Ongeldige bericht formaat: {message}");
+            await MessageReceiver.StopReceivingMessages();
             IsBusyWithReceivingMessage = false;
             return;
         } 
@@ -116,6 +117,7 @@ public class RompiRobot : Sensors {
             messageData = new MessageData(messageParts[0], messageParts[1]);
         } else {
             Console.WriteLine($"2: Ongeldige bericht formaat: {message}");
+            await MessageReceiver.StopReceivingMessages();
             IsBusyWithReceivingMessage = false;
             return;
         }
@@ -154,6 +156,7 @@ public class RompiRobot : Sensors {
                 Console.WriteLine("Geen geldige datatype gevonden.");
                 break;
         }
+        await MessageReceiver.StopReceivingMessages();
         IsBusyWithReceivingMessage = false;
     }
 
