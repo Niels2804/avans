@@ -131,6 +131,7 @@ public class RompiRobot : Sensors {
                 {
                     Console.WriteLine($"Mention type {messageData.Value} bestaat niet.");
                 }
+                await MessageSender.SendMessage($"mentionFinished|true");
                 break;
             case "hasPermissionToDrive":
                 try {

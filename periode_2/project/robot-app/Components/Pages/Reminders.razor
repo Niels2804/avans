@@ -7,6 +7,7 @@
 @rendermode InteractiveServer
 
 @inject SqlUserRepository SqlUserRepository
+@inject MqttExternalMessageProcessingService MqttService
 
 <div id="reminders" class="page">
     <div class="filters">
@@ -39,55 +40,140 @@
         </table>
     </div>
     <button class="add-reminder" @onclick="() => StartForm(null)">Voeg een nieuwe herinnering toe</button>
-
-    @if(formActive) {
-        <p>@(editMode ? "Rij updaten" : "Rij toevoegen")</p>
-        <EditForm Model="formModel" OnValidSubmit="SaveForm">
-            <DataAnnotationsValidator />
-            <ValidationSummary />
-            <div class="col-sm-6">
-                <div class="form-group mt-2">
-                    <label for="inputDate">Datum</label>
-                    <InputDate id="inputDate" class="form-control" @bind-Value="formModel.Date" />
+    <div class="pop-up @(editMode ? "active" : "")">
+            @if(formActive) {
+            <p>@(editMode ? "Rij updaten" : "Rij toevoegen")</p>
+            <EditForm Model="formModel" OnValidSubmit="SaveForm">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="col-sm-6">
+                    <div class="form-group mt-2">
+                        <label for="inputDate">Datum</label>
+                        <InputDate id="inputDate" class="form-control" @bind-Value="formModel.Date" />
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="inputTime">Tijd</label>
+                        <input type="time" id="inputTime" class="form-control" @bind="formModel.Time" />
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="inputCategory">Categorie</label>
+                        <select id="inputCategory" class="form-control" @bind="formModel.Category">
+                            <option value="" disabled selected>Selecteer hier een categorie</option>
+                            @foreach (var category in categories)
+                            {
+                                <option value="@category.Value">@category.Text</option>
+                            }
+                        </select>
+                        <ValidationMessage For="@(() => formModel.Category)" />
+                    </div>
+                    <div class="form-group mt-2">
+                        <label for="inputComment">Commentaar</label>
+                        <textarea id="inputComment" class="form-control" rows="4" @bind="formModel.Comment" style="resize: none;"></textarea>
+                    </div>
+                    <div class="form-check mt-2">
+                        <InputCheckbox id="isActief" class="form-check-input" @bind-Value="formModel.IsActive" />
+                        <label class="form-check-label" for="isActief">Melding staat aan</label>
+                    </div>
+                    <div>
+                        <button type="submit" class="btn btn-primary">Opslaan</button>
+                    </div>
                 </div>
-                <div class="form-group mt-2">
-                    <label for="inputTime">Tijd</label>
-                    <input type="time" id="inputTime" class="form-control" @bind="formModel.Time" />
-                </div>
-                <div class="form-group mt-2">
-                    <label for="inputCategory">Categorie</label>
-                    <select id="inputCategory" class="form-control" @bind="formModel.Category">
-                        <option value="" disabled selected>Selecteer hier een categorie</option>
-                        @foreach (var category in categories)
-                        {
-                            <option value="@category.Value">@category.Text</option>
-                        }
-                    </select>
-                    <ValidationMessage For="@(() => formModel.Category)" />
-                </div>
-                <div class="form-group mt-2">
-                    <label for="inputComment">Commentaar</label>
-                    <textarea id="inputComment" class="form-control" rows="4" @bind="formModel.Comment" style="resize: none;"></textarea>
-                </div>
-                <div class="form-check mt-2">
-                    <InputCheckbox id="isActief" class="form-check-input" @bind-Value="formModel.IsActive" />
-                    <label class="form-check-label" for="isActief">Melding staat aan</label>
-                </div>
-                <div>
-                    <button type="submit" class="btn btn-primary">Opslaan</button>
-                </div>
-            </div>
-        </EditForm>
-        <button class="cancel" @onclick="CancelForm">Annuleren</button>
-    }
+            </EditForm>
+            <button class="cancel" @onclick="CancelForm">Annuleren</button>
+        }
+    </div>
 </div>
-
 @code {
     private bool formActive = false;
     private bool editMode = false;
     private TimerFormModel? formModel;
     private readonly TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Amsterdam");
+    private DateTime currentTime;
+    private DateTime previousTime;
+    private Queue<Timer> timersToRunQueue = new Queue<Timer>();
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Checks or reminder is active
+        if(firstRender) 
+        {
+            _ = Task.Run(() => ProgressQueue());
+            var timer = new System.Threading.Timer(e => {
+                InvokeAsync(() => {
+                    DateTime newTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
+                    if(newTime != currentTime)
+                    {
+                        previousTime = currentTime;
+                        currentTime = newTime;
+                        CheckReminderStatus();
+                        StateHasChanged();
+                    }
+                });
+            }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+        }
+    }
+
+    // Can't run async, checks every second or a timer has reached the current time
+    private void CheckReminderStatus()
+    {
+        foreach(var timer in SqlUserRepository.Timers)
+        {
+            if(timer.Value.Date <= currentTime)
+            {
+                timersToRunQueue.Enqueue(timer.Value);
+                @* SqlUserRepository.Timers.Remove(timer.Key); *@
+            }
+        }
+    }
+
+    // Progresses the timersToRunQueue one by one
+    private async Task ProgressQueue()
+    {
+        while(true)
+        {
+            while(timersToRunQueue.Count > 0)
+            {
+                Timer timer = timersToRunQueue.Dequeue();
+                await MqttService.PublishMessageToRobot(timer.Category, "mention"); // sending MQTT message to robot to mention
+
+                var tcs = new TaskCompletionSource<bool>();
+
+                // Maak de event handler die het resultaat instelt in de TCS.
+                EventHandler<bool> callbackHandler = null;
+                callbackHandler = (sender, e) =>
+                {
+                    tcs.TrySetResult(true); 
+                    MqttService.RobotFinishedMentionCallback -= callbackHandler; 
+                };
+
+                // Voeg de event handler toe
+                MqttService.RobotFinishedMentionCallback += callbackHandler;
+
+                // Wacht op de callback of time-out
+                var timeoutTask = Task.Delay(30000); // Standaard time-out na 30 seconden
+                var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
+
+                // Als de time-out is bereikt, log dan de fout en stop de handler.
+                if (completedTask == timeoutTask)
+                {
+                    Console.WriteLine("Time-out reached waiting for robot callback.");
+                    MqttService.RobotFinishedMentionCallback -= callbackHandler;
+                }
+                else
+                {
+                    Console.WriteLine("Callback received and task completed.");
+                    @* await SqlUserRepository.DeleteTimer(timer.TimerId);  *@
+                }
+
+                // Wacht totdat de callback daadwerkelijk is afgerond.
+                await completedTask;
+                @* await SqlUserRepository.InitializeData(); *@
+            }
+            await Task.Delay(1000); // Preventing CPU-overload while queue is empty 
+        }
+    }
+    
+    // Form functions
     private async Task StartForm(Timer? timer)
     {
         if (timer == null)

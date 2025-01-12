@@ -8,8 +8,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-var simpleMqttClient = SimpleMqttClient.CreateSimpleMqttClientForHiveMQ("webapp");
-builder.Services.AddSingleton<SqlUserRepository>();
+var simpleMqttClient = SimpleMqttClient.CreateSimpleMqttClientForHiveMQ("web");
+builder.Services.AddSingleton<SqlUserRepository>(); 
+builder.Services.AddSingleton<MqttExternalMessageProcessingService>(); 
+builder.Services.AddSingleton<MqttData>(); 
 builder.Services.AddSingleton(simpleMqttClient); 
 builder.Services.AddHostedService<MqttMessageProcessingService>();
 

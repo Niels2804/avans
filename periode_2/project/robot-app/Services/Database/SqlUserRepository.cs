@@ -1,5 +1,3 @@
-using System;
-using System.ComponentModel;
 using Microsoft.Data.SqlClient;
 using Microsoft.IdentityModel.Tokens;
 
@@ -156,6 +154,8 @@ public class SqlUserRepository
     }
 
     // SELECT
+
+    // OUTPUT van GetTable() = [{"kolom" => object, "kolom" => object, "kolom" => object}, {"kolom" => object, "kolom" => object, "kolom" => object}]
     private async Task<List<Dictionary<string, object>>> GetTable(string table, string? innerJoin = null)
     {
         var result = new List<Dictionary<string, object>>();
@@ -169,13 +169,15 @@ public class SqlUserRepository
             {
                 await connection.OpenAsync();
                 using (var command = connection.CreateCommand())
-                {
+                {   
+                    // Builds command by innerjoin value
                     if(innerJoin.IsNullOrEmpty()) {
                         command.CommandText = $"SELECT * FROM {table}"; 
                     } else {
                         command.CommandText = $"SELECT * FROM {table} {innerJoin}"; 
                     }
 
+                    // Reads the output
                     using (var reader = await command.ExecuteReaderAsync())
                     {
                         while (await reader.ReadAsync())
@@ -184,9 +186,9 @@ public class SqlUserRepository
 
                             for (int i = 0; i < reader.FieldCount; i++)
                             {
-                                row[reader.GetName(i)] = reader.GetValue(i);
+                                row[reader.GetName(i)] = reader.GetValue(i); // {"key" => value}
                             }
-                            result.Add(row);
+                            result.Add(row); // [] += {"key" => value}
                         }
                     }
                 }
