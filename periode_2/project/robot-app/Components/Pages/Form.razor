@@ -2,7 +2,6 @@
 @using System.ComponentModel.DataAnnotations
 @using BlazorMqttDatabase.Services
 @rendermode InteractiveServer
-@inject IUserRepository userRepository
 
 <h3>Gebruiker opslaan</h3>
 
@@ -25,8 +24,8 @@
         <label class="form-check-label" for="isActief">User actief</label>
         <ValidationMessage For="@(() => model.IsActief)" />
     </div>
-    <div>
-     <button type="submit" class="btn btn-primary">Gebruiker opslaan</button>
+    <div> 
+        <button type="submit" class="btn btn-primary">Gebruiker opslaan</button>
     </div>
     </div>
 </EditForm>
@@ -45,20 +44,7 @@
     private UserFormModel model = new UserFormModel();
     private void HandleValidSubmit()
     {
-       var user = new User()
-       {
-            Name = model.Naam,
-            Age = model.Leeftijd,
-            IsActive = model.IsActief
-       };
-
-       userRepository.SaveUser(user);
-       isSubmitted = true;
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        // Load data from your repository
+      
     }
 
     public class UserFormModel

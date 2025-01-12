@@ -13,7 +13,7 @@ namespace HiveMQtt.Service
         public MessageService(string topic)
         {
             _topic = topic;
-            _mqttClient = SimpleMqttClient.CreateSimpleMqttClientForHiveMQ(topic);
+            _mqttClient = SimpleMqttClient.CreateSimpleMqttClientForHiveMQ("robotprogram");
         }
 
         public async Task<string?> StartReceivingMessages()

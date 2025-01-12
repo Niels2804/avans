@@ -94,6 +94,7 @@ public class RompiRobot : Sensors {
                 lcdTextAnimation.CancelCountDownAnimation();
             } 
             await CountDownAnimationTask; // awaiting for currently running countDownAnimation task before continuing
+            DrivingController.GrantPermissionToDrive();
             led.SetOff();
         }    
     }
@@ -105,6 +106,7 @@ public class RompiRobot : Sensors {
         if(message == null || !message.Contains('|'))
         {
             Console.WriteLine($"1: Ongeldige bericht formaat: {message}");
+            await MessageReceiver.StopReceivingMessages();
             IsBusyWithReceivingMessage = false;
             return;
         } 
@@ -115,6 +117,7 @@ public class RompiRobot : Sensors {
             messageData = new MessageData(messageParts[0], messageParts[1]);
         } else {
             Console.WriteLine($"2: Ongeldige bericht formaat: {message}");
+            await MessageReceiver.StopReceivingMessages();
             IsBusyWithReceivingMessage = false;
             return;
         }
@@ -131,6 +134,7 @@ public class RompiRobot : Sensors {
                 {
                     Console.WriteLine($"Mention type {messageData.Value} bestaat niet.");
                 }
+                await MessageSender.SendMessage($"mentionFinished|true");
                 break;
             case "hasPermissionToDrive":
                 try {
@@ -153,6 +157,7 @@ public class RompiRobot : Sensors {
                 Console.WriteLine("Geen geldige datatype gevonden.");
                 break;
         }
+        await MessageReceiver.StopReceivingMessages();
         IsBusyWithReceivingMessage = false;
     }
 

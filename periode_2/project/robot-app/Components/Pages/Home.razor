@@ -1,9 +1,16 @@
 @page "/"
 @using System.ComponentModel.DataAnnotations
 @using BlazorMqttDatabase.Services
-@rendermode InteractiveServer
-@inject IUserRepository userRepository
+@using robot_app.Components.Pages
+
+<div class="pages">
+    @* <Dash/> *@
+    <Reminders/>
+    @* <FAQ/> *@
+</div>
 
 @code {
-    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+    }
 }

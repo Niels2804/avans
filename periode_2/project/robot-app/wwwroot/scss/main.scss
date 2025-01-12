@@ -1,4 +1,7 @@
 @use './variables' as *;
+@use './pages/dashboard' as *;
+@use './pages/reminders' as *;
+@use './pages/faq' as *;
 
 * {
     margin: 0;
@@ -24,6 +27,50 @@ body.light-theme {
     @include light-theme;
 }
 
+body {
+    position: relative;
+    height: 100vh;
+    width: 100vw;
+    color: var(--clr-400);
+    background-color: var(--clr-300);
+    overflow: hidden;
+
+    #loader-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5); 
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+        z-index: 9999;
+        visibility: hidden; 
+        transition: 150ms linear;
+
+        h2 {
+            color: var(--slider-bg-color);
+            margin-bottom: 20px;
+        }
+
+        .spinner {
+            border: 4px solid var(--slider-bg-color); 
+            border-top: 4px solid var(--active-color); 
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    }
+}
+
 // Needed to prevent overwritten by _reboot.scss
 p {
     margin: 0;
@@ -37,7 +84,6 @@ p {
     height: 100px;
     width: auto;
     padding: 20px;
-    color: var(--clr-400);
 
     .project-title {
         font-size: var(--fs-xxxl);
@@ -49,7 +95,6 @@ p {
         justify-content: space-around;
         align-items: center;
         height: auto;
-        color: var(--clr-400);
     
         .wifi, .online-status, .settings {
             display: flex;
@@ -109,8 +154,194 @@ p {
     } 
 }
 
-body {
-    background-color: var(--clr-300);
-    color: var(--clr-100);
+.main-page {
+    position: relative;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    width: 100%;
+    height: calc(100vh - 100px);
+ 
+    nav.left-navigation {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        width: 300px;
+        height: calc(100vh - 100px);
+        background-color: var(--clr-300);
+        padding-top: 20px;
+    
+        ul {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            width: 80%;
+            height: auto;
+            list-style: none;
+
+            li {
+                position: relative;
+                width: 250px;
+                height: 75px;
+                border-radius: 25px;
+                margin-bottom: 20px;
+                background-color: var(--clr-200);
+                transition: 150ms linear;
+
+                a {
+                    position: absolute;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    width: 100%;
+                    height: 100%;
+                    text-decoration: none;
+                    color: var(--clr-400);
+                    font-size: var(--fs-xl);
+                }
+            }
+    
+            li:hover, li.active {
+                background-color: var(--clr-100);
+            }
+    
+            li:hover {
+                transform: scale(0.97);
+            }
+        }
+    }
+
+    main {
+        position: relative;
+        height: 100%;
+        width: calc(100vw - 300px);
+        border-radius: 40px 0px 0px 0px;
+        background-color: var(--clr-100);
+        padding: 30px;
+        overflow: hidden;
+
+        h1.pageTitle {
+            text-align: start;
+            font-size: var(--fs-xxxl);
+            transition: 150ms linear;
+        }
+
+        .pages {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 100%;
+            border-radius: 40px 0px 0px 0px;
+            padding: 30px 30px;
+
+            overflow-y: auto;
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+            scrollbar-width: none;
+
+            .page {
+                position: relative;
+                width: 100%;
+                height: 100vh;
+
+                scroll-snap-align: start;
+                object-fit: cover;
+            }
+
+            // Including pages scss
+            @include dashboard;
+            @include reminders;
+            @include faq;
+        }
+
+        .navDots {
+            position: absolute;
+            display: flex;
+            flex-direction: column; 
+            top: calc(50% - 58px); 
+            right: 20px; 
+            z-index: 10;
+    
+            .circles {
+                position: relative; 
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                flex-direction: column;
+                height: 116px;
+                list-style: none;
+    
+                .circle {
+                    position: relative;
+                    width: 16px;
+                    height: 16px;
+                    border-radius: 50%;
+                    opacity: 0.25;
+                    background-color: var(--clr-400);
+                    transition: 150ms linear;
+
+                    a {
+                        position: absolute;
+                        width: 100%;
+                        height: 100%;
+                    }
+                }
+    
+                .circle.active {
+                    width: 24px;
+                    height: 24px;
+                    opacity: 0.5;
+                    background-color: var(--clr-400);
+                }
+    
+                .circle:hover {
+                    transform: scale(1.25);
+                    opacity: 0.5;
+                }
+            }
+        }
+
+        // Error 404 page
+        .error-container {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            top: 0;
+            right: 0;
+            left: 0;
+            bottom: 0;
+            border-radius: 40px 0 0 0;  
+            background-color: var(--clr-100);
+            z-index: 999;
+
+            .lottie-animation {
+                max-width: 400px;
+                margin-bottom: 2rem;
+            }
+
+            .error-content {
+                text-align: center;
+
+                h1 {
+                    font-size: 6rem;
+                    font-weight: bold;
+                    margin-bottom: 1rem;
+                }
+
+                p {
+                    font-size: 1.5rem;
+                    margin-bottom: 2rem;
+                }
+            }
+        }       
+    }
 }
+
+
 
