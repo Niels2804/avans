@@ -18,13 +18,13 @@ public class MqttExternalMessageProcessingService : IHostedService
         _mqttData.RobotFinishedMention = false; // Reset to default
     }
 
-    public async Task PublishMessageToRobot(string value, string topic)
+    public async Task PublishMessageToRobot(string message, string key)
     {
         try 
         {
-            string message = topic + "|" + value;
-            await _mqttClient.PublishMessage(message, "web");
-            Console.WriteLine($"Het volgende bericht is verzonden naar de robot: {message}");
+            string mqttMessage = key + "|" + message;
+            await _mqttClient.PublishMessage(mqttMessage, "web");
+            Console.WriteLine($"Het volgende bericht is verzonden naar de robot: {mqttMessage}");
         }
         catch (Exception ex)
         {

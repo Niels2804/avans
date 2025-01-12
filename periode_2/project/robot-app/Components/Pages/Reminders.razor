@@ -121,7 +121,7 @@
             if(timer.Value.Date <= currentTime)
             {
                 timersToRunQueue.Enqueue(timer.Value);
-                @* SqlUserRepository.Timers.Remove(timer.Key); *@
+                SqlUserRepository.Timers.Remove(timer.Key);
             }
         }
     }
