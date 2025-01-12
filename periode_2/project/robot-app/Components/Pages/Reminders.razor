@@ -26,112 +26,162 @@
             @foreach(Timer timer in SqlUserRepository.Timers.Values) {
             <tr>
                 <td>@timer.Date.ToString("dd-MM-yyyy")</td>
-                <td>@timer.Date.ToString("HH:mm")e</td>
+                <td>@timer.Date.ToString("HH:mm")</td>
                 <td>@timer.Category</td>
                 <td>@timer.Comment</td>
                 <td>
                     <p data-type="@(timer.IsActive ? "true" : "false")"></p>
-                    <button class="edit" @onclick="async () => await StartEditingForm(timer.TimerId)">edit</button>
+                    <button class="edit" @onclick="async () => await StartForm(timer)">edit</button>
                     <button class="delete" @onclick="async () => await DeleteRow(timer.TimerId)">delete</button>
                 </td>
             </tr>
             }
         </table>
     </div>
-    <button class="add-reminder" @onclick="StartEditingNewForm">Voeg een nieuwe herinnering toe</button>
+    <button class="add-reminder" @onclick="() => StartForm(null)">Voeg een nieuwe herinnering toe</button>
 
-    @* Rij updaten *@
-    @if(editForm) {
-        <p>Rij updaten</p>
-        <EditForm Model="@timerFormModelEdit" OnValidSubmit="SaveChanges">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-        <div class="col-sm-6">
-           <div class="form-group mt-2">
-                <label for="inputDate">Datum</label>
-                <InputDate id="inputDate" class="form-control" @bind-Value="timerFormModelEdit.Date" />
-            </div>
-            <div class="form-group mt-2">
-                <label for="inputTime">Tijd</label>
-                <input type="time" id="inputTime" class="form-control" @bind="timerFormModelEdit.Time"/>
-            </div>
-            <div class="form-group mt-2">
-                <label for="inputCategory">Categorie</label>
-                <select id="inputCategory" class="form-control" @bind="timerFormModelEdit.Category">
-                        <option value="" disabled selected>@("Selecteer hier een categorie")</option>
+    @if(formActive) {
+        <p>@(editMode ? "Rij updaten" : "Rij toevoegen")</p>
+        <EditForm Model="formModel" OnValidSubmit="SaveForm">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+            <div class="col-sm-6">
+                <div class="form-group mt-2">
+                    <label for="inputDate">Datum</label>
+                    <InputDate id="inputDate" class="form-control" @bind-Value="formModel.Date" />
+                </div>
+                <div class="form-group mt-2">
+                    <label for="inputTime">Tijd</label>
+                    <input type="time" id="inputTime" class="form-control" @bind="formModel.Time" />
+                </div>
+                <div class="form-group mt-2">
+                    <label for="inputCategory">Categorie</label>
+                    <select id="inputCategory" class="form-control" @bind="formModel.Category">
+                        <option value="" disabled selected>Selecteer hier een categorie</option>
                         @foreach (var category in categories)
                         {
                             <option value="@category.Value">@category.Text</option>
                         }
-                </select>
-                <ValidationMessage For="@(() => timerFormModelEdit.Category)" />
+                    </select>
+                    <ValidationMessage For="@(() => formModel.Category)" />
+                </div>
+                <div class="form-group mt-2">
+                    <label for="inputComment">Commentaar</label>
+                    <textarea id="inputComment" class="form-control" rows="4" @bind="formModel.Comment" style="resize: none;"></textarea>
+                </div>
+                <div class="form-check mt-2">
+                    <InputCheckbox id="isActief" class="form-check-input" @bind-Value="formModel.IsActive" />
+                    <label class="form-check-label" for="isActief">Melding staat aan</label>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary">Opslaan</button>
+                </div>
             </div>
-            <div class="form-group mt-2">
-                <label for="inputComment">Commentaar</label>
-                <textarea id="inputComment" class="form-control" rows="4" @bind="timerFormModelEdit.Comment" style="resize: none;"></textarea>
-            </div>
-            <div class="form-check mt-2">
-                <InputCheckbox id="isActief" class="form-check-input" @bind-Value="timerFormModelEdit.IsActive" />
-                <label class="form-check-label" for="isActief">Melding staat aan</label>
-            </div>
-            <div>
-                <button type="submit" class="btn btn-primary">Opslaan</button>
-            </div>
-        </div>
-    </EditForm>
-        <button class="edit" @onclick="CancelEditingForm">stop editing</button>
-    }
-
-    @* Rij toevoegen *@
-       @if(newForm) {
-        <p>Rij Toevoegen</p>
-        <EditForm Model="@timerFormModelNew" OnValidSubmit="SaveConceptForm">
-        <DataAnnotationsValidator />
-        <ValidationSummary />
-        <div class="col-sm-6">
-           <div class="form-group mt-2">
-                <label for="inputDate">Datum</label>
-                <InputDate id="inputDate" class="form-control" @bind-Value="timerFormModelNew.Date" />
-            </div>
-            <div class="form-group mt-2">
-                <label for="inputTime">Tijd</label>
-                <input type="time" id="inputTime" class="form-control" @bind="timerFormModelNew.Time"/>
-            </div>
-            <div class="form-group mt-2">
-                <label for="inputCategory">Categorie</label>
-                <select id="inputCategory" class="form-control" @bind="timerFormModelNew.Category">
-                        <option value="" disabled selected>@("Selecteer hier een categorie")</option>
-                        @foreach (var category in categories)
-                        {
-                            <option value="@category.Value">@category.Text</option>
-                        }
-                </select>
-                <ValidationMessage For="@(() => timerFormModelNew.Category)" />
-            </div>
-            <div class="form-group mt-2">
-                <label for="inputComment">Commentaar</label>
-                <textarea id="inputComment" class="form-control" rows="4" @bind="timerFormModelNew.Comment" style="resize: none;"></textarea>
-            </div>
-            <div class="form-check mt-2">
-                <InputCheckbox id="isActief" class="form-check-input" @bind-Value="timerFormModelNew.IsActive" />
-                <label class="form-check-label" for="isActief">Melding staat aan</label>
-            </div>
-            <div>
-                <button type="submit" class="btn btn-primary">Opslaan</button>
-            </div>
-        </div>
-    </EditForm>
-        <button class="delete-concept" @onclick="CancelConceptForm">Verwijder concept</button>
+        </EditForm>
+        <button class="cancel" @onclick="CancelForm">Annuleren</button>
     }
 </div>
 
 @code {
-    private bool editForm = false;
-    private bool newForm = false;
-    private bool isSubmitted = false;
-    TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Amsterdam");
-    private TimerFormModelNew? timerFormModelNew {get; set;}
-    private TimerFormModelEdit? timerFormModelEdit {get; set;}
+    private bool formActive = false;
+    private bool editMode = false;
+    private TimerFormModel? formModel;
+    private readonly TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Amsterdam");
+
+    private async Task StartForm(Timer? timer)
+    {
+        if (timer == null)
+        {
+            formModel = new TimerFormModel
+            {
+                Date = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone),
+                Time = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone),
+                IsActive = true
+            };
+            editMode = false;
+        }
+        else
+        {
+            formModel = new TimerFormModel
+            {
+                TimerId = timer.TimerId,
+                Date = timer.Date,
+                Time = timer.Date,
+                Category = timer.Category,
+                Comment = timer.Comment,
+                IsActive = timer.IsActive
+            };
+            editMode = true;
+        }
+        formActive = true;
+    }
+
+    private void CancelForm()
+    {
+        formModel = null;
+        formActive = false;
+    }
+
+    private async Task SaveForm()
+    {
+        DateTime combinedDateTime = new DateTime(
+            formModel.Date.Year,
+            formModel.Date.Month,
+            formModel.Date.Day,
+            formModel.Time.Hour,
+            formModel.Time.Minute,
+            formModel.Time.Second
+        );
+
+        Timer newTimer = new Timer
+        {
+            TimerId = formModel.TimerId ?? 0,
+            Date = combinedDateTime,
+            Category = formModel.Category,
+            Comment = formModel.Comment,
+            IsActive = formModel.IsActive
+        };
+
+        if (formModel.TimerId == null)
+        {
+            await SqlUserRepository.AddNewTimer(newTimer);
+        }
+        else
+        {
+            await SqlUserRepository.UpdateTimer(newTimer);
+        }
+
+        formActive = false;
+        await SqlUserRepository.InitializeData();
+    }
+
+    private async Task DeleteRow(int timerId)
+    {
+        await SqlUserRepository.DeleteTimer(timerId);
+        await SqlUserRepository.InitializeData();
+    }
+
+    public class TimerFormModel
+    {
+        public int? TimerId { get; set; } // Nullable for new timers
+        [Required(ErrorMessage = "Datum is verplicht!")]
+        public DateTime Date { get; set; }
+        [Required(ErrorMessage = "Tijd is verplicht!")]
+        public DateTime Time { get; set; }
+        [Required(ErrorMessage = "Categorie is verplicht!")]
+        public string Category { get; set; }
+        public string? Comment { get; set; }
+        public bool IsActive { get; set; } = true;
+    }
+
+    // Available Categories
+
+    public class CategoryOption
+    {
+        public string Value { get; set; }
+        public string Text { get; set; }
+    }
+
     private List<CategoryOption> categories = new List<CategoryOption>
     {
         new CategoryOption { Value = "TimeToEat", Text = "Het is tijd om te eten." },
@@ -178,134 +228,4 @@
         new CategoryOption { Value = "FrancisWells", Text = "Francis Wells - Live a Little" },
         new CategoryOption { Value = "Portal", Text = "Portal 4000 Degrees Kelvin" }
     };
-
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-
-    }
-
-    // UPDATE form
-
-    private async Task StartEditingForm(int timerId) 
-    {
-        Timer selectedTimerData = SqlUserRepository.Timers[timerId];
-        timerFormModelEdit = new TimerFormModelEdit();
-
-        timerFormModelEdit.TimerId = timerId;
-        timerFormModelEdit.Date = selectedTimerData.Date;
-        timerFormModelEdit.Time = selectedTimerData.Date;
-        timerFormModelEdit.Category = selectedTimerData.Category;
-        timerFormModelEdit.Comment = selectedTimerData.Comment;
-        timerFormModelEdit.IsActive = selectedTimerData.IsActive;
-        editForm = true;
-    }
-
-    private void CancelEditingForm()
-    {
-        timerFormModelEdit = null; // Prevents corrupted data
-        editForm = false;
-    }
-
-    private async Task SaveChanges()
-    {
-        DateTime combinedDateTime = new DateTime(
-            timerFormModelEdit.Date.Year, 
-            timerFormModelEdit.Date.Month, 
-            timerFormModelEdit.Date.Day, 
-            timerFormModelEdit.Time.Hour, 
-            timerFormModelEdit.Time.Minute, 
-            timerFormModelEdit.Time.Second
-        );
-
-        // Opslaan logica
-        Timer newTimer = new Timer();
-        newTimer.TimerId = timerFormModelEdit.TimerId;
-        newTimer.Date = combinedDateTime;
-        newTimer.Category = timerFormModelEdit.Category;
-        newTimer.Comment = timerFormModelEdit.Comment;
-        newTimer.IsActive = timerFormModelEdit.IsActive;
-        await SqlUserRepository.UpdateTimer(newTimer);
-        editForm = false;
-        await SqlUserRepository.InitializeData();
-    }
-
-    // NEW form
-    private void StartEditingNewForm() 
-    {
-        timerFormModelNew = new TimerFormModelNew(); // Creating new form
-        timerFormModelNew.Date = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
-        timerFormModelNew.Time = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
-        timerFormModelNew.IsActive = true;
-        newForm = true;
-    }
-
-    private void CancelConceptForm()
-    {
-        timerFormModelNew = null; // Prevents corrupted data
-        newForm = false;
-    }
-
-    private async Task SaveConceptForm()
-    {
-        DateTime combinedDateTime = new DateTime(
-            timerFormModelNew.Date.Year, 
-            timerFormModelNew.Date.Month, 
-            timerFormModelNew.Date.Day, 
-            timerFormModelNew.Time.Hour, 
-            timerFormModelNew.Time.Minute, 
-            timerFormModelNew.Time.Second
-        );
-
-        // Opslaan logica
-        Timer newTimer = new Timer();
-        newTimer.Date = combinedDateTime;
-        newTimer.Category = timerFormModelNew.Category;
-        newTimer.Comment = timerFormModelNew.Comment;
-        newTimer.IsActive = timerFormModelNew.IsActive;
-        await SqlUserRepository.AddNewTimer(newTimer);
-        newForm = false;
-        await SqlUserRepository.InitializeData();
-    }
-
-    // DELETE form
-    private async Task DeleteRow(int timerId) 
-    {
-        await SqlUserRepository.DeleteTimer(timerId);
-        await SqlUserRepository.InitializeData();
-    }
-    public class TimerFormModelEdit
-    {
-        public int TimerId { get; set; }
-
-        [Required(ErrorMessage = "Datum is verplicht!")]
-        public DateTime Date { get; set; }
-        
-        [Required(ErrorMessage = "Tijd is verplicht!")]
-        public DateTime Time { get; set; }
-        
-        [Required(ErrorMessage = "Categorie is verplicht!")]
-        public string Category { get; set; }
-        public string? Comment { get; set; }
-        public bool IsActive { get; set; } = true;
-    }
-
-    public class TimerFormModelNew
-    {
-        [Required(ErrorMessage = "Datum is verplicht!")]
-        public DateTime Date { get; set; }
-        
-        [Required(ErrorMessage = "Tijd is verplicht!")]
-        public DateTime Time { get; set; }
-        
-        [Required(ErrorMessage = "Categorie is verplicht!")]
-        public string Category { get; set; }
-        public string? Comment { get; set; }
-        public bool IsActive { get; set; } = true;
-    }
-
-    public class CategoryOption
-    {
-        public string Value { get; set; }
-        public string Text { get; set; }
-    }
 }
