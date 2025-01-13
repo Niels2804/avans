@@ -3,14 +3,18 @@ using Mqtt;
 using RobotMotors;
 using SensorLibrary;
 using SoundLibrary;
-using HiveMQtt.Service;
 using HiveMQtt.MessageService;
+using SimpleMqtt;
 
 public class RompiRobot : Sensors { 
     private string Name {get;}
     private DrivingController DrivingController {get;}
-    private MessageService MessageSender {get;}
-    private MessageService MessageReceiver {get;}
+    // private MessageService MessageSender {get;}
+    // private MessageService MessageReceiver {get;}
+
+
+    private SimpleMqttClient mqttClient;
+
     private Task DrivingTask {get; set;}
     private Task CountDownAnimationTask {get; set;}  
     private Task MeasureTask {get; set;}
@@ -22,8 +26,8 @@ public class RompiRobot : Sensors {
     {
         Name = "Wall-E";
         DrivingController = new DrivingController();
-        MessageSender = new MessageService("robot");
-        MessageReceiver = new MessageService("web");
+        // MessageSender = new MessageService("robot");
+        // MessageReceiver = new MessageService("web");
         IsMeasuring = false;
         IsBusyWithCheckingBatteryState = false;
         IsBusyWithReceivingMessage = false;
@@ -37,6 +41,10 @@ public class RompiRobot : Sensors {
         led.SetOff();
         lcd.SetText($"Welkom! Mijn \nnaam is {Name}");
         await speaker.PlayMusic(Mentions.Welcome);
+        mqttClient = SimpleMqttClient.CreateSimpleMqttClientForHiveMQ("robotprogram");
+
+        // Checking on received messages
+        _ = CheckForReceivedMessages();
 
         // Announcing a tutorial how to use the robot
         // await speaker.PlayMusic(Mentions.TutorialMention);
@@ -55,13 +63,6 @@ public class RompiRobot : Sensors {
         {
             IsBusyWithCheckingBatteryState = true;
             _ = CheckBatteryVoltage();
-        }
-
-        // Checking on received messages
-        if(!IsBusyWithReceivingMessage) 
-        {
-            IsBusyWithReceivingMessage = true;
-            _ = CheckForReceivedMessages();
         }
         
         // Checking or robot is already driving
@@ -102,12 +103,16 @@ public class RompiRobot : Sensors {
     private async Task CheckForReceivedMessages()
     {
         MessageData messageData;
-        string? message = await MessageReceiver.StartReceivingMessages();
-        if(message == null || !message.Contains('|'))
+        //await MessageReceiver.StartReceivingMessages();
+
+        await mqttClient.SubscribeToTopic("web");
+        mqttClient.OnMessageReceived += async (a, mqttMessage) => {
+            
+        var message = mqttMessage.Message;
+
+            if(message == null || !message.Contains('|'))
         {
             Console.WriteLine($"1: Ongeldige bericht formaat: {message}");
-            await MessageReceiver.StopReceivingMessages();
-            IsBusyWithReceivingMessage = false;
             return;
         } 
    
@@ -117,8 +122,6 @@ public class RompiRobot : Sensors {
             messageData = new MessageData(messageParts[0], messageParts[1]);
         } else {
             Console.WriteLine($"2: Ongeldige bericht formaat: {message}");
-            await MessageReceiver.StopReceivingMessages();
-            IsBusyWithReceivingMessage = false;
             return;
         }
 
@@ -134,7 +137,7 @@ public class RompiRobot : Sensors {
                 {
                     Console.WriteLine($"Mention type {messageData.Value} bestaat niet.");
                 }
-                await MessageSender.SendMessage($"mentionFinished|true");
+                await mqttClient.PublishMessage($"mentionFinished|true", "robot");
                 break;
             case "hasPermissionToDrive":
                 try {
@@ -157,8 +160,9 @@ public class RompiRobot : Sensors {
                 Console.WriteLine("Geen geldige datatype gevonden.");
                 break;
         }
-        await MessageReceiver.StopReceivingMessages();
-        IsBusyWithReceivingMessage = false;
+        };
+
+       
     }
 
     private async Task CountDownForMeasureMovement()
@@ -181,7 +185,7 @@ public class RompiRobot : Sensors {
                 // Measuring for movement
                 try
                 {
-                    Task measuring = Task.Run(motionSensor.MeasureMovement);
+                    Task measuring = Task.Run(() => motionSensor.MeasureMovement(mqttClient));
                     await Task.Delay(new Random().Next(10000, 15000));
                     motionSensor.StopMeasuringMovement();
                     await measuring;
@@ -221,7 +225,7 @@ public class RompiRobot : Sensors {
             Robot.LEDs(0, 0, 0);
             await Task.Delay(3000);
 
-            await MessageSender.SendMessage($"batteryVoltage|{batteryMillivolts}");
+            await mqttClient.PublishMessage($"batteryVoltage|{batteryMillivolts}", "robot");
             IsBusyWithCheckingBatteryState = false;
         }
         catch (Exception ex)
