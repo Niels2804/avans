@@ -76,6 +76,47 @@ p {
     margin: 0;
 }
 
+i.fa {
+    color: var(--clr-400);
+}
+
+// Main Form options
+
+// Custom scrollbar
+select::-webkit-scrollbar, textarea::-webkit-scrollbar {
+    width: 5px;
+}
+
+select::-webkit-scrollbar-thumb, textarea::-webkit-scrollbar-thumb {
+    background-color: var(--clr-400);
+    width: 5px;
+    border-radius: 25px;
+}
+
+// CUSTOM checkbox slider
+.form-switch .form-check-input {
+    --bs-form-switch-bg: var(--slider-svg-non-active) !important;
+    background-color: transparent !important;
+    height: 40px;
+    width: 80px;
+    border: 1px solid var(--clr-400) !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.form-switch .form-check-input:checked {
+    --bs-form-switch-bg: var(--slider-svg-active) !important;
+    background-color: var(--active-color) !important;
+}
+
+.form-switch {
+    transition: 150ms linear;
+}
+
+.form-switch:hover {
+    transform: scale(0.97);
+}
+
 .top-navigation {
     position: relative;
     display: flex;
@@ -181,6 +222,7 @@ p {
             width: 80%;
             height: auto;
             list-style: none;
+            padding: 0;
 
             li {
                 position: relative;

@@ -25,61 +25,78 @@
                 <th>Snelle acties</th>
             </tr>
             @foreach(Timer timer in SqlUserRepository.Timers.Values) {
-            <tr>
-                <td>@timer.Date.ToString("dd-MM-yyyy")</td>
-                <td>@timer.Date.ToString("HH:mm")</td>  
-                <td>@timer.Category</td>
-                <td>@timer.Comment</td>
+            <tr class="@(!timer.IsActive && timer.Date <= currentTime ? "expired" : "")">
+                <td><p>@timer.Date.ToString("dd-MM-yyyy")</p></td>
+                <td><p>@timer.Date.ToString("HH:mm") <b>@(!timer.IsActive && timer.Date <= currentTime ? "(verlopen)" : "")</b></p></td>  
+                <td><p>@timer.Category</p></td>
+                <td><p>@timer.Comment</p></td>
                 <td>
-                    <p data-type="@(timer.IsActive ? "true" : "false")"></p>
-                    <button class="edit" @onclick="async () => await StartForm(timer)">edit</button>
-                    <button class="delete" @onclick="async () => await DeleteRow(timer.TimerId)">delete</button>
+                    <div class="form-check form-switch">
+                        @if(timer.IsActive) 
+                        {
+                            <input class="form-check-input" @onclick="async () => await SwitchTimerStatus(timer.TimerId, false)" type="checkbox" role="switch" id="flexSwitchCheckDefault" checked/>
+                        }
+                        else
+                        {
+                            <input class="form-check-input" @onclick="async () => await SwitchTimerStatus(timer.TimerId, true)" type="checkbox" role="switch" id="flexSwitchCheckDefault"/>
+                        }
+                    </div>
+                    <button class="edit" @onclick="async () => await StartForm(timer)"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                    <button class="delete" @onclick="async () => await DeleteRow(timer.TimerId)"><i class="fa fa-solid fa-trash"></i></button>
                 </td>
             </tr>
             }
         </table>
     </div>
-    <button class="add-reminder" @onclick="() => StartForm(null)">Voeg een nieuwe herinnering toe</button>
-    <div class="pop-up @(editMode ? "active" : "")">
+    <button class="add-reminder" @onclick="() => StartForm(null)">Nieuwe reminder</button>
+    <div class="popUp @(formActive ? "active" : "")">
             @if(formActive) {
-            <p>@(editMode ? "Rij updaten" : "Rij toevoegen")</p>
-            <EditForm Model="formModel" OnValidSubmit="SaveForm">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-                <div class="col-sm-6">
-                    <div class="form-group mt-2">
-                        <label for="inputDate">Datum</label>
-                        <InputDate id="inputDate" class="form-control" @bind-Value="formModel.Date" />
-                    </div>
-                    <div class="form-group mt-2">
-                        <label for="inputTime">Tijd</label>
-                        <input type="time" id="inputTime" class="form-control" @bind="formModel.Time" />
-                    </div>
-                    <div class="form-group mt-2">
-                        <label for="inputCategory">Categorie</label>
-                        <select id="inputCategory" class="form-control" @bind="formModel.Category">
-                            <option value="" disabled selected>Selecteer hier een categorie</option>
-                            @foreach (var category in categories)
-                            {
-                                <option value="@category.Value">@category.Text</option>
-                            }
-                        </select>
-                        <ValidationMessage For="@(() => formModel.Category)" />
-                    </div>
-                    <div class="form-group mt-2">
-                        <label for="inputComment">Commentaar</label>
-                        <textarea id="inputComment" class="form-control" rows="4" @bind="formModel.Comment" style="resize: none;"></textarea>
-                    </div>
-                    <div class="form-check mt-2">
-                        <InputCheckbox id="isActief" class="form-check-input" @bind-Value="formModel.IsActive" />
-                        <label class="form-check-label" for="isActief">Melding staat aan</label>
-                    </div>
-                    <div>
-                        <button type="submit" class="btn btn-primary">Opslaan</button>
-                    </div>
+            <div class="popUpContainer">
+                <div class="header">
+                    <h2>@(editMode ? "Reminder Bewerken" : "Nieuwe Reminder Aanmaken")</h2>
+                    <button class="cancel" @onclick="CancelForm">
+                        <i class="fa fa-solid fa-xmark"></i>
+                    </button>
                 </div>
-            </EditForm>
-            <button class="cancel" @onclick="CancelForm">Annuleren</button>
+                <EditForm Model="formModel" OnValidSubmit="SaveForm">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    <div class="formContainer">
+                        <div class="leftSide">
+                            <div class="form-group">
+                                <label for="inputDate">Datum (dd-mm-yyyy)</label>
+                                <InputDate id="inputDate" class="form-control" @bind-Value="formModel.Date" />
+                            </div>
+                            <div class="form-group">
+                                <label for="inputTime">Tijd (UTC+1 Europe/Amsterdam)</label>
+                                <input type="time" id="inputTime" class="form-control" @bind="formModel.Time" />
+                            </div>
+                            <div class="form-group">
+                                <label for="inputCategory">Categorie <i class="fa fa-solid fa-circle-info"></i></label>
+                                <select id="inputCategory" class="form-control" @bind="formModel.Category">
+                                    <option value="" disabled selected>Selecteer hier een categorie</option>
+                                    @foreach (var category in categories)
+                                    {
+                                        <option value="@category.Value">@category.Text</option>
+                                    }
+                                </select>
+                                <ValidationMessage For="@(() => formModel.Category)" />
+                            </div>
+                            <button type="submit">Opslaan</button>
+                        </div>
+                        <div class="rightSide">
+                            <div class="form-group">
+                                <label for="inputComment">Commentaar</label>
+                                <textarea id="inputComment" class="form-control" @bind="formModel.Comment" style="resize: none;"></textarea>
+                            </div>
+                            <div class="form-check">
+                                <InputCheckbox id="isActief" class="form-check-input" @bind-Value="formModel.IsActive" />
+                                <label class="form-check-label" for="isActief">Melding staat aan</label>
+                            </div>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
         }
     </div>
 </div>
@@ -97,6 +114,7 @@
         // Checks or reminder is active
         if(firstRender) 
         {
+            @* await StartForm(null); *@
             _ = Task.Run(() => ProgressQueue());
             var timer = new System.Threading.Timer(e => {
                 InvokeAsync(() => {
@@ -118,7 +136,7 @@
     {
         foreach(var timer in SqlUserRepository.Timers)
         {
-            if(timer.Value.Date <= currentTime)
+            if(timer.Value.Date <= currentTime && timer.Value.IsActive == true)
             {
                 timersToRunQueue.Enqueue(timer.Value);
                 SqlUserRepository.Timers.Remove(timer.Key);
@@ -238,6 +256,13 @@
         }
 
         formActive = false;
+        await SqlUserRepository.InitializeData();
+    }
+
+    // Update Reminder Status
+    private async Task SwitchTimerStatus(int timerId, bool status)
+    {
+        await SqlUserRepository.UpdateTimerStatus(timerId, status);
         await SqlUserRepository.InitializeData();
     }
 
