@@ -11,9 +11,9 @@
 
 <div id="reminders" class="page">
     <div class="filters">
-        <button class="filter-by-category">Filteren op categorie</button>
-        <button class="filter-by-day">Filteren op dag</button>
-        <button class="filter-by-time">Filteren op tijd</button>
+        <button class="filter-by-category">Filteren op categorie <i class="fa fa-solid fa-tag"></i></button>
+        <button class="filter-by-day">Filteren op dag <i class="fa fa-regular fa-calendar"></i></button>
+        <button class="filter-by-time">Filteren op tijd <i class="fa fa-solid fa-caret-up"></i></button>
     </div>
     <div class="table-container">
         <table>
@@ -27,7 +27,7 @@
             @foreach(Timer timer in SqlUserRepository.Timers.Values) {
             <tr>
                 <td>@timer.Date.ToString("dd-MM-yyyy")</td>
-                <td>@timer.Date.ToString("HH:mm")</td>
+                <td>@timer.Date.ToString("HH:mm")</td>  
                 <td>@timer.Category</td>
                 <td>@timer.Comment</td>
                 <td>
@@ -162,12 +162,12 @@
                 else
                 {
                     Console.WriteLine("Callback received and task completed.");
-                    @* await SqlUserRepository.DeleteTimer(timer.TimerId);  *@
+                    await SqlUserRepository.DeleteTimer(timer.TimerId); 
                 }
 
                 // Wacht totdat de callback daadwerkelijk is afgerond.
                 await completedTask;
-                @* await SqlUserRepository.InitializeData(); *@
+                await SqlUserRepository.InitializeData();
             }
             await Task.Delay(1000); // Preventing CPU-overload while queue is empty 
         }
