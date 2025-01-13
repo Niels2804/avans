@@ -127,30 +127,36 @@ namespace Speaker
         /// <param name="cancellationToken">The token that tethers the play method.</param>
         private void Play(CancellationToken cancellationToken)
         {
-            // Initialize PWM with the correct sample rate
-            Robot.SetPwmPin(_sampleRate, 1);
-            Robot.StartPwm();
-            int waitTimeUs;
-            // Play the preloaded duty cycles
-            if (_negativeSampleRate)
-            {
-                waitTimeUs = (int)(1000000.0 / (_sampleRate / 1.65));
-            }
-            else{
-                waitTimeUs = (int)(1000000.0 / (_sampleRate * 1.5));
-            }
-            for (int i = 0; i < _dutyCycles.Length; i++)
-            {
-                if (cancellationToken.IsCancellationRequested)
+            try {
+                // Initialize PWM with the correct sample rate
+                Robot.SetPwmPin(_sampleRate, 1);
+                Robot.StartPwm();
+                int waitTimeUs;
+                // Play the preloaded duty cycles
+                if (_negativeSampleRate)
                 {
-                    break;
+                    waitTimeUs = (int)(1000000.0 / (_sampleRate / 1.65));
                 }
-                Robot.ChangePwmDutyCycle(_dutyCycles[i]);
-                Robot.WaitUs(waitTimeUs);
-            }
+                else{
+                    waitTimeUs = (int)(1000000.0 / (_sampleRate * 1.5));
+                }
+                for (int i = 0; i < _dutyCycles.Length; i++)
+                {
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        break;
+                    }
+                    Robot.ChangePwmDutyCycle(_dutyCycles[i]);
+                    Robot.WaitUs(waitTimeUs);
+                }
 
-            // Stop PWM
-            Robot.StopPwm();
+                // Stop PWM
+                Robot.StopPwm();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Er is iets misgegaan bij het afspelen van een geluid {ex}");
+            }
         }
     }
 }

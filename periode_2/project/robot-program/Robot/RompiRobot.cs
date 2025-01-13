@@ -9,28 +9,19 @@ using SimpleMqtt;
 public class RompiRobot : Sensors { 
     private string Name {get;}
     private DrivingController DrivingController {get;}
-    // private MessageService MessageSender {get;}
-    // private MessageService MessageReceiver {get;}
-
-
     private SimpleMqttClient mqttClient;
-
     private Task DrivingTask {get; set;}
     private Task CountDownAnimationTask {get; set;}  
     private Task MeasureTask {get; set;}
     private bool IsMeasuring {get; set;}
     private bool IsBusyWithCheckingBatteryState {get; set;}
-    private bool IsBusyWithReceivingMessage {get; set;}
     private bool IsBusyWithDriving {get; set;}
     public RompiRobot()
     {
         Name = "Wall-E";
-        DrivingController = new DrivingController();
-        // MessageSender = new MessageService("robot");
-        // MessageReceiver = new MessageService("web");
+        DrivingController = new DrivingController();;
         IsMeasuring = false;
         IsBusyWithCheckingBatteryState = false;
-        IsBusyWithReceivingMessage = false;
         IsBusyWithDriving = false;
     }
 
