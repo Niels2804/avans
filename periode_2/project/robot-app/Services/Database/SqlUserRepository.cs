@@ -268,6 +268,26 @@ public class SqlUserRepository
         }
     }
 
+    public async Task UpdateRobotActivity(bool status)
+    {
+        try {
+            using (var connection = new SqlConnection(BuildSqlConnectionString()))
+            {
+                await connection.OpenAsync();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = $"UPDATE robot SET is_active = @IsActive WHERE model = @RobotId"; 
+                    command.Parameters.AddWithValue("@IsActive", status);    
+                    command.Parameters.AddWithValue("@RobotId", Robot.Model);    
+                    await command.ExecuteNonQueryAsync();
+                }
+                await connection.CloseAsync();
+            }
+        } catch (Exception ex) {
+            Console.WriteLine($"Failed to UPDATE the ROBOT is_active: {ex}");
+        }
+    }
+
     // INSERT
 
     public async Task AddNewTimer(Timer timer)

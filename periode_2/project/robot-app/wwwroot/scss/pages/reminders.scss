@@ -23,6 +23,7 @@
             border-radius: 25px;
             padding: 10px;
             outline: 0;
+            color: var(--clr-400);
          }
 
          i {
@@ -171,6 +172,7 @@
          height: 50px;
          border-radius: 15px;
          font-size: var(--fs-md);
+         color: var(--clr-400);
          background-color: var(--clr-300);
          border: none;
          outline: none;
@@ -182,69 +184,19 @@
          background-color: var(--clr-200);
       }
 
+      #processingReminder {
+         position: absolute;
+         right: 20px;
+         bottom: 140px;
+
+         .spinner {
+            border: 4px solid var(--clr-300);
+            border-top: 4px solid var(--active-color);
+         }
+      }
+
       .popUp {
-         position: fixed;
-         display: flex;
-         justify-content: center;
-         align-items: center;
-         height: 100vh;
-         width: 100vw;
-         top: 0;
-         right: 0;
-         bottom: 0;
-         left: 0;
-         transition: 150ms linear;
-         background-color: rgba(0, 0, 0, 0.5);
-         visibility: hidden;
-
          .popUpContainer {
-            position: relative;
-            height: 450px;
-            width: 825px;
-            border-radius: 25px;
-            background-color: var(--clr-100);
-            padding: 20px;
-
-            .header {
-               position: relative;
-               display: flex;
-               justify-content: flex-end;
-               align-items: center;
-               width: 100%;
-
-               h2 {
-                  position: absolute;
-                  text-align: center;
-                  width: 100%;
-                  font-size: var(--fs-xxxl);
-               }
-
-               button {
-                  display: flex;
-                  justify-content: center;
-                  align-items: center;
-                  width: var(--icon-md);
-                  height:var(--icon-md);
-                  right: 0;
-                  background-color: transparent;
-                  border: none;
-                  outline: none;
-                  z-index: 999;
-
-                  i {
-                     font-size: var(--icon-md);
-                     transition: 150ms linear;
-                  }
-               }
-
-               button:hover {
-                  i {
-                     transform: scale(0.97);
-                     color: var(--robot-off);
-                  }
-               }
-            }
-
             form {
                position: relative;
                width: 100%;
@@ -271,6 +223,7 @@
                            width: 250px;
                            background-color: var(--clr-200);
                            transition: 150ms linear;
+                           color: var(--clr-400);
                         }
                      }
                   }
@@ -288,6 +241,7 @@
                         textarea {
                            height: 80%;
                            width: 100%;
+                           color: var(--clr-400);
                            background-color: var(--clr-200);
                            transition: 150ms linear;
                         }
@@ -309,6 +263,7 @@
                      height: 50px;
                      border-radius: 15px;
                      font-size: var(--fs-md);
+                     color: var(--clr-400);
                      background-color: var(--clr-200);
                      border: none;
                      outline: none;
@@ -323,10 +278,6 @@
                }
             }
          }
-      }
-
-      .popUp.active {
-         visibility: visible;
       }
    }
 }

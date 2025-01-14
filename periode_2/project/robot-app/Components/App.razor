@@ -1,4 +1,11 @@
-﻿<!DOCTYPE html>
+﻿@using System.ComponentModel.DataAnnotations
+@using BlazorMqttDatabase.Services
+@using robot_app.Components.Pages
+@using static System.Runtime.InteropServices.JavaScript.JSType
+
+@inject SqlUserRepository SqlUserRepository
+
+<!DOCTYPE html>
 <html lang="nl">
 
 <head>
@@ -13,7 +20,7 @@
     <HeadOutlet />
 </head>
 
-<body class="light-theme normal-font-size">
+<body class="@(SqlUserRepository.PersonalSettings.DarkMode ? "dark-theme": "light-theme") @(SqlUserRepository.PersonalSettings.BigFontSize ? "large-font-size": "normal-font-size")">
     <Routes />   
     <script src="_framework/blazor.web.js"></script>
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>

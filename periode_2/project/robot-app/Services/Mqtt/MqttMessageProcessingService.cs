@@ -29,7 +29,7 @@ public class MqttMessageProcessingService : IHostedService
                         DateTime currentTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, _timeZone);
                         _mqttData.MotionData[currentTime] = bool.TryParse(value, out bool motionDetected) ? motionDetected : false;
                         break;
-                    case "mentionFinished": 
+                    case "taskFinished": 
                         _mqttData.RobotFinishedMention = bool.TryParse(value, out bool RobotFinishedMention) ? RobotFinishedMention : false;
                         if (_mqttData.RobotFinishedMention)
                         {

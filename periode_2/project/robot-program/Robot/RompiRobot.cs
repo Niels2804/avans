@@ -128,7 +128,7 @@ public class RompiRobot : Sensors {
                 {
                     Console.WriteLine($"Mention type {messageData.Value} bestaat niet.");
                 }
-                await mqttClient.PublishMessage($"mentionFinished|true", "robot");
+                await mqttClient.PublishMessage($"taskFinished|true", "robot");
                 break;
             case "hasPermissionToDrive":
                 try {
@@ -141,6 +141,7 @@ public class RompiRobot : Sensors {
                         DrivingController.RevokePermissionToDrive();
                         IsBusyWithDriving = false;
                     }
+                    await mqttClient.PublishMessage($"taskFinished|true", "robot");
                 } 
                 catch (Exception ex) 
                 {
