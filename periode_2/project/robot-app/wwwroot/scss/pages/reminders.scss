@@ -44,7 +44,7 @@
          padding: 10px;
          margin-top: 15px;
          border-radius: 25px;
-         background-color: var(--clr-300);
+         background-color: var(--clr-200);
          margin-bottom: 20px;
 
          table {
@@ -146,11 +146,11 @@
             }
 
             tr:nth-child(even) {
-               background-color: var(--clr-100);
+               background-color: var(--clr-200);
             }
 
             tr:nth-child(odd) {
-               background-color: var(--clr-200);
+               background-color: var(--clr-100);
             }
 
             tr:nth-child(1) {
@@ -173,7 +173,7 @@
          border-radius: 15px;
          font-size: var(--fs-md);
          color: var(--clr-400);
-         background-color: var(--clr-300);
+         background-color: var(--clr-200);
          border: none;
          outline: none;
          transition: 150ms linear;

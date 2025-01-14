@@ -87,11 +87,11 @@ i.fa {
 // Main Form options
 
 // Custom scrollbar
-select::-webkit-scrollbar, textarea::-webkit-scrollbar {
+select::-webkit-scrollbar, textarea::-webkit-scrollbar, .logs::-webkit-scrollbar {
     width: 5px;
 }
 
-select::-webkit-scrollbar-thumb, textarea::-webkit-scrollbar-thumb {
+select::-webkit-scrollbar-thumb, textarea::-webkit-scrollbar-thumb, .logs::-webkit-scrollbar-thumb {
     background-color: var(--clr-400);
     width: 5px;
     border-radius: 25px;

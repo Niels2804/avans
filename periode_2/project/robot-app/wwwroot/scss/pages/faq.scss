@@ -1,6 +1,23 @@
 @use '../variables' as *;
 @mixin faq() {
    #faq {
-      background-color: var(--clr-400);
+      position: relative;
+      padding: 75px 0;   
+
+      .faqContent {
+         position: relative;
+         display: flex;
+         justify-content: center;
+         align-items: center;
+         width: 100%;
+         height: calc(100% - 50px);
+         border-radius: 25px;
+         background-color: var(--slider-bg-color);        
+         
+         p {
+             color: var(--clr-400);
+             font-size: var(--fs-xxl);
+         }
+     }
    }
 }

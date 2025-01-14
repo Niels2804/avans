@@ -24,10 +24,12 @@ public class MqttMessageProcessingService : IHostedService
                 {
                     case "batteryVoltage":
                         _mqttData.BatteryVoltage = int.TryParse(value, out int batteryVoltage) ? batteryVoltage : 0;
+                        _mqttData.dataHistory.Add("batteryVoltage", _mqttData.BatteryVoltage);
                         break;
                     case "motionDetection":
                         DateTime currentTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, _timeZone);
                         _mqttData.MotionData[currentTime] = bool.TryParse(value, out bool motionDetected) ? motionDetected : false;
+                        _mqttData.dataHistory.Add("motionDetection",  _mqttData.MotionData[currentTime]);
                         break;
                     case "taskFinished": 
                         _mqttData.RobotFinishedMention = bool.TryParse(value, out bool RobotFinishedMention) ? RobotFinishedMention : false;
