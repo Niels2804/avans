@@ -117,6 +117,118 @@ select::-webkit-scrollbar-thumb, textarea::-webkit-scrollbar-thumb {
     transform: scale(0.97);
 }
 
+// Custom toast
+.toast-custom {
+    position: absolute;
+    bottom: 140px;
+    right: 30px;
+    border-radius: 12px;
+    background-color: var(--clr-100);
+    padding: 20px 35px 20px 25px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    border-left: 6px solid var(--active-color);
+    overflow: hidden;
+    transform: translateX(calc(100% + 100px));
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
+    z-index: 999999;
+
+    .toast-content-custom {
+        display: flex;
+        align-items: center;
+
+        .message {
+            display: flex;
+            flex-direction: column;
+            margin: 0 20px;
+
+            .text {
+                font-size: var(--fs-xl);
+                font-weight: 400;
+                color: var(--clr-400);
+            }
+
+            .text-1 {
+                font-weight: 600;
+            }
+        }
+
+        .check {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 35px;
+            width: 35px;
+            background-color: var(--active-color);
+            color: var(--clr-100);
+            font-size: var(--icon-sm);
+            border-radius: 50%;
+        }
+
+        .check.success {
+            background-color: var(--robot-on);
+        }
+
+        .check.failed {
+            background-color: var(--robot-off);
+        }
+    }
+
+    .progress-custom {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        height: 3px;
+        width: 100%;
+        background-color: var(--clr-200);
+    }
+
+    .progress-custom:before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        right: 0%;
+        height: 100%;
+        width: 100%;
+        background-color: var(--clr-200);
+    }
+
+    .progress-custom.active:before {
+        animation: progress 10s linear forwards;
+        background-color: var(--active-color);
+    }
+
+    @keyframes progress {
+        100% {
+            right: 100%;
+        }
+        50% {
+            right: 100%;
+        }
+    }
+
+    .close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        padding: 5px;
+        cursor: pointer;
+        opacity: 0.7;
+        font-size: var(--icon-xs);
+        color: var(--clr-400);
+        transition: 150ms linear;
+    }
+
+    .close:hover {
+        opacity: 1;
+        color: var(--robot-offline);
+        transform: translate(0.97);
+    }
+}
+
+.toast-custom.active {
+    transform: translateX(0%);
+}
+
 .top-navigation {
     position: relative;
     display: flex;
