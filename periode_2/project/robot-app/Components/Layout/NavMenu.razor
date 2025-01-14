@@ -16,7 +16,7 @@
     </h1>
     <div class="status-navigation">
         <div class="online-status">
-            <p class="online-status-text">Online</p>
+            <p class="online-status-text">@(SqlUserRepository.Robot.IsActive ? "Online" : "Offline")</p>
             <div class="online-status-circle" data-status="@(SqlUserRepository.Robot.IsActive.ToString().ToLower())"></div>
         </div>
         <div class="settings">

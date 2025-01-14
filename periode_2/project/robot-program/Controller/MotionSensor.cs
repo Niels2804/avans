@@ -66,6 +66,14 @@ namespace PIRmotion
             } 
             else 
             {
+                // Sending message to HiveMQ
+                try {
+                    await client.PublishMessage("motionDetection|false", "robot");
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error while sending measurement message: {ex}");
+                }
                 await PlayAnnouncement("No movement \ndetected", Mentions.NothingDetected);
             }
         }

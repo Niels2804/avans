@@ -539,6 +539,7 @@ select::-webkit-scrollbar-thumb, textarea::-webkit-scrollbar-thumb, .logs::-webk
             .online-status-text {
                 font-size: var(--fs-xl);
                 margin-right: 10px;
+                transition: 150ms linear;
             }
 
             .online-status-circle {
