@@ -199,14 +199,13 @@
             {
                 isProcessing = true;
                 Timer timer = timersToRunQueue.Dequeue();
-                await MqttService.PublishMessageToRobot(timer.Category, "mention"); // sending MQTT message to robot to mention
-                await SqlUserRepository.DeleteTimer(timer.TimerId); 
-
                 runningTaskQueue.Enqueue(async () =>
                 {
                     await ShowNotification("In progress", "Melding \"" + (timer.Category ?? "undefined") + "\" is verstuurd naar de robot, wachten op terugkoppeling...", true);
                 });
-
+                await MqttService.PublishMessageToRobot(timer.Category, "mention"); // sending MQTT message to robot to mention
+                await SqlUserRepository.DeleteTimer(timer.TimerId); 
+                
                 var tcs = new TaskCompletionSource<bool>();
 
                 // Maak de event handler die het resultaat instelt in de TCS.
