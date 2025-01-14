@@ -60,7 +60,7 @@ window.onload = () => {
             }, 500);        
         });
     });
-    
+
     // 404 Animatie 
     lottie.loadAnimation({
         container: document.querySelector('.lottie-animation'),
@@ -70,4 +70,8 @@ window.onload = () => {
         path: 'https://lottie.host/d987597c-7676-4424-8817-7fca6dc1a33e/BVrFXsaeui.json'
     });
 };
+
+function setBodyClass(className) {
+    document.body.className = className;
+}
 

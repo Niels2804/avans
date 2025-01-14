@@ -3,15 +3,15 @@ using Avans.StatisticalRobot;
 using SensorLibrary;
 using Mqtt;
 using SoundLibrary;
-using HiveMQtt.Service;
+using SimpleMqtt;
 
 namespace PIRmotion
 {
     public class MotionDetection : Sensors
     {
         private int PinNumber {get; set;}
-        private bool IsMeasuring {get; set;}
-        private MessageService MessageSender {get;}
+         private bool IsMeasuring {get; set;}
+        // private MessageService MessageSender {get;}
         public void StartMeasuringMovement() => IsMeasuring = true;
         public void StopMeasuringMovement() => IsMeasuring = false;
         public bool StatusMeasuringMovement() => IsMeasuring;
@@ -19,10 +19,10 @@ namespace PIRmotion
         {
             this.PinNumber = PinNumber;
             IsMeasuring = false;
-            MessageSender = new MessageService("robot");
+            // MessageSender = new MessageService("robot");
         }
 
-        public async Task MeasureMovement() 
+        public async Task MeasureMovement(SimpleMqttClient client) 
         {
             Robot.SetDigitalPinMode(16, PinMode.Input);
             await PlayAnnouncement("Measuring \nenvironment", Mentions.Active);
@@ -57,7 +57,7 @@ namespace PIRmotion
 
                 // Sending message to HiveMQ
                 try {
-                    await MessageSender.SendMessage("motionDetection|true");
+                    await client.PublishMessage("motionDetection|true", "robot");
                 }
                 catch (Exception ex)
                 {

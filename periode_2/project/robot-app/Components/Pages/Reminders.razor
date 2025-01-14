@@ -1,6 +1,7 @@
 @page "/Reminders"
 @using System.ComponentModel.DataAnnotations
 @using BlazorMqttDatabase.Services
+@using System.Collections.Concurrent
 @using robot_app.Components.Pages
 @using static System.Runtime.InteropServices.JavaScript.JSType
 
@@ -11,9 +12,9 @@
 
 <div id="reminders" class="page">
     <div class="filters">
-        <button class="filter-by-category">Filteren op categorie</button>
-        <button class="filter-by-day">Filteren op dag</button>
-        <button class="filter-by-time">Filteren op tijd</button>
+        <button class="filter-by-category">Filteren op categorie <i class="fa fa-solid fa-tag"></i></button>
+        <button class="filter-by-day">Filteren op dag <i class="fa fa-regular fa-calendar"></i></button>
+        <button class="filter-by-time">Filteren op tijd <i class="fa fa-solid fa-caret-up"></i></button>
     </div>
     <div class="table-container">
         <table>
@@ -25,72 +26,111 @@
                 <th>Snelle acties</th>
             </tr>
             @foreach(Timer timer in SqlUserRepository.Timers.Values) {
-            <tr>
-                <td>@timer.Date.ToString("dd-MM-yyyy")</td>
-                <td>@timer.Date.ToString("HH:mm")</td>
-                <td>@timer.Category</td>
-                <td>@timer.Comment</td>
+            <tr class="@(!timer.IsActive && timer.Date <= currentTime ? "expired" : "")">
+                <td><p>@timer.Date.ToString("dd-MM-yyyy")</p></td>
+                <td><p>@timer.Date.ToString("HH:mm") <i><b>@(!timer.IsActive && timer.Date <= currentTime ? "(verlopen)" : "")</b></i></p></td>  
+                <td><p>@timer.Category</p></td>
                 <td>
-                    <p data-type="@(timer.IsActive ? "true" : "false")"></p>
-                    <button class="edit" @onclick="async () => await StartForm(timer)">edit</button>
-                    <button class="delete" @onclick="async () => await DeleteRow(timer.TimerId)">delete</button>
+                    @if(timer.Comment != string.Empty) 
+                    {
+                        <p>@timer.Comment</p>
+                    }
+                    else
+                    {
+                        <i><b>(Geen opmerking geplaatst)</b></i>
+                    }
+                </td>
+                <td>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" @onclick="async () => await SwitchTimerStatus(timer.TimerId, !timer.IsActive)" type="checkbox" role="switch" id="flexSwitchCheckDefault" checked=@timer.IsActive/>
+                    </div>
+                    <button class="edit" @onclick="async () => await StartForm(timer)"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                    <button class="delete" @onclick="async () => await DeleteRow(timer.TimerId)"><i class="fa fa-solid fa-trash"></i></button>
                 </td>
             </tr>
             }
         </table>
     </div>
-    <button class="add-reminder" @onclick="() => StartForm(null)">Voeg een nieuwe herinnering toe</button>
-    <div class="pop-up @(editMode ? "active" : "")">
+    <button class="add-reminder" @onclick="() => StartForm(null)">Nieuwe reminder</button>
+    @if(isProcessing) 
+    {
+        <div id="processingReminder">
+            <div class="spinner"></div>
+        </div>
+    }
+    <div class="toast-custom @notification.IsActive">
+        <div class="toast-content-custom">
+            <i class="fas fa-solid @(notification.State ? "fa-check success" : "fa-xmark failed") check"></i>
+            <div class="message">
+                <span class="text text-1">@notification.Title</span>
+                <span class="text text-2">@notification.Message</span>
+            </div>
+        </div>
+        <i class="fa fa-solid fa-xmark close" @onclick="async () => await CancelNotification()"></i>
+        <div class="progress-custom @notification.IsActive"></div>
+    </div>
+    <div class="popUp @(formActive ? "active" : "")">
             @if(formActive) {
-            <p>@(editMode ? "Rij updaten" : "Rij toevoegen")</p>
-            <EditForm Model="formModel" OnValidSubmit="SaveForm">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-                <div class="col-sm-6">
-                    <div class="form-group mt-2">
-                        <label for="inputDate">Datum</label>
-                        <InputDate id="inputDate" class="form-control" @bind-Value="formModel.Date" />
-                    </div>
-                    <div class="form-group mt-2">
-                        <label for="inputTime">Tijd</label>
-                        <input type="time" id="inputTime" class="form-control" @bind="formModel.Time" />
-                    </div>
-                    <div class="form-group mt-2">
-                        <label for="inputCategory">Categorie</label>
-                        <select id="inputCategory" class="form-control" @bind="formModel.Category">
-                            <option value="" disabled selected>Selecteer hier een categorie</option>
-                            @foreach (var category in categories)
-                            {
-                                <option value="@category.Value">@category.Text</option>
-                            }
-                        </select>
-                        <ValidationMessage For="@(() => formModel.Category)" />
-                    </div>
-                    <div class="form-group mt-2">
-                        <label for="inputComment">Commentaar</label>
-                        <textarea id="inputComment" class="form-control" rows="4" @bind="formModel.Comment" style="resize: none;"></textarea>
-                    </div>
-                    <div class="form-check mt-2">
-                        <InputCheckbox id="isActief" class="form-check-input" @bind-Value="formModel.IsActive" />
-                        <label class="form-check-label" for="isActief">Melding staat aan</label>
-                    </div>
-                    <div>
-                        <button type="submit" class="btn btn-primary">Opslaan</button>
-                    </div>
+            <div class="popUpContainer">
+                <div class="header">
+                    <h2>@(editMode ? "Reminder Bewerken" : "Nieuwe Reminder Aanmaken")</h2>
+                    <button class="cancel" @onclick="CancelForm">
+                        <i class="fa fa-solid fa-xmark"></i>
+                    </button>
                 </div>
-            </EditForm>
-            <button class="cancel" @onclick="CancelForm">Annuleren</button>
+                <EditForm Model="formModel" OnValidSubmit="SaveForm">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    <div class="formContainer">
+                        <div class="leftSide">
+                            <div class="form-group">
+                                <label for="inputDate">Datum (dd-mm-yyyy)</label>
+                                <InputDate id="inputDate" class="form-control" @bind-Value="formModel.Date" />
+                            </div>
+                            <div class="form-group">
+                                <label for="inputTime">Tijd (UTC+1 Europe/Amsterdam)</label>
+                                <input type="time" id="inputTime" class="form-control" @bind="formModel.Time" />
+                            </div>
+                            <div class="form-group">
+                                <label for="inputCategory">Categorie <i class="fa fa-solid fa-circle-info"></i></label>
+                                <select id="inputCategory" class="form-control" @bind="formModel.Category">
+                                    <option value="" disabled selected>Selecteer hier een categorie</option>
+                                    @foreach (var category in categories)
+                                    {
+                                        <option value="@category.Value">@category.Text</option>
+                                    }
+                                </select>
+                                <ValidationMessage For="@(() => formModel.Category)" />
+                            </div>
+                            <button type="submit">Opslaan</button>
+                        </div>
+                        <div class="rightSide">
+                            <div class="form-group">
+                                <label for="inputComment">Commentaar</label>
+                                <textarea id="inputComment" class="form-control" @bind="formModel.Comment" style="resize: none;"></textarea>
+                            </div>
+                            <div class="form-check">
+                                <InputCheckbox id="isActief" class="form-check-input" @bind-Value="formModel.IsActive" />
+                                <label class="form-check-label" for="isActief">Melding staat aan</label>
+                            </div>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
         }
     </div>
 </div>
 @code {
     private bool formActive = false;
     private bool editMode = false;
+    private bool isProcessing = false;
     private TimerFormModel? formModel;
+    private NotificationInformation notification = new NotificationInformation();
     private readonly TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Amsterdam");
     private DateTime currentTime;
     private DateTime previousTime;
     private Queue<Timer> timersToRunQueue = new Queue<Timer>();
+    private ConcurrentQueue<Func<Task>> runningTaskQueue = new ConcurrentQueue<Func<Task>>();
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -98,6 +138,7 @@
         if(firstRender) 
         {
             _ = Task.Run(() => ProgressQueue());
+            _ = Task.Run(() => ProcessingRunningTaskQueue());
             var timer = new System.Threading.Timer(e => {
                 InvokeAsync(() => {
                     DateTime newTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
@@ -113,12 +154,35 @@
         }
     }
 
+    private async Task ProcessingRunningTaskQueue()
+    {
+        while (true)
+        {
+            if (runningTaskQueue.TryDequeue(out var taskFunc))
+            {
+                try
+                {
+                    await taskFunc();
+                }
+                catch (Exception ex)
+                {
+                    // Foutafhandeling
+                    Console.WriteLine($"Fout bij uitvoeren van taak: {ex.Message}");
+                }
+            }
+            else
+            {
+                await Task.Delay(200); // Wacht voordat opnieuw wordt gecontroleerd
+            }
+        }
+    }
+
     // Can't run async, checks every second or a timer has reached the current time
     private void CheckReminderStatus()
     {
         foreach(var timer in SqlUserRepository.Timers)
         {
-            if(timer.Value.Date <= currentTime)
+            if(timer.Value.Date <= currentTime && timer.Value.IsActive == true)
             {
                 timersToRunQueue.Enqueue(timer.Value);
                 SqlUserRepository.Timers.Remove(timer.Key);
@@ -133,8 +197,15 @@
         {
             while(timersToRunQueue.Count > 0)
             {
+                isProcessing = true;
                 Timer timer = timersToRunQueue.Dequeue();
                 await MqttService.PublishMessageToRobot(timer.Category, "mention"); // sending MQTT message to robot to mention
+                await SqlUserRepository.DeleteTimer(timer.TimerId); 
+
+                runningTaskQueue.Enqueue(async () =>
+                {
+                    await ShowNotification("In progress", "Melding \"" + (timer.Category ?? "undefined") + "\" is verstuurd naar de robot, wachten op terugkoppeling...", true);
+                });
 
                 var tcs = new TaskCompletionSource<bool>();
 
@@ -150,24 +221,36 @@
                 MqttService.RobotFinishedMentionCallback += callbackHandler;
 
                 // Wacht op de callback of time-out
-                var timeoutTask = Task.Delay(30000); // Standaard time-out na 30 seconden
+                var timeoutTask = Task.Delay(10000); // Standaard time-out na 30 seconden
                 var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
 
                 // Als de time-out is bereikt, log dan de fout en stop de handler.
                 if (completedTask == timeoutTask)
                 {
+                    timer.IsActive = false;
+                    await SqlUserRepository.AddNewTimer(timer); 
+                    runningTaskQueue.Enqueue(async () =>
+                    {
+                        await ShowNotification("Time-out Error", "Er is iets misgegaan bij het versturen van de reminder: \"" + timer.Category + "\" controleer de connectie met uw robot", false);
+                    });
                     Console.WriteLine("Time-out reached waiting for robot callback.");
+                    await Task.Delay(1000);
                     MqttService.RobotFinishedMentionCallback -= callbackHandler;
                 }
                 else
                 {
+                    runningTaskQueue.Enqueue(async () =>
+                    {
+                        await ShowNotification("Success", "De reminder \"" + timer.Category + "\" is succesvol uitgevoerd", true);
+                    });
                     Console.WriteLine("Callback received and task completed.");
-                    @* await SqlUserRepository.DeleteTimer(timer.TimerId);  *@
+                    await Task.Delay(1000);
                 }
 
                 // Wacht totdat de callback daadwerkelijk is afgerond.
                 await completedTask;
-                @* await SqlUserRepository.InitializeData(); *@
+                isProcessing = false;
+                await SqlUserRepository.InitializeData();
             }
             await Task.Delay(1000); // Preventing CPU-overload while queue is empty 
         }
@@ -227,25 +310,84 @@
             Comment = formModel.Comment,
             IsActive = formModel.IsActive
         };
+        
+        formActive = false;
 
         if (formModel.TimerId == null)
         {
             await SqlUserRepository.AddNewTimer(newTimer);
+            runningTaskQueue.Enqueue(async () =>
+            {
+                await ShowNotification("Success", "Melding \"" + (newTimer.Category ?? "undefined") + "\" is succesvol toegevoegd", true);
+            });
+            await Task.Delay(1000);
+
         }
         else
         {
             await SqlUserRepository.UpdateTimer(newTimer);
+            runningTaskQueue.Enqueue(async () =>
+            {
+                await ShowNotification("Success", "Melding \"" + (newTimer.Category ?? "undefined") + "\" is succesvol geüpdatet", true);
+            });
+            await Task.Delay(1000);
         }
 
-        formActive = false;
+        await SqlUserRepository.InitializeData();
+    }
+
+    // Update Reminder Status
+    private async Task SwitchTimerStatus(int timerId, bool status)
+    {
+        await SqlUserRepository.UpdateTimerStatus(timerId, status);
         await SqlUserRepository.InitializeData();
     }
 
     private async Task DeleteRow(int timerId)
     {
         await SqlUserRepository.DeleteTimer(timerId);
+        runningTaskQueue.Enqueue(async () =>
+        {
+            await ShowNotification("Success", "Melding is succesvol verwijderd", true);
+        });
+        await Task.Delay(1000);
         await SqlUserRepository.InitializeData();
     }
+
+    // toast pop-up
+    private async Task ShowNotification(string title, string message, bool state)
+    {
+        if(SqlUserRepository.PersonalSettings.Notifications) 
+        {
+            notification = new NotificationInformation();
+            notification.Title = title;
+            notification.Message = message;
+            notification.State = state;
+            notification.IsActive = "active";
+            await Task.Delay(5000);
+            notification.IsActive = string.Empty;
+            await Task.Delay(2500);
+            // Reset notification
+            notification = new NotificationInformation();
+        }
+    }
+
+    private async Task CancelNotification()
+    {
+        // Reset notification
+        notification.IsActive = string.Empty;
+        await Task.Delay(5000);
+        notification = new NotificationInformation();
+    }
+
+    public class NotificationInformation
+    {
+        public string Title { get; set; }
+        public string Message { get; set; }
+        public bool State { get; set; }
+        public string IsActive {get; set;}
+    }
+
 
     public class TimerFormModel
     {
@@ -256,7 +398,7 @@
         public DateTime Time { get; set; }
         [Required(ErrorMessage = "Categorie is verplicht!")]
         public string Category { get; set; }
-        public string? Comment { get; set; }
+        public string? Comment { get; set; } = string.Empty;
         public bool IsActive { get; set; } = true;
     }
 
