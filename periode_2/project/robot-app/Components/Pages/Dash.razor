@@ -3,6 +3,7 @@
 @using BlazorMqttDatabase.Services
 @using robot_app.Components.Pages
 @rendermode InteractiveServer
+@attribute [StreamRendering]
 
 @inject SqlUserRepository SqlUserRepository
 @inject MqttExternalMessageProcessingService MqttService
@@ -27,9 +28,12 @@
             </div>
             <div class="chartContent">
                 <h2>Activiteitenlogs <i class="fa fa-solid fa-circle-info"></i</h2>
-                <div class="chart">
+                @* <div class="chart">
                     <p>(Coming Soon)</p>
-                </div>
+                </div> *@
+                <span class="activityChart">
+                    <LineChart @ref="activityChart"/>
+                </span>
             </div>
         </div>
         <div class="activityContent">
@@ -62,6 +66,10 @@
 
 @code {
     private bool isProcessing = false;
+    private LineChart activityChart = default!;
+    private LineChartOptions activityChartOptions = default!;
+    private ChartData activityChartData = default!;
+    private List<DateTime> motionSensorData = new List<DateTime>();
     private Dictionary<DateTime, string> filteredMqttDataHistory = new Dictionary<DateTime, string>();
     private List<string> parsedMqttDataHistory = new List<string>();
     private readonly TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Amsterdam");
@@ -113,6 +121,7 @@
                             if (!filteredMqttDataHistory.ContainsKey(currentTime))
                             {
                                 filteredMqttDataHistory.Add(currentTime, $"Tijdens de meting is er {motionDetected} beweging gedetecteerd");
+                                motionSensorData.Add(currentTime);
                                 newLogAdded = true;
                             }
                         }
@@ -159,6 +168,73 @@
     {
         public string Value { get; set; }
         public string Text { get; set; }
+    }
+
+     private void SetChartDataset() {
+        if (motionSensorData == null || !motionSensorData.Any()) {
+            Console.WriteLine("Geen metingen beschikbaar voor het instellen van de dataset.");
+            return;
+        }
+
+        // Groepeer data op uur
+        var hourlyGroupedData = motionSensorData
+            .Where(data => data.Date == DateTime.Today.Date) // Filter alleen data van vandaag
+            .GroupBy(data => data.Hour) // Groepeer per uur
+            .OrderBy(group => group.Key) // Sorteer op uur
+            .ToList();
+
+        // Labels voor de X-as
+        var labels = hourlyGroupedData.Select(group => group.Key.ToString("00") + ":00").ToList();
+
+        // Totaal aantal detecties per uur
+        var detectionCounts = hourlyGroupedData.Select(group => group.Count()).ToList();
+
+        // Dataset voor de chart
+        var chartDataSets = new List<IChartDataset> {
+            new LineChartDataset {
+                Label = "Aantal bewegingen per uur",
+                Data = detectionCounts.Select(count => (double?)count).ToList(),
+                BackgroundColor = "#00ECFB",
+                BorderColor = "#00ECFB",
+                BorderWidth = 1
+            }
+        };
+
+        // Chart data instellen
+        activityChartData = new ChartData {
+            Labels = labels,
+            Datasets = chartDataSets
+        };
+    }
+
+    private void SetChartOptions() {
+        activityChartOptions = new LineChartOptions {
+            Interaction = new Interaction {
+                Mode = InteractionMode.Index
+            },
+            Plugins = new LineChartPlugins {
+                Title = new ChartPluginsTitle {
+                    Text = "Aantal bewegingen per uur",
+                    Display = true,
+                    Font = new ChartFont { Size = 24 }
+                }
+            },
+            Responsive = true,
+            Scales = new Scales {
+                X = new ChartAxes {
+                    Title = new ChartAxesTitle {
+                        Text = DateTime.Now.ToString("dd MMMM"),
+                        Display = true
+                    }
+                },
+                Y = new ChartAxes {
+                    Title = new ChartAxesTitle {
+                        Text = "Aantal bewegingen",
+                        Display = true
+                    }
+                },
+            }
+        };
     }
 
     private List<CategoryOption> categories = new List<CategoryOption>

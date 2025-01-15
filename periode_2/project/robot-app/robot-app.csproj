@@ -7,9 +7,10 @@
     <AssemblyName>$(AssemblyName.Replace(' ', '_'))</AssemblyName>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AspNetCore.SassCompiler" Version="1.83.0"/>
-    <PackageReference Include="HiveMQtt" Version="0.24.0"/>
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2"/>
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0"/>
+    <PackageReference Include="AspNetCore.SassCompiler" Version="1.83.0" />
+    <PackageReference Include="Blazor.Bootstrap" Version="3.2.0" />
+    <PackageReference Include="HiveMQtt" Version="0.24.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.0" />
   </ItemGroup>
 </Project>
