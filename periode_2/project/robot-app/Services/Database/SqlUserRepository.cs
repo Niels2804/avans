@@ -101,7 +101,10 @@ public class SqlUserRepository
                     timer.Category = GetValueOrDefault(row, "category", "undefined");
                     timer.Comment = GetValueOrDefault(row, "comment", "undefined");
                     timer.IsActive = GetValueOrDefault(row, "is_active", "0") == "1";
-                    Timers.Add(timer.TimerId, timer);
+                    if(!Timers.ContainsKey(timer.TimerId))
+                    {
+                        Timers.Add(timer.TimerId, timer);
+                    }
                 }
             }
         } 
@@ -123,7 +126,10 @@ public class SqlUserRepository
                     activity.Date = Convert.ToDateTime(GetValueOrDefault(row, "date", "2025-00-00 00:00:00"));
                     activity.Model = GetValueOrDefault(row, "model", "undefined");
                     activity.Comment = GetValueOrDefault(row, "comment", "undefined");
-                    Activities.Add(activity.Date, activity);
+                    if(!Activities.ContainsKey(activity.Date))
+                    {
+                        Activities.Add(activity.Date, activity);
+                    }
                 }
             }
         } 
@@ -313,6 +319,27 @@ public class SqlUserRepository
         }
     }
 
+    public async Task AddNewMotion(Activity activity)
+    {
+        try {
+            using (var connection = new SqlConnection(BuildSqlConnectionString()))
+            {
+                await connection.OpenAsync();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = $"INSERT INTO activity (date, model, comment) VALUES (@Date, @Model, @Comment)"; 
+                    command.Parameters.AddWithValue("@Date", activity.Date);       
+                    command.Parameters.AddWithValue("@Model", Robot.Model);       
+                    command.Parameters.AddWithValue("@Comment", "");       
+                    await command.ExecuteNonQueryAsync();
+                }
+                await connection.CloseAsync();
+            }
+        } catch (Exception ex) {
+            Console.WriteLine($"Failed to INSERT a new motion detected data: {ex}");
+        }
+    }
+
     // DELETE
     public async Task DeleteTimer(int timerId)
     {
@@ -332,6 +359,27 @@ public class SqlUserRepository
         catch (Exception ex)
         {
             Console.WriteLine($"Failed to DELETE timer {timerId}: {ex}");
+        }
+    }
+
+    public async Task ClearActivities()
+    {
+        try
+        {
+            using (var connection = new SqlConnection(BuildSqlConnectionString()))
+            {
+                await connection.OpenAsync();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = "DELETE FROM activity WHERE model = @RobotModel"; 
+                    command.Parameters.AddWithValue("@RobotModel", Robot.Model);
+                    await command.ExecuteNonQueryAsync();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to DELETE the motion detection activities data from robot {Robot.Model}: {ex}");
         }
     }
 }

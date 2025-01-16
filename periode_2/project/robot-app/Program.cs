@@ -14,6 +14,7 @@ builder.Services.AddSingleton<MqttExternalMessageProcessingService>();
 builder.Services.AddSingleton<MqttData>(); 
 builder.Services.AddSingleton(simpleMqttClient); 
 builder.Services.AddHostedService<MqttMessageProcessingService>();
+builder.Services.AddBlazorBootstrap();
 
 #if DEBUG
     builder.Services.AddSassCompiler();

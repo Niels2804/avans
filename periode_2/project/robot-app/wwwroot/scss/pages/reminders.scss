@@ -168,10 +168,10 @@
          display: flex;
          justify-content: center;
          align-items: center;
-         width: 150px;
-         height: 50px;
+         width: 250px;
+         height: 75px;
          border-radius: 15px;
-         font-size: var(--fs-md);
+         font-size: var(--fs-xl);
          color: var(--clr-400);
          background-color: var(--clr-200);
          border: none;
@@ -259,16 +259,16 @@
                   }
 
                   button {
-                     width: 140px;
+                     width: 150px;
                      height: 50px;
                      border-radius: 15px;
-                     font-size: var(--fs-md);
+                     font-size: var(--fs-lg);
                      color: var(--clr-400);
                      background-color: var(--clr-200);
                      border: none;
                      outline: none;
                      transition: 150ms linear;
-                     margin-top: 0.5rem;
+                     margin-top: 1.5rem;
                   }
 
                   button:hover {
