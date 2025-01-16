@@ -12,12 +12,52 @@
          width: 100%;
          height: calc(100% - 50px);
          border-radius: 25px;
-         background-color: var(--clr-200);        
+         background-color: var(--clr-200);   
+         overflow: hidden;     
          
-         p {
-             color: var(--clr-400);
-             font-size: var(--fs-xxl);
+         #accordionFlushFaq {
+            width: 75%;
+            height: auto;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.1);
+
+            .accordion-item {               
+               .accordion-header {
+                  .accordion-button {
+                     font-size: var(--fs-xxl);
+                     color: var(--clr-400);
+                     background-color: var(--slider-bg-color);
+                     transition: 150ms linear;
+                  }
+
+                  .accordion-button::after {
+                     background: var(--arrow-non-active);
+                     transition: 150ms linear;
+                  }
+
+                  .accordion-button[aria-expanded="true"] {
+                     background-color: var(--clr-200);
+                  }
+               }
+
+               div {
+                  .accordion-body {
+                     color: var(--clr-400);
+                     background-color: var(--slider-bg-color);
+
+                     ul.copyrightRules {
+                        margin: 0;
+                        list-style: dotted;
+                        font-size: var(--fs-md);
+                        padding: 20px;
+
+                        li {
+                           margin-bottom: 5px;
+                        }
+                     }
+                  }
+               }
+            }
          }
-     }
+      }
    }
 }

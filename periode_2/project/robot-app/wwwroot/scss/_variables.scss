@@ -39,6 +39,9 @@
     // De kleur kan veranderd worden met chatgpt, url is: data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='rgba%280, 0, 0, 0.25%29'/%3e%3c/svg%3e
     --slider-svg-non-active: url("data:image/svg+xml,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%22-4%20-4%208%208%22%3e%3ccircle%20r%3D%223%22%20fill%3D%22rgba%2841%2C%2049%2C%2050%2C%201%29%22%2F%3e%3c%2Fsvg%3e");
     --slider-svg-active: url("data:image/svg+xml,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%22-4%20-4%208%208%22%3e%3ccircle%20r%3D%223%22%20fill%3D%22rgba%2841%2C%2049%2C%2050%2C%201%29%22%2F%3e%3c%2Fsvg%3e");
+
+    --arrow-active: url("data:image/svg+xml,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%23ECEBDE%22%3e%3cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M1.646%204.646a.5.5%200%200%201%20.708%200L8%2010.293l5.646-5.647a.5.5%200%200%201%20.708.708l-6%206a.5.5%200%200%201-.708%200l-6-6a.5.5%200%200%201%200-.708z%22%2F%3e%3c%2Fsvg%3e");
+    --arrow-non-active: url("data:image/svg+xml,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22rgba%2841%2C%2049%2C%2050%2C%201%29%22%3e%3cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M1.646%204.646a.5.5%200%200%201%20.708%200L8%2010.293l5.646-5.647a.5.5%200%200%201%20.708.708l-6%206a.5.5%200%200%201-.708%200l-6-6a.5.5%200%200%201%200-.708z%22%2F%3e%3c%2Fsvg%3e");
     
     --robot-online: #6CEE52;
     --robot-warning: #db9958;
@@ -59,6 +62,9 @@
      --slider-svg-non-active: url("data:image/svg+xml,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%22-4%20-4%208%208%22%3e%3ccircle%20r%3D%223%22%20fill%3D%22rgba%28236%2C%20235%2C%20222%2C%201%29%22%2F%3e%3c%2Fsvg%3e");
      --slider-svg-active: url("data:image/svg+xml,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%22-4%20-4%208%208%22%3e%3ccircle%20r%3D%223%22%20fill%3D%22rgba%28236%2C%20235%2C%20222%2C%201%29%22%2F%3e%3c%2Fsvg%3e");
     
+     --arrow-active: url("data:image/svg+xml,%3csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%23424242%22%3e%3cpath%20fill-rule%3D%22evenodd%22%20d%3D%22M1.646%204.646a.5.5%200%200%201%20.708%200L8%2010.293l5.646-5.647a.5.5%200%200%201%20.708.708l-6%206a.5.5%200%200%201-.708%200l-6-6a.5.5%200%200%201%200-.708z%22%2F%3e%3c%2Fsvg%3e");
+     --arrow-non-active: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23DDDDDD'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3e%3c/svg%3e");
+
     --robot-online: #6CEE52;
     --robot-warning: #8f6c4a;
     --robot-offline: #EE5252;

@@ -12,7 +12,7 @@
 
 <div class="top-navigation">
     <h1 class="project-title">
-        Robot Management System V1.0 <i style="font-size=12px">(Made by Niels Jansen)</i>
+        Robot Management System V1.0 <i style="font-size=12px">(béta) (Made by Niels Jansen)</i>
     </h1>
     <div class="status-navigation">
         <div class="online-status">
@@ -107,6 +107,14 @@
                                         <input class="form-check-input" id="robotActive flexSwitchCheckDefault" @onclick='async () => await SwitchRobotActive(SqlUserRepository.Robot.IsActive ? false : true)' type="checkbox" role="switch" checked="@SqlUserRepository.Robot.IsActive" />
                                     </div>
                                 </div>
+                                @if(SqlUserRepository.Activities.Count > 0) {
+                                    <div class="robotSwitch">
+                                        <label for="robotActive">Reset alle gedetecteerde bewegingsdata: <b>@SqlUserRepository.Activities.Count records</b></label>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" id="robotActive flexSwitchCheckDefault" @onclick='async () => await ClearAllMotionData()' type="checkbox" role="switch" />
+                                        </div>
+                                    </div>
+                                }
                             </div>
                         } 
                         else 
@@ -235,6 +243,12 @@
     {
         personalSettingsIsActive = false;
         robotSettingsIsActive = true;
+    }
+
+    private async Task ClearAllMotionData() 
+    {
+        await SqlUserRepository.ClearActivities();
+        await SqlUserRepository.InitializeData();
     }
 
     private async Task SwitchPersonalSettings(string type, bool value)
