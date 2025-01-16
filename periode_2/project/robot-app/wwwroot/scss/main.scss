@@ -471,6 +471,10 @@ select::-webkit-scrollbar-thumb, textarea::-webkit-scrollbar-thumb, .logs::-webk
                             background-color: var(--robot-on) !important;
                         }
                     }
+
+                    .robotSwitch:last-child {
+                        margin: 0;
+                    }
                 }
 
                 #processingScreen {
@@ -730,6 +734,33 @@ select::-webkit-scrollbar-thumb, textarea::-webkit-scrollbar-thumb, .logs::-webk
                     opacity: 0.5;
                 }
             }
+        }
+
+        .copyright {
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: row;
+            width: 500px;
+            bottom: 0;
+            right: calc(50% - 250px);
+            z-index: 99999999;
+
+            font-size: var(--fs-md);
+            color: var(--clr-400);
+            opacity: 0.9;
+            transition: 150ms linear;
+
+            i {
+                margin-right: 2px;
+                margin-top: 1px;
+            }
+        }
+
+        .copyright:hover {
+            transform: scale(1.01);
+            opacity: 1;
         }
 
         // Error 404 page

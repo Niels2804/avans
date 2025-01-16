@@ -111,6 +111,18 @@
     {
         bool newLogAdded = false;
 
+        if (SqlUserRepository.Activities.Count == 0 && !chartIsEmpty) {
+            chartIsEmpty = true;
+        }
+
+        if(SqlUserRepository.Activities.Count > 0 && chartIsEmpty) {
+            chartIsEmpty = false;
+            SetChartDataset();  
+            SetChartOptions();
+            await Task.Delay(2000);
+            await activityChart.InitializeAsync(activityChartData, activityChartOptions);
+        } 
+
         foreach (KeyValuePair<string, object> item in MqttData.dataHistory)
         {
             if (MqttData.dataHistory.Count == 1)
@@ -192,7 +204,7 @@
                 try {
                     chartIsEmpty = false;
                     SetChartOptions();
-                    await Task.Delay(1000);
+                    await Task.Delay(2000);
                     await activityChart.InitializeAsync(activityChartData, activityChartOptions);
                 } 
                 catch (Exception ex) {
