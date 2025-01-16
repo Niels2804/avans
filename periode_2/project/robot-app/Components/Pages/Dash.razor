@@ -197,7 +197,6 @@
     }
 
     protected async Task UpdateChartAsync() {
-        Console.WriteLine(SqlUserRepository.Activities.Count);
         if (SqlUserRepository.Activities.Count > 0) {
             SetChartDataset();  
             if (chartIsEmpty) {
