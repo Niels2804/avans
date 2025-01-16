@@ -3,12 +3,14 @@ using SimpleMqtt;
 public class MqttMessageProcessingService : IHostedService
 {
     private MqttData _mqttData;
+    private SqlUserRepository _sqlUserRepository;
     private readonly TimeZoneInfo _timeZone;
     private readonly SimpleMqttClient _mqttClient;
     private readonly object _lock = new object();
-    public MqttMessageProcessingService(SimpleMqttClient mqttClient, MqttData mqttData, MqttExternalMessageProcessingService mqttExternalMessageProcessingService)
+    public MqttMessageProcessingService(SimpleMqttClient mqttClient, MqttData mqttData, MqttExternalMessageProcessingService mqttExternalMessageProcessingService, SqlUserRepository sqlUserRepository)
     {
       	_mqttClient = mqttClient;
+        _sqlUserRepository = sqlUserRepository;
         _timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Amsterdam");
         _mqttData = mqttData;
 
@@ -53,6 +55,7 @@ public class MqttMessageProcessingService : IHostedService
  
     public async Task StopAsync(CancellationToken cancellationToken)
     {
+        // await _sqlUserRepository.ClearActivities(); // Verwijderd de activity data bij het afsluiten van de sessie
         _mqttClient.Dispose();  
     }
 }

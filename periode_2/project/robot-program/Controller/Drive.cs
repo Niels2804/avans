@@ -17,10 +17,10 @@ namespace RobotMotors
         public void GrantPermissionToDrive() => HasPermissionToDrive = true;
         public void RevokePermissionToDrive() => HasPermissionToDrive = false;
         public bool StatusPermissionToDrive() => HasPermissionToDrive;
-        private void DriveForward() => Robot.Motors(110, 100);
-        private void TurnRight() => Robot.Motors(110, -100);
-        private void TurnLeft() => Robot.Motors(-110, 100);
-        private void DriveBackward() => Robot.Motors(-110, -100);
+        private void DriveForward() => Robot.Motors(107, 100);
+        private void TurnRight() => Robot.Motors(107, -100);
+        private void TurnLeft() => Robot.Motors(-107, 100);
+        private void DriveBackward() => Robot.Motors(-107, -100);
 
         public async Task Drive()
         {   

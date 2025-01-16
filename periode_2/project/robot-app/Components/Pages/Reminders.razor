@@ -199,14 +199,14 @@
             {
                 isProcessing = true;
                 Timer timer = timersToRunQueue.Dequeue();
-                await MqttService.PublishMessageToRobot(timer.Category, "mention"); // sending MQTT message to robot to mention
-                await SqlUserRepository.DeleteTimer(timer.TimerId); 
-
                 runningTaskQueue.Enqueue(async () =>
                 {
                     await ShowNotification("In progress", "Melding \"" + (timer.Category ?? "undefined") + "\" is verstuurd naar de robot, wachten op terugkoppeling...", true);
                 });
-
+                await Task.Delay(500);
+                await MqttService.PublishMessageToRobot(timer.Category, "mention"); // sending MQTT message to robot to mention
+                await SqlUserRepository.DeleteTimer(timer.TimerId); 
+                
                 var tcs = new TaskCompletionSource<bool>();
 
                 // Maak de event handler die het resultaat instelt in de TCS.
@@ -221,7 +221,7 @@
                 MqttService.RobotFinishedMentionCallback += callbackHandler;
 
                 // Wacht op de callback of time-out
-                var timeoutTask = Task.Delay(10000); // Standaard time-out na 30 seconden
+                var timeoutTask = Task.Delay(30000); // Standaard time-out na 30 seconden
                 var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
 
                 // Als de time-out is bereikt, log dan de fout en stop de handler.
@@ -233,6 +233,7 @@
                     {
                         await ShowNotification("Time-out Error", "Er is iets misgegaan bij het versturen van de reminder: \"" + timer.Category + "\" controleer de connectie met uw robot", false);
                     });
+                    await Task.Delay(500);
                     Console.WriteLine("Time-out reached waiting for robot callback.");
                     await Task.Delay(1000);
                     MqttService.RobotFinishedMentionCallback -= callbackHandler;
@@ -243,8 +244,8 @@
                     {
                         await ShowNotification("Success", "De reminder \"" + timer.Category + "\" is succesvol uitgevoerd", true);
                     });
+                    await Task.Delay(500);
                     Console.WriteLine("Callback received and task completed.");
-                    await Task.Delay(1000);
                 }
 
                 // Wacht totdat de callback daadwerkelijk is afgerond.

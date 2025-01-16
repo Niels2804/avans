@@ -74,4 +74,3 @@ window.onload = () => {
 function setBodyClass(className) {
     document.body.className = className;
 }
-
