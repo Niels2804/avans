@@ -1,9 +1,30 @@
 @page "/"
 @using System.ComponentModel.DataAnnotations
 @using BlazorMqttDatabase.Services
+@using robot_app.Components.Pages
+@using static System.Runtime.InteropServices.JavaScript.JSType
+
 @rendermode InteractiveServer
-@inject IUserRepository userRepository
+
+@inject SqlUserRepository SqlUserRepository
+@inject IJSRuntime JsRuntime
+
+<div class="pages">
+    <Dash/>
+    <Reminders/>
+    <FAQ/>
+</div>
 
 @code {
-    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var darkModeClass = SqlUserRepository.PersonalSettings.DarkMode ? "dark-theme" : "light-theme";
+            var fontSizeClass = SqlUserRepository.PersonalSettings.BigFontSize ? "large-font-size" : "normal-font-size";
+            var bodyClass = $"{darkModeClass} {fontSizeClass}";
+
+            await JsRuntime.InvokeVoidAsync("setBodyClass", bodyClass);
+        }
+    }
 }

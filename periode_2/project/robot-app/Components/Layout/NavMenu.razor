@@ -1,36 +1,371 @@
-﻿<div class="top-navigation">
+﻿@using System.ComponentModel.DataAnnotations
+@using BlazorMqttDatabase.Services
+@using System.Collections.Concurrent
+@using robot_app.Components.Pages
+
+@rendermode InteractiveServer
+
+@inject SqlUserRepository SqlUserRepository
+@inject MqttExternalMessageProcessingService MqttService
+@inject MqttData mqttData
+@inject IJSRuntime JsRuntime
+
+<div class="top-navigation">
     <h1 class="project-title">
-        Robot Management System V1.0
+        Robot Management System V1.0 <i style="font-size=12px">(béta) (Made by Niels Jansen)</i>
     </h1>
     <div class="status-navigation">
-        <div class="wifi big">
-            <div class="wifi medium">
-                <div class="wifi small">
-                    <div class="circle"></div>
-                </div>
-            </div>
-        </div>
         <div class="online-status">
-            <p class="online-status-text">Online</p>
-            <div class="online-status-circle" data-status="true"></div>
+            <p class="online-status-text">@(SqlUserRepository.Robot.IsActive ? "Online" : "Offline")</p>
+            <div class="online-status-circle" data-status="@(SqlUserRepository.Robot.IsActive.ToString().ToLower())"></div>
         </div>
         <div class="settings">
-            <button class="settings-button">
+            <button class="settings-button" @onclick="OpenSettings">
                     <i class="fa fa-solid fa-gear"></i>
             </button>
         </div>
     </div>
 </div>
-<nav class="left-navigation">
-    <ul>
-        <li>
-            <a href="/Dashboard">Dashboard</a>
-        </li>
-        <li>
-            <a href="/Reminders">Reminders</a>
-        </li>       
-        <li>
-            <a href="/FAQ">FAQ</a>
-        </li>
-    </ul>
-</nav>
+<div class="toast-custom settings @notification.IsActive">
+    <div class="toast-content-custom">
+        <i class="fas fa-solid @(notification.State ? "fa-check success" : "fa-xmark failed") check"></i>
+        <div class="message">
+            <span class="text text-1">@notification.Title</span>
+            <span class="text text-2">@notification.Message</span>
+        </div>
+    </div>
+    <i class="fa fa-solid fa-xmark close" @onclick="async () => await CancelNotification()"></i>
+    <div class="progress-custom @notification.IsActive"></div>
+</div>
+<div class="popUp @(settingsActive ? "active" : "")">
+        @if(settingsActive) {
+        <div class="popUpContainer">
+            <div class="header">
+                <h2>Instellingen</h2>
+                <button class="cancel" @onclick="CloseSettings">
+                    <i class="fa fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="content settingsContent">
+                <div class="leftSide">
+                    <nav>
+                        <ul>
+                            <li>
+                                <button class="@(personalSettingsIsActive ? "active" : "")" @onclick="LoadPersonalSettings">Persoonlijke Voorkeuren</button>
+                            </li>
+                            <li>
+                                <button class="@(robotSettingsIsActive ? "active" : "")" @onclick="LoadRobotConfiguration">Robot Configuratie</button>
+                            </li> 
+                            <li>
+                                <button class="logoutBtn" @onclick="Logout">Uitloggen</button>
+                            </li> 
+                        </ul>
+                    </nav>
+                </div>
+                <div class="rightSide">
+                    @if(personalSettingsIsActive)
+                    {
+                        <div class="personalSettings">
+                            <ul>
+                                <li>
+                                    <label for="darkMode">Dark-mode</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" id="darkMode flexSwitchCheckDefault" @onclick='async () => await SwitchPersonalSettings("darkMode", !SqlUserRepository.PersonalSettings.DarkMode)' type="checkbox" role="switch" checked="@SqlUserRepository.PersonalSettings.DarkMode" />
+                                    </div>
+                                </li>
+                                <li>
+                                    <label for="notifications">Meldingen</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" id="notifications flexSwitchCheckDefault" @onclick='async () => await SwitchPersonalSettings("notifications", !SqlUserRepository.PersonalSettings.Notifications)' type="checkbox" role="switch" checked="@SqlUserRepository.PersonalSettings.Notifications" />
+                                    </div>
+                                </li>
+                                <li>
+                                    <label for="bigFontSize">Vergroot lettertype</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" id="bigFontSize flexSwitchCheckDefault" @onclick='async () => await SwitchPersonalSettings("bigFontSize", !SqlUserRepository.PersonalSettings.BigFontSize)' type="checkbox" role="switch" checked="@SqlUserRepository.PersonalSettings.BigFontSize" />
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    }
+                    else if (robotSettingsIsActive)
+                    {
+                        if(!isProcessing)
+                        {
+                            <div class="robotSettings">
+                                <div class="robotInformation">
+                                    <p>Robot naam: @robotInformation.Username</p>
+                                    <p>Robot model: @robotInformation.Model</p>
+                                    <p>Robot netwerk: @robotInformation.NetworkName</p>
+
+                                    <p>Robot batterij percentage: @(currentBatteryPercentage)%</p>
+                                    <p>Robot batterij <b>huidige</b> voltage: @(currentBatteryVoltage)mV</p>
+                                </div>
+                                <div class="robotSwitch">
+                                    <label for="robotActive">Robot in- en uitschakelen</label>
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" id="robotActive flexSwitchCheckDefault" @onclick='async () => await SwitchRobotActive(SqlUserRepository.Robot.IsActive ? false : true)' type="checkbox" role="switch" checked="@SqlUserRepository.Robot.IsActive" />
+                                    </div>
+                                </div>
+                                @if(SqlUserRepository.Activities.Count > 0) {
+                                    <div class="robotSwitch">
+                                        <label for="robotActive">Reset alle gedetecteerde bewegingsdata: <b>@SqlUserRepository.Activities.Count records</b></label>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" id="robotActive flexSwitchCheckDefault" @onclick='async () => await ClearAllMotionData()' type="checkbox" role="switch" />
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        } 
+                        else 
+                        {
+                            <div id="processingScreen">
+                                <h2>Aan het verwerken...</h2>
+                                <div class="spinner"></div>
+                            </div>
+                        }
+                    }
+                    else 
+                    {
+                        <div class="nothingToShow">
+                            <p>
+                                <i>
+                                    <b>Niks om te tonen...</b>
+                                </i>
+                            </p>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private bool personalSettingsIsActive = false;
+    private bool robotSettingsIsActive = false;
+    private bool settingsActive = false;
+    private bool isSend = false;
+    private bool isProcessing = false;
+    private bool isProcessingRunningTaskQueue = false;
+    private double currentBatteryPercentage = 0;
+    private double currentBatteryVoltage = 0.000;
+    private Robot robotInformation {get; set;} 
+    private PersonalSettings personalSettings {get; set;} 
+    private Task? toastActive {get; set;} = null;
+    private NotificationInformation notification = new NotificationInformation();
+    private readonly TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Amsterdam");
+    private DateTime currentTime;
+    private DateTime previousTime;
+    private ConcurrentQueue<Func<Task>> runningTaskQueue = new ConcurrentQueue<Func<Task>>();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        robotInformation = SqlUserRepository.Robot;
+        personalSettings = SqlUserRepository.PersonalSettings;
+
+        if(SqlUserRepository.Robot.IsActive && isSend)
+        {
+            isSend = true;
+            await MqttService.PublishMessageToRobot(SqlUserRepository.Robot.IsActive.ToString(), "hasPermissionToDrive");
+        }
+
+        // Updates batteryVoltage on screen
+        if(firstRender) 
+        {
+            _ = Task.Run(ProcessingRunningTaskQueue);
+            var timer = new System.Threading.Timer(e => {
+                InvokeAsync(() => {
+                    DateTime newTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
+                    if(newTime != currentTime)
+                    {
+                        previousTime = currentTime;
+                        currentTime = newTime;
+                        RefreshBatteryState();
+                        StateHasChanged();
+                    }
+                });
+            }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+        }
+    }
+
+    private async Task ProcessingRunningTaskQueue()
+    {
+        while (true)
+        {
+            if (runningTaskQueue.TryDequeue(out var taskFunc))
+            {
+                try
+                {
+                    await taskFunc();
+                }
+                catch (Exception ex)
+                {
+                    // Foutafhandeling
+                    Console.WriteLine($"Fout bij uitvoeren van taak: {ex.Message}");
+                }
+            }
+            else
+            {
+                await Task.Delay(200); // Wacht voordat opnieuw wordt gecontroleerd
+            }
+        }
+    }
+    
+    private void OpenSettings()
+    {
+        settingsActive = true;
+        personalSettingsIsActive = true;
+    }
+
+    private void CloseSettings()
+    {
+        settingsActive = false;
+        personalSettingsIsActive = false;
+        robotSettingsIsActive = false;
+    }
+
+    private void RefreshBatteryState()
+    {
+        int totalBatteryCapacity = 8100 - 5600;
+        double robotCurrentBattery = mqttData.BatteryVoltage - 5800;
+        double batteryPercentage = Math.Round((robotCurrentBattery / totalBatteryCapacity) * 100);
+        currentBatteryPercentage = Math.Clamp(batteryPercentage, 0, 100);
+        currentBatteryVoltage = mqttData.BatteryVoltage;
+    }
+
+    private void LoadPersonalSettings()
+    {
+        personalSettingsIsActive = true;
+        robotSettingsIsActive = false;
+    }
+
+    private void LoadRobotConfiguration()
+    {
+        personalSettingsIsActive = false;
+        robotSettingsIsActive = true;
+    }
+
+    private async Task ClearAllMotionData() 
+    {
+        await SqlUserRepository.ClearActivities();
+        await SqlUserRepository.InitializeData();
+    }
+
+    private async Task SwitchPersonalSettings(string type, bool value)
+    {
+        switch (type) 
+        {
+            case "darkMode":
+                personalSettings.DarkMode = value;
+                break;
+            case "notifications":
+                personalSettings.Notifications = value;
+                break;
+            case "bigFontSize":
+                personalSettings.BigFontSize = value;
+                break;
+            default: 
+                break;
+        }
+        await SqlUserRepository.UpdatePersonalSettings();
+        await SqlUserRepository.InitializeData();
+
+        var darkModeClass = SqlUserRepository.PersonalSettings.DarkMode ? "dark-theme" : "light-theme";
+        var fontSizeClass = SqlUserRepository.PersonalSettings.BigFontSize ? "large-font-size" : "normal-font-size";
+        var bodyClass = $"{darkModeClass} {fontSizeClass}";
+        await JsRuntime.InvokeVoidAsync("setBodyClass", bodyClass);
+    }
+
+    private async Task SwitchRobotActive(bool active) 
+    {
+        isProcessing = true;
+        await MqttService.PublishMessageToRobot(active.ToString(), "hasPermissionToDrive");
+        runningTaskQueue.Enqueue(async () =>
+        {
+            await ShowNotification("In progress", $"Commando \"robot {(active ? "inschakelen" : "uitschakelen")}\" is verstuurd, wachten op terugkoppeling...", true);
+        });
+
+        var tcs = new TaskCompletionSource<bool>();
+
+        // Maak de event handler die het resultaat instelt in de TCS.
+        EventHandler<bool> callbackHandler = null;
+        callbackHandler = (sender, e) =>
+        {
+            tcs.TrySetResult(true); 
+            MqttService.RobotFinishedMentionCallback -= callbackHandler; 
+        };
+
+        // Voeg de event handler toe
+        MqttService.RobotFinishedMentionCallback += callbackHandler;
+
+        // Wacht op de callback of time-out
+        var timeoutTask = Task.Delay(10000); // Standaard time-out na 30 seconden
+        var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
+
+        // Als de time-out is bereikt, log dan de fout en stop de handler.
+        if (completedTask == timeoutTask)
+        {
+            await SqlUserRepository.InitializeData();
+            runningTaskQueue.Enqueue(async () => {       
+                await ShowNotification("Time-out Error", "Er is iets misgegaan bij het " + (active ? "inschakelen" : "uitschakelen") + " van de robot, controleer de connectie met uw robot", false);
+            });
+            Console.WriteLine("Time-out reached waiting for robot callback.");
+            MqttService.RobotFinishedMentionCallback -= callbackHandler;
+        }
+        else
+        {
+            await SqlUserRepository.UpdateRobotActivity(active);
+            await SqlUserRepository.InitializeData();
+            runningTaskQueue.Enqueue(async () => {       
+                await ShowNotification("Success", "Robot is succesvol " + (active ? "ingeschakeld" : "uitgeschakeld"), true);
+            });
+            Console.WriteLine("Callback received and task completed.");
+        }
+
+        // Wacht totdat de callback daadwerkelijk is afgerond.
+        await completedTask;
+        isProcessing = false;
+    }
+
+    private async Task Logout() 
+    {
+        runningTaskQueue.Enqueue(async () =>
+        {
+            await ShowNotification("Error", $"Het in- en uitlogsysteem is nog niet beschikbaar", false);
+        });
+    }
+
+    // toast pop-up
+    private async Task ShowNotification(string title, string message, bool state)
+    {
+        if(SqlUserRepository.PersonalSettings.Notifications) 
+        {
+            notification = new NotificationInformation();
+            notification.Title = title;
+            notification.Message = message;
+            notification.State = state;
+            notification.IsActive = "active";
+            await Task.Delay(5000);
+            notification.IsActive = string.Empty;
+            await Task.Delay(5000);
+            // Reset notification
+            notification = new NotificationInformation();
+        }
+    }
+
+    private async Task CancelNotification()
+    {
+        // Reset notification
+        notification.IsActive = string.Empty;
+        await Task.Delay(5000);
+        notification = new NotificationInformation();
+    }
+
+    public class NotificationInformation
+    {
+        public string Title { get; set; }
+        public string Message { get; set; }
+        public bool State { get; set; }
+        public string IsActive {get; set;}
+    }
+}

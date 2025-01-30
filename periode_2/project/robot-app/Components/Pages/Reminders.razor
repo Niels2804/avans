@@ -1,0 +1,460 @@
+@page "/Reminders"
+@using System.ComponentModel.DataAnnotations
+@using BlazorMqttDatabase.Services
+@using System.Collections.Concurrent
+@using robot_app.Components.Pages
+@using static System.Runtime.InteropServices.JavaScript.JSType
+
+@rendermode InteractiveServer
+
+@inject SqlUserRepository SqlUserRepository
+@inject MqttExternalMessageProcessingService MqttService
+
+<div id="reminders" class="page">
+    <div class="filters">
+        <button class="filter-by-category">Filteren op categorie <i class="fa fa-solid fa-tag"></i></button>
+        <button class="filter-by-day">Filteren op dag <i class="fa fa-regular fa-calendar"></i></button>
+        <button class="filter-by-time">Filteren op tijd <i class="fa fa-solid fa-caret-up"></i></button>
+    </div>
+    <div class="table-container">
+        <table>
+            <tr>
+                <th>Datum</th>
+                <th>Tijd</th>
+                <th>Categorie</th>
+                <th>Opmerkingen</th>
+                <th>Snelle acties</th>
+            </tr>
+            @foreach(Timer timer in SqlUserRepository.Timers.Values) {
+            <tr class="@(!timer.IsActive && timer.Date <= currentTime ? "expired" : "")">
+                <td><p>@timer.Date.ToString("dd-MM-yyyy")</p></td>
+                <td><p>@timer.Date.ToString("HH:mm") <i><b>@(!timer.IsActive && timer.Date <= currentTime ? "(verlopen)" : "")</b></i></p></td>  
+                <td><p>@timer.Category</p></td>
+                <td>
+                    @if(timer.Comment != string.Empty) 
+                    {
+                        <p>@timer.Comment</p>
+                    }
+                    else
+                    {
+                        <i><b>(Geen opmerking geplaatst)</b></i>
+                    }
+                </td>
+                <td>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" @onclick="async () => await SwitchTimerStatus(timer.TimerId, !timer.IsActive)" type="checkbox" role="switch" id="flexSwitchCheckDefault" checked=@timer.IsActive/>
+                    </div>
+                    <button class="edit" @onclick="async () => await StartForm(timer)"><i class="fa fa-solid fa-pen-to-square"></i></button>
+                    <button class="delete" @onclick="async () => await DeleteRow(timer.TimerId)"><i class="fa fa-solid fa-trash"></i></button>
+                </td>
+            </tr>
+            }
+        </table>
+    </div>
+    <button class="add-reminder" @onclick="() => StartForm(null)">Nieuwe reminder</button>
+    @if(isProcessing) 
+    {
+        <div id="processingReminder">
+            <div class="spinner"></div>
+        </div>
+    }
+    <div class="toast-custom @notification.IsActive">
+        <div class="toast-content-custom">
+            <i class="fas fa-solid @(notification.State ? "fa-check success" : "fa-xmark failed") check"></i>
+            <div class="message">
+                <span class="text text-1">@notification.Title</span>
+                <span class="text text-2">@notification.Message</span>
+            </div>
+        </div>
+        <i class="fa fa-solid fa-xmark close" @onclick="async () => await CancelNotification()"></i>
+        <div class="progress-custom @notification.IsActive"></div>
+    </div>
+    <div class="popUp @(formActive ? "active" : "")">
+            @if(formActive) {
+            <div class="popUpContainer">
+                <div class="header">
+                    <h2>@(editMode ? "Reminder Bewerken" : "Nieuwe Reminder Aanmaken")</h2>
+                    <button class="cancel" @onclick="CancelForm">
+                        <i class="fa fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+                <EditForm Model="formModel" OnValidSubmit="SaveForm">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    <div class="formContainer">
+                        <div class="leftSide">
+                            <div class="form-group">
+                                <label for="inputDate">Datum (dd-mm-yyyy)</label>
+                                <InputDate id="inputDate" class="form-control" @bind-Value="formModel.Date" />
+                            </div>
+                            <div class="form-group">
+                                <label for="inputTime">Tijd (UTC+1 Europe/Amsterdam)</label>
+                                <input type="time" id="inputTime" class="form-control" @bind="formModel.Time" />
+                            </div>
+                            <div class="form-group">
+                                <label for="inputCategory">Categorie <i class="fa fa-solid fa-circle-info"></i></label>
+                                <select id="inputCategory" class="form-control" @bind="formModel.Category">
+                                    <option value="" disabled selected>Selecteer hier een categorie</option>
+                                    @foreach (var category in categories)
+                                    {
+                                        <option value="@category.Value">@category.Text</option>
+                                    }
+                                </select>
+                                <ValidationMessage For="@(() => formModel.Category)" />
+                            </div>
+                            <button type="submit">Opslaan</button>
+                        </div>
+                        <div class="rightSide">
+                            <div class="form-group">
+                                <label for="inputComment">Commentaar</label>
+                                <textarea id="inputComment" class="form-control" @bind="formModel.Comment" style="resize: none;"></textarea>
+                            </div>
+                            <div class="form-check">
+                                <InputCheckbox id="isActief" class="form-check-input" @bind-Value="formModel.IsActive" />
+                                <label class="form-check-label" for="isActief">Melding staat aan</label>
+                            </div>
+                        </div>
+                    </div>
+                </EditForm>
+            </div>
+        }
+    </div>
+</div>
+@code {
+    private bool formActive = false;
+    private bool editMode = false;
+    private bool isProcessing = false;
+    private TimerFormModel? formModel;
+    private NotificationInformation notification = new NotificationInformation();
+    private readonly TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Amsterdam");
+    private DateTime currentTime;
+    private DateTime previousTime;
+    private Queue<Timer> timersToRunQueue = new Queue<Timer>();
+    private ConcurrentQueue<Func<Task>> runningTaskQueue = new ConcurrentQueue<Func<Task>>();
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Checks or reminder is active
+        if(firstRender) 
+        {
+            _ = Task.Run(() => ProgressQueue());
+            _ = Task.Run(() => ProcessingRunningTaskQueue());
+            var timer = new System.Threading.Timer(e => {
+                InvokeAsync(() => {
+                    DateTime newTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
+                    if(newTime != currentTime)
+                    {
+                        previousTime = currentTime;
+                        currentTime = newTime;
+                        CheckReminderStatus();
+                        StateHasChanged();
+                    }
+                });
+            }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+        }
+    }
+
+    private async Task ProcessingRunningTaskQueue()
+    {
+        while (true)
+        {
+            if (runningTaskQueue.TryDequeue(out var taskFunc))
+            {
+                try
+                {
+                    await taskFunc();
+                }
+                catch (Exception ex)
+                {
+                    // Foutafhandeling
+                    Console.WriteLine($"Fout bij uitvoeren van taak: {ex.Message}");
+                }
+            }
+            else
+            {
+                await Task.Delay(200); // Wacht voordat opnieuw wordt gecontroleerd
+            }
+        }
+    }
+
+    // Can't run async, checks every second or a timer has reached the current time
+    private void CheckReminderStatus()
+    {
+        foreach(var timer in SqlUserRepository.Timers)
+        {
+            if(timer.Value.Date <= currentTime && timer.Value.IsActive == true)
+            {
+                timersToRunQueue.Enqueue(timer.Value);
+                SqlUserRepository.Timers.Remove(timer.Key);
+            }
+        }
+    }
+
+    // Progresses the timersToRunQueue one by one
+    private async Task ProgressQueue()
+    {
+        while(true)
+        {
+            while(timersToRunQueue.Count > 0)
+            {
+                isProcessing = true;
+                Timer timer = timersToRunQueue.Dequeue();
+                runningTaskQueue.Enqueue(async () =>
+                {
+                    await ShowNotification("In progress", "Melding \"" + (timer.Category ?? "undefined") + "\" is verstuurd naar de robot, wachten op terugkoppeling...", true);
+                });
+                await Task.Delay(500);
+                await MqttService.PublishMessageToRobot(timer.Category, "mention"); // sending MQTT message to robot to mention
+                await SqlUserRepository.DeleteTimer(timer.TimerId); 
+                
+                var tcs = new TaskCompletionSource<bool>();
+
+                // Maak de event handler die het resultaat instelt in de TCS.
+                EventHandler<bool> callbackHandler = null;
+                callbackHandler = (sender, e) =>
+                {
+                    tcs.TrySetResult(true); 
+                    MqttService.RobotFinishedMentionCallback -= callbackHandler; 
+                };
+
+                // Voeg de event handler toe
+                MqttService.RobotFinishedMentionCallback += callbackHandler;
+
+                // Wacht op de callback of time-out
+                var timeoutTask = Task.Delay(30000); // Standaard time-out na 30 seconden
+                var completedTask = await Task.WhenAny(tcs.Task, timeoutTask);
+
+                // Als de time-out is bereikt, log dan de fout en stop de handler.
+                if (completedTask == timeoutTask)
+                {
+                    timer.IsActive = false;
+                    await SqlUserRepository.AddNewTimer(timer); 
+                    runningTaskQueue.Enqueue(async () =>
+                    {
+                        await ShowNotification("Time-out Error", "Er is iets misgegaan bij het versturen van de reminder: \"" + timer.Category + "\" controleer de connectie met uw robot", false);
+                    });
+                    await Task.Delay(500);
+                    Console.WriteLine("Time-out reached waiting for robot callback.");
+                    await Task.Delay(1000);
+                    MqttService.RobotFinishedMentionCallback -= callbackHandler;
+                }
+                else
+                {
+                    runningTaskQueue.Enqueue(async () =>
+                    {
+                        await ShowNotification("Success", "De reminder \"" + timer.Category + "\" is succesvol uitgevoerd", true);
+                    });
+                    await Task.Delay(500);
+                    Console.WriteLine("Callback received and task completed.");
+                }
+
+                // Wacht totdat de callback daadwerkelijk is afgerond.
+                await completedTask;
+                isProcessing = false;
+                await SqlUserRepository.InitializeData();
+            }
+            await Task.Delay(1000); // Preventing CPU-overload while queue is empty 
+        }
+    }
+    
+    // Form functions
+    private async Task StartForm(Timer? timer)
+    {
+        if (timer == null)
+        {
+            formModel = new TimerFormModel
+            {
+                Date = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone),
+                Time = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone),
+                IsActive = true
+            };
+            editMode = false;
+        }
+        else
+        {
+            formModel = new TimerFormModel
+            {
+                TimerId = timer.TimerId,
+                Date = timer.Date,
+                Time = timer.Date,
+                Category = timer.Category,
+                Comment = timer.Comment,
+                IsActive = timer.IsActive
+            };
+            editMode = true;
+        }
+        formActive = true;
+    }
+
+    private void CancelForm()
+    {
+        formModel = null;
+        formActive = false;
+    }
+
+    private async Task SaveForm()
+    {
+        DateTime combinedDateTime = new DateTime(
+            formModel.Date.Year,
+            formModel.Date.Month,
+            formModel.Date.Day,
+            formModel.Time.Hour,
+            formModel.Time.Minute,
+            formModel.Time.Second
+        );
+
+        Timer newTimer = new Timer
+        {
+            TimerId = formModel.TimerId ?? 0,
+            Date = combinedDateTime,
+            Category = formModel.Category,
+            Comment = formModel.Comment,
+            IsActive = formModel.IsActive
+        };
+        
+        formActive = false;
+
+        if (formModel.TimerId == null)
+        {
+            await SqlUserRepository.AddNewTimer(newTimer);
+            runningTaskQueue.Enqueue(async () =>
+            {
+                await ShowNotification("Success", "Melding \"" + (newTimer.Category ?? "undefined") + "\" is succesvol toegevoegd", true);
+            });
+            await Task.Delay(1000);
+
+        }
+        else
+        {
+            await SqlUserRepository.UpdateTimer(newTimer);
+            runningTaskQueue.Enqueue(async () =>
+            {
+                await ShowNotification("Success", "Melding \"" + (newTimer.Category ?? "undefined") + "\" is succesvol geüpdatet", true);
+            });
+            await Task.Delay(1000);
+        }
+
+        await SqlUserRepository.InitializeData();
+    }
+
+    // Update Reminder Status
+    private async Task SwitchTimerStatus(int timerId, bool status)
+    {
+        await SqlUserRepository.UpdateTimerStatus(timerId, status);
+        await SqlUserRepository.InitializeData();
+    }
+
+    private async Task DeleteRow(int timerId)
+    {
+        await SqlUserRepository.DeleteTimer(timerId);
+        runningTaskQueue.Enqueue(async () =>
+        {
+            await ShowNotification("Success", "Melding is succesvol verwijderd", true);
+        });
+        await Task.Delay(1000);
+        await SqlUserRepository.InitializeData();
+    }
+
+    // toast pop-up
+    private async Task ShowNotification(string title, string message, bool state)
+    {
+        if(SqlUserRepository.PersonalSettings.Notifications) 
+        {
+            notification = new NotificationInformation();
+            notification.Title = title;
+            notification.Message = message;
+            notification.State = state;
+            notification.IsActive = "active";
+            await Task.Delay(5000);
+            notification.IsActive = string.Empty;
+            await Task.Delay(2500);
+            // Reset notification
+            notification = new NotificationInformation();
+        }
+    }
+
+    private async Task CancelNotification()
+    {
+        // Reset notification
+        notification.IsActive = string.Empty;
+        await Task.Delay(5000);
+        notification = new NotificationInformation();
+    }
+
+    public class NotificationInformation
+    {
+        public string Title { get; set; }
+        public string Message { get; set; }
+        public bool State { get; set; }
+        public string IsActive {get; set;}
+    }
+
+
+    public class TimerFormModel
+    {
+        public int? TimerId { get; set; } // Nullable for new timers
+        [Required(ErrorMessage = "Datum is verplicht!")]
+        public DateTime Date { get; set; }
+        [Required(ErrorMessage = "Tijd is verplicht!")]
+        public DateTime Time { get; set; }
+        [Required(ErrorMessage = "Categorie is verplicht!")]
+        public string Category { get; set; }
+        public string? Comment { get; set; } = string.Empty;
+        public bool IsActive { get; set; } = true;
+    }
+
+    // Available Categories
+
+    public class CategoryOption
+    {
+        public string Value { get; set; }
+        public string Text { get; set; }
+    }
+
+    private List<CategoryOption> categories = new List<CategoryOption>
+    {
+        new CategoryOption { Value = "TimeToEat", Text = "Het is tijd om te eten." },
+        new CategoryOption { Value = "TimeToBrushTeeth", Text = "Het is tijd om uw tanden te poetsen." },
+        new CategoryOption { Value = "TimeToSleep", Text = "Het is tijd om te slapen." },
+        new CategoryOption { Value = "TimeToWakeUp", Text = "Het is tijd om op te staan." },
+        new CategoryOption { Value = "TurnOffLivingRoomLight", Text = "Vergeet niet de huiskamerverlichting uit te schakelen." },
+        new CategoryOption { Value = "TimeForMedication", Text = "Het is tijd voor uw medicatie." },
+        new CategoryOption { Value = "TimeToRest", Text = "Het is tijd om uit te rusten." },
+        new CategoryOption { Value = "TimeForExercise", Text = "Laten we een korte wandeling maken." },
+        new CategoryOption { Value = "TimeToDrink", Text = "Vergeet niet om wat water te drinken." },
+        new CategoryOption { Value = "TimeToCheckBloodSugar", Text = "Vergeet niet om uw bloedsuiker te controleren." },
+        new CategoryOption { Value = "TimeForAppointment", Text = "U heeft een afspraak, controleer uw agenda." },
+        new CategoryOption { Value = "TimeToRelax", Text = "Laten we wat ontspannen." },
+        new CategoryOption { Value = "TimeToRead", Text = "Laten we samen een boek lezen." },
+        new CategoryOption { Value = "TimeToListenMusic", Text = "Laten we naar wat muziek luisteren." },
+        new CategoryOption { Value = "TimeToCallHealthCareProvider", Text = "Het is tijd om uw zorgverlener te bellen." },
+        new CategoryOption { Value = "TimeToCheckMail", Text = "Vergeet niet uw post te controleren." },
+        new CategoryOption { Value = "TimeToWaterPlants", Text = "Laten we de planten water geven." },
+        new CategoryOption { Value = "TimeToFeedPet", Text = "Het is tijd om uw huisdier te voeren." },
+        new CategoryOption { Value = "TimeToShower", Text = "Het is tijd om een douche te nemen." },
+        new CategoryOption { Value = "TimeToChangeClothes", Text = "Laten we uw kleding verwisselen." },
+        new CategoryOption { Value = "TimeToCheckCalendar", Text = "Bekijk uw agenda voor de komende afspraken." },
+        new CategoryOption { Value = "TimeToDoExercise", Text = "Laten we wat lichte oefeningen doen." },
+        new CategoryOption { Value = "TimeToDoBreathingExercise", Text = "Laten we een ademhalingsoefening doen." },
+        new CategoryOption { Value = "TimeToDoStretching", Text = "Laten we wat rek- en strekoefeningen doen." },
+        new CategoryOption { Value = "TimeToDoMemoryGame", Text = "Laten we een geheugenspel spelen." },
+        new CategoryOption { Value = "TimeToDoPuzzle", Text = "Laten we samen een puzzel maken." },
+        new CategoryOption { Value = "TimeToDoCraft", Text = "Laten we wat knutselen." },
+        new CategoryOption { Value = "TimeToDoGardening", Text = "Laten we wat tuinieren." },
+        new CategoryOption { Value = "TimeToDoCooking", Text = "Het is tijd om te koken." },
+        new CategoryOption { Value = "TimeToDoCleaning", Text = "Laten we wat opruimen." },
+        new CategoryOption { Value = "TimeToDoShopping", Text = "Het is tijd om de boodschappen te doen." },
+        new CategoryOption { Value = "TimeToDoLaundry", Text = "Laten we de was doen." },
+        new CategoryOption { Value = "TimeToDoIroning", Text = "Laten we strijken." },
+        new CategoryOption { Value = "TimeToDoDishes", Text = "Vergeet de afwas niet te doen." },
+        new CategoryOption { Value = "TimeToDoReading", Text = "Laten we samen een boek lezen." },
+        new CategoryOption { Value = "TimeToDoWriting", Text = "Laten we samen schrijven." },
+        new CategoryOption { Value = "TimeToDoDrawing", Text = "Laten we samen tekenen." },
+        new CategoryOption { Value = "TimeToDoPainting", Text = "Laten we samen schilderen." },
+        new CategoryOption { Value = "TimeToDoSinging", Text = "Laten we samen zingen." },
+
+        // Music
+        new CategoryOption { Value = "FrancisWells", Text = "Francis Wells - Live a Little" },
+        new CategoryOption { Value = "Portal", Text = "Portal 4000 Degrees Kelvin" }
+    };
+}

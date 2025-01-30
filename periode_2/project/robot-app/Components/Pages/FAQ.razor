@@ -1,0 +1,140 @@
+@page "/FAQ"
+@using System.ComponentModel.DataAnnotations
+@using BlazorMqttDatabase.Services
+@using robot_app.Components.Pages
+@rendermode InteractiveServer
+
+
+<div id="faq" class="page">
+    <div class="faqContent">
+        <div class="accordion accordion-flush" id="accordionFlushFaq">
+            <div class="accordion-item">
+                    <h2 class="accordion-header" id="flush-headingOne">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+                        Starters Gids
+                    </button>
+                    </h2>
+                    <div id="flush-collapseOne" class="accordion-collapse collapse" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushFaq">
+                        <div class="accordion-body">
+                            Welkom bij de Startersgids! <br><br>
+                            In deze webapplicatie kunt u timers instellen zodat de Romi Yw-Bk-1 robot uw client een melding geeft om bepaalde handelingen uit te voeren. Dit kan op de pagina <b>reminders</b>. Op het dashboard vindt u een kort overzicht van de algemene gegevens, zoals een widget-snelkoppeling om timers snel in- en uit te schakelen, een grafiek die gedetecteerde bewegingen bijhoudt, en een activiteitenlogboek. De grafiek met bewegingsdata kunt u resetten in de <b>instellingen</b> onder de sectie <b>robot configuratie</b>.
+                            <br>                        
+                            <br>Heeft u nog vragen? Bekijk de andere veelgestelde vragen secties of neem dan gerust contact op met Niels Jansen via e-mail: <a href="mailto:njm.jansen1@student.avans.nl">njm.jansen1@student.avans.nl</a>.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="flush-headingTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseTwo" aria-expanded="false" aria-controls="flush-collapseTwo">
+                        Hoe kan ik mijn wachtwoord resetten? 
+                    </button>
+                    </h2>
+                    <div id="flush-collapseTwo" class="accordion-collapse collapse" aria-labelledby="flush-headingTwo" data-bs-parent="#accordionFlushFaq">
+                        <div class="accordion-body">
+                            Neem contact op met uw beheerder. Er is geen mogelijkheid om zelfstandig uw verkregen wachtwoord te herstellen.                         
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="flush-headingThree">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseThree" aria-expanded="false" aria-controls="flush-collapseThree">
+                        Hoe bedien ik de reminders?
+                    </button>
+                    </h2>
+                    <div id="flush-collapseThree" class="accordion-collapse collapse" aria-labelledby="flush-headingThree" data-bs-parent="#accordionFlushFaq">
+                        <div class="accordion-body">
+                            Navigeer naar de <b>reminders</b> pagina, waar u eenvoudig nieuwe herinneringen kunt aanmaken, bestaande herinneringen kunt bewerken of ongewenste herinneringen kunt verwijderen. Op deze pagina kunt u specifieke tijdstippen instellen waarop de Romi Yw-Bk-1 robot uw client een melding geeft om een bepaalde actie te ondernemen. Daarnaast heeft u de mogelijkheid om herinneringen te beheren, bijvoorbeeld door de tijd of het type actie aan te passen. Het is een handige manier om ervoor te zorgen dat uw robot altijd op het juiste moment de juiste taak uitvoert.
+                            <br><br>
+                            Met de bewerkingsfunctie kunt u herinneringen snel aanpassen zonder ze opnieuw aan te maken, terwijl de verwijderoptie u in staat stelt oude of overbodige herinneringen efficiënt te verwijderen.                         
+                        </div>                    
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="flush-collapseFour">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseFour" aria-expanded="false" aria-controls="flush-collapseFour">
+                        Is er een donkere thema beschikbaar?
+                    </button>
+                    </h2>
+                    <div id="flush-collapseFour" class="accordion-collapse collapse" aria-labelledby="flush-headingFour" data-bs-parent="#accordionFlushFaq">
+                        <div class="accordion-body">
+                            Navigeer naar de <b>instellingen</b> onder het menu <b>persoonlijke voorkeuren</b>, waar u de optie heeft om de weergavemodus van de webapplicatie aan te passen. U kunt kiezen tussen de lichte modus voor een heldere en frisse uitstraling, of de donkere modus voor een meer gedempte en rustgevende interface, vooral handig bij gebruik in omgevingen met weinig licht. Deze instelling stelt u in staat om de webapplicatie naar wens aan te passen voor een optimaal gebruikerscomfort, afhankelijk van uw voorkeur en werkomstandigheden.
+                            <br><br>
+                            Door eenvoudig tussen deze modi te schakelen, kunt u de applicatie personaliseren en de visuele ervaring verbeteren, wat bijdraagt aan een aangenamere gebruikservaring.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="flush-headingFive">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseFive" aria-expanded="false" aria-controls="flush-collapseFive">
+                        Kan ik de robot op afstand uitschakelen?
+                    </button>
+                    </h2>
+                    <div id="flush-collapseFive" class="accordion-collapse collapse" aria-labelledby="flush-headingFive" data-bs-parent="#accordionFlushFaq">
+                        <div class="accordion-body">
+                            Navigeer naar de <b>instellingen</b> onder <b>robot configuratie</b>, waar u de mogelijkheid heeft om de Romi Yw-Bk-1 robot eenvoudig in of uit te schakelen. Met deze optie kunt u snel de robot activeren wanneer u deze nodig heeft, of uitschakelen om energie te besparen wanneer de robot niet in gebruik is. Daarnaast kunt u hier ook andere configuraties beheren, zoals de prestaties van de robot of instellingen voor automatische updates. Het in- of uitschakelen van de robot kan handig zijn om de werking van de applicatie te controleren en de robot efficiënt te gebruiken zonder onnodige belasting.
+                            <br><br>
+                            Deze instellingen zorgen ervoor dat u volledige controle heeft over de werking van de robot, wat bijdraagt aan een soepelere en efficiëntere ervaring.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="flush-headingSix">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseSix" aria-expanded="false" aria-controls="flush-collapseSix">
+                        Hoe weet ik of mijn robot bijna leeg is?
+                    </button>
+                    </h2>
+                    <div id="flush-collapseSix" class="accordion-collapse collapse" aria-labelledby="flush-headingSix" data-bs-parent="#accordionFlushFaq">
+                        <div class="accordion-body">
+                            Navigeer naar de <b>instellingen</b> onder <b>robot configuratie</b>, waar u eenvoudig kunt controleren of de Romi Yw-Bk-1 robot bijna leeg is. In dit gedeelte wordt de huidige batterijstatus van de robot weergegeven, zodat u altijd op de hoogte bent van het energieniveau. Wanneer de batterij bijna leeg is, wordt er een waarschuwing weergegeven, zodat u tijdig actie kunt ondernemen en de robot kunt opladen voordat deze stopt met functioneren.
+                            <br><br>
+                            Door deze functie te raadplegen, voorkomt u onverwachte onderbrekingen in de werking van de robot en kunt u zorgen voor een efficiënter gebruik van de robot, zonder dat u zich zorgen hoeft te maken over een plotselinge uitval.                            
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <h2 class="accordion-header" id="flush-headingSeven">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseSeven" aria-expanded="false" aria-controls="flush-collapseSeven">
+                        Auteursrechten
+                    </button>
+                    </h2>
+                    <div id="flush-collapseSeven" class="accordion-collapse collapse" aria-labelledby="flush-headingSeven" data-bs-parent="#accordionFlushFaq">
+                    <div class="accordion-body">
+                        <ul class="copyrightRules">
+                            <li>
+                                <p>
+                                    <b>Auteur:</b> Niels Jansen
+                                </p>
+                            </li>
+                            <li>
+                                <p>
+                                    <b>Klas:</b> 230ICTVT1E2
+                                </p>
+                            </li>
+                            <li>
+                                <p>
+                                    <b>App versie:</b> 1.0 <i>(béta)</i>
+                                </p>
+                            </li>
+                            <li>
+                                <p>
+                                    <b>Voor het laatst bijgewerkt:</b>> 16-01-2025 - 11:49
+                                </p>
+                            </li>
+                            <li>
+                                <p>
+                                    <i class="fa fa-regular fa-copyright"></i>
+                                    <b>Copyright 16-01-2025 Niels Jansen. Alle rechten voorbehouden:</b><br>
+                                    Het kopiëren, verspreiden of delen van code van dit project is <b>strikt verboden</b> zonder voorafgaande schriftelijke toestemming van de eigenaar. Alle vormen van inbreuk zullen juridische stappen met zich meebrengen.
+                                </p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+
+}

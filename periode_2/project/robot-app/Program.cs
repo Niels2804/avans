@@ -8,16 +8,29 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-builder.Services.AddSingleton<IUserRepository>(new SqlUserRepository());
 var simpleMqttClient = SimpleMqttClient.CreateSimpleMqttClientForHiveMQ("webapp");
+builder.Services.AddSingleton<SqlUserRepository>(); 
+builder.Services.AddSingleton<MqttExternalMessageProcessingService>(); 
+builder.Services.AddSingleton<MqttData>(); 
 builder.Services.AddSingleton(simpleMqttClient); 
 builder.Services.AddHostedService<MqttMessageProcessingService>();
+builder.Services.AddBlazorBootstrap();
 
 #if DEBUG
     builder.Services.AddSassCompiler();
 #endif
 
 var app = builder.Build();
+
+// Verplichte asynchrone initialisatie, zodat de database gegevens goed zijn ingeladen bij het eerste keer inladen van de pagina
+using (var scope = app.Services.CreateScope())
+{
+    var sqlUserRepository = scope.ServiceProvider.GetRequiredService<SqlUserRepository>();
+
+    Console.WriteLine("Initialiseren van gebruikersdata...");
+    await sqlUserRepository.InitializeData();
+    Console.WriteLine("Data succesvol geladen!");
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -28,11 +41,23 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseStaticFiles();
 app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+// 404 Middleware
+app.Use(async (context, next) =>
+{
+    await next();
+
+    if (context.Response.StatusCode == 404 && !context.Response.HasStarted)
+    {
+        context.Response.Clear();
+        context.Response.StatusCode = 404;
+        context.Response.Redirect("/Error"); // Verwijst naar mijn 404-error pagina
+    }
+});
 
 app.Run();

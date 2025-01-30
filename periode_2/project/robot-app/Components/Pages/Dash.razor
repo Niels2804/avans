@@ -1,0 +1,416 @@
+@page "/Dash"
+@using System.ComponentModel.DataAnnotations
+@using BlazorMqttDatabase.Services
+@using robot_app.Components.Pages
+@rendermode InteractiveServer
+@attribute [StreamRendering]
+
+@inject SqlUserRepository SqlUserRepository
+@inject MqttExternalMessageProcessingService MqttService
+@inject MqttData MqttData
+@inject IJSRuntime jsRuntime
+
+<div id="dashboard" class="page">
+    <div class="dashboardContainer">
+        <div class="topSection">
+            <div class="timersContent">
+                <h2>Timers <i class="fa fa-solid fa-circle-info"></i</h2>
+                <ul>
+                    @foreach(Timer timer in SqlUserRepository.Timers.Values) {
+                        <li>
+                            <label for="@timer.TimerId">@timer.Date.ToString("HH:mm") - @GetCategoryText(timer.Category). </label>
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" id="@timer.TimerId flexSwitchCheckDefault" @onclick="async () => await SwitchTimerStatus(timer.TimerId, !timer.IsActive)" type="checkbox" role="switch" checked=@timer.IsActive/>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="chartContent">
+                <h2>Activiteitenlogs <i class="fa fa-solid fa-circle-info"></i</h2>
+                @if(!chartIsEmpty) {
+                    <div class="activityChart">
+                        <LineChart @ref="activityChart"/>
+                    </div>
+                }
+                else
+                {
+                    <div class="nothingToShow">
+                        <p>Niks om weer te geven</p>
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="activityContent">
+            <h2>Activiteitenlogs <i class="fa fa-solid fa-circle-info"></i</h2>
+            <div class="logs">
+                <ul id="scrollableParagraph">
+                    @if(parsedMqttDataHistory.Count == 0)
+                    {
+                        <li class="nothingToShow">
+                            <p>Niks om weer te geven</p>
+                        </li>
+                    }
+                    else
+                    {
+                        @foreach(string item in parsedMqttDataHistory) {
+                            <li>
+                                <p>
+                                    @item
+                                </p>
+                            </li>
+                        }
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool isProcessing = false;
+    private bool chartIsEmpty = true;
+    private LineChart activityChart = default!;
+    private LineChartOptions activityChartOptions = default!;
+    private ChartData activityChartData = default!;
+    string labelTime = string.Empty;
+    private List<string> chartLabels = new List<string>();
+    private Dictionary<DateTime, string> filteredMqttDataHistory = new Dictionary<DateTime, string>();
+    private List<string> parsedMqttDataHistory = new List<string>();
+    private readonly TimeZoneInfo timeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Amsterdam");
+    private DateTime currentTime;
+    private DateTime previousTime;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // Updates every second the reminders, chart and activity logs on screen
+        if(firstRender) 
+        {
+            if (activityChart == null) {
+                activityChart = new LineChart();
+            }
+            
+            var timer = new System.Threading.Timer(e => {
+                InvokeAsync(() => {
+                    DateTime newTime = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
+                    if(newTime != currentTime)
+                    {
+                        previousTime = currentTime;
+                        currentTime = newTime;
+                        if(!isProcessing) {
+                            isProcessing = true;
+                            _ = Task.Run(RefreshPage);
+                        }
+                        StateHasChanged();
+                    }
+                });
+            }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+        }
+    }
+
+    private async Task RefreshPage()
+    {
+        bool newLogAdded = false;
+
+        if (SqlUserRepository.Activities.Count == 0 && !chartIsEmpty) {
+            chartIsEmpty = true;
+        }
+
+        if(SqlUserRepository.Activities.Count > 0 && chartIsEmpty) {
+            chartIsEmpty = false;
+            SetChartDataset();  
+            SetChartOptions();
+            await Task.Delay(2000);
+            await activityChart.InitializeAsync(activityChartData, activityChartOptions);
+        } 
+
+        foreach (KeyValuePair<string, object> item in MqttData.dataHistory)
+        {
+            if (MqttData.dataHistory.Count == 1)
+            {
+                switch (item.Key)
+                {
+                    case "batteryVoltage":
+                        if (!filteredMqttDataHistory.ContainsKey(currentTime))
+                        {
+                            filteredMqttDataHistory.Add(currentTime, $"Batterijvoltage is momenteel {item.Value}mV");
+                            newLogAdded = true;
+                        }
+                        break;
+                    case "motionDetection":
+                        if (item.Value is bool motionDetection)
+                        {
+                            string motionDetected = motionDetection ? "" : "geen";
+                            if (!filteredMqttDataHistory.ContainsKey(currentTime))
+                            {
+                                filteredMqttDataHistory.Add(currentTime, $"Tijdens de meting is er {motionDetected} beweging gedetecteerd");
+                                Activity activity = new Activity();
+                                activity.Date = currentTime;
+                                await SqlUserRepository.AddNewMotion(activity);
+                                await SqlUserRepository.InitializeData();
+                                await UpdateChartAsync();
+                                newLogAdded = true;
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+
+        // Alleen de logs bijwerken als er nieuwe activiteit is toegevoegd
+        if (newLogAdded)
+        {
+            foreach (KeyValuePair<DateTime, string> innerItem in filteredMqttDataHistory)
+            {
+                parsedMqttDataHistory.Add($"{innerItem.Key}: {innerItem.Value}");
+            }
+
+            filteredMqttDataHistory.Clear();
+        }
+
+        // Maak de data history leeg
+        MqttData.dataHistory = new Dictionary<string, object>();
+        isProcessing = false;
+    }
+
+    private async Task SwitchTimerStatus(int timerId, bool status)
+    {
+        await SqlUserRepository.UpdateTimerStatus(timerId, status);
+        await SqlUserRepository.InitializeData();
+    }
+    private string GetCategoryText(string category)
+    {
+        foreach (var categoryOption in categories)
+        {
+            if (categoryOption.Value == category)
+            {
+                return categoryOption.Text;
+            }
+        }
+        return "Onbekende categorie";
+    }
+    public class CategoryOption
+    {
+        public string Value { get; set; }
+        public string Text { get; set; }
+    }
+
+    protected async Task UpdateChartAsync() {
+        if (SqlUserRepository.Activities.Count > 0) {
+            SetChartDataset();  
+            if (chartIsEmpty) {
+                try {
+                    chartIsEmpty = false;
+                    SetChartOptions();
+                    await Task.Delay(2000);
+                    await activityChart.InitializeAsync(activityChartData, activityChartOptions);
+                } 
+                catch (Exception ex) {
+                    Console.WriteLine($"Er is iets misgegaan bij het inladen van de linechart: {ex.Message}");
+                }
+            } else if (chartLabels != null && chartLabels.Count > 1) {
+                try {
+                    await Task.Delay(1000);
+                    await activityChart.UpdateAsync(activityChartData, activityChartOptions);
+                } 
+                catch (Exception ex) {
+                    Console.WriteLine($"Er is iets misgegaan bij het inladen van de linechart: {ex.Message}");
+                }
+            } else {
+                Console.WriteLine("ChartLabels is leeg of niet ingesteld.");
+            }
+        } else {
+            Console.WriteLine("Geen activiteiten beschikbaar om de chart te vullen.");
+        }
+    }
+
+    // LineChart ActivityData
+    private void SetChartDataset() {
+        try {
+             Dictionary<DateTime, Activity> motionSensorData = SqlUserRepository.Activities;
+            List<int> detectionCounts = new List<int>();
+
+            if (motionSensorData == null || !motionSensorData.Any()) {
+                Console.WriteLine("Geen metingen beschikbaar voor het instellen van de dataset.");
+                return;
+            }
+
+            // Haal de eerste en laatste datum uit de dataset
+            var firstDate = motionSensorData.Keys.Min();
+            var lastDate = motionSensorData.Keys.Max();
+
+            // Bepaal het tijdsverschil (timeSpan) als TimeSpan
+            TimeSpan timeSpan = lastDate - firstDate;
+
+            if (timeSpan.TotalDays >= 1)
+            {
+                labelTime = "dag";
+                chartLabels = GetGroupedData(motionSensorData, data => data.Key.Date, "dd MMMM", ref detectionCounts);
+            }
+            else if (timeSpan.TotalHours >= 1)
+            {
+                labelTime = "uur";
+                chartLabels = GetGroupedData(motionSensorData, data => data.Key.Hour, "00:00", ref detectionCounts, DateTime.Today.Date);
+            }
+            else
+            {
+                labelTime = "minuut";
+                chartLabels = GetGroupedData(motionSensorData, data => data.Key.ToString("HH:mm"), "HH:mm", ref detectionCounts);
+            }
+
+            // Dataset voor de chart
+            var chartDataSets = new List<IChartDataset> {
+                new LineChartDataset {
+                    Label = "Aantal bewegingen per " + labelTime,
+                    Data = detectionCounts.Select(count => (double?)Math.Round((double)count)).ToList(),
+                    BackgroundColor = "#156064", // 00ECFB
+                    BorderColor = "#156064", // 00ECFB
+                    BorderWidth = 1
+                }
+            };
+
+            // Chart data instellen
+            activityChartData = new ChartData {
+                Labels = chartLabels,
+                Datasets = chartDataSets
+            };
+        } 
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Er gaat iets mis bij het builden van de chart dataset: {ex}");
+        }
+    }
+
+    private List<string> GetGroupedData(Dictionary<DateTime, Activity> motionSensorData, Func<KeyValuePair<DateTime, Activity>, object> groupByFunc, string timeFormat, ref List<int> detectionCounts, DateTime? dateFilter = null)
+    {
+        // Groeperen op basis van de doorgegeven functie (datum, uur, minuut)
+        var groupedData = motionSensorData
+            .Where(data => !dateFilter.HasValue || data.Key.Date == dateFilter.Value) // Filter indien een specifieke datum is opgegeven
+            .GroupBy(groupByFunc)
+            .OrderBy(group => group.Key)
+            .ToList();
+
+        // Labels voor de X-as
+        var labels = groupedData
+            .Select(group =>
+            {
+                // Afhankelijk van het type van de Key, pas je de juiste stringformaat aan
+                if (group.Key is DateTime dateTimeKey)
+                {
+                    return dateTimeKey.ToString(timeFormat); // Gebruik de datum om te formatteren
+                }
+                else if (group.Key is int intKey)
+                {
+                    // Als we per uur groeperen, maak een "HH:00" string
+                    return intKey.ToString("00") + ":00";
+                }
+                else if (group.Key is string strKey)
+                {
+                    // Als de Key al een string is, zoals "HH:mm"
+                    return strKey;
+                }
+                else
+                {
+                    return group.Key.ToString(); // Voor andere typen, gewoon de ToString() aanroepen
+                }
+            })
+            .ToList();
+
+        // Totaal aantal detecties per groepering
+        detectionCounts = groupedData
+            .Select(group => group.Count())
+            .ToList();
+
+        return labels;
+    }
+
+    private void SetChartOptions() {
+        if (chartLabels.Count > 0) {
+            string dateRange;
+            if (chartLabels.Count == 1) {
+                dateRange = chartLabels.First();
+            } 
+            else {
+                DateTime minDate = DateTime.Parse(chartLabels.First());
+                DateTime maxDate = DateTime.Parse(chartLabels.Last());
+                dateRange = $"{minDate.ToString("dd MMMM")} tot {maxDate.ToString("dd MMMM")}";
+            }
+
+            activityChartOptions = new LineChartOptions {
+                Interaction = new Interaction {
+                    Mode = InteractionMode.Index
+                },
+                Plugins = new LineChartPlugins {
+                    Title = new ChartPluginsTitle {
+                        Text = "Aantal bewegingen per " + labelTime,
+                        Display = true,
+                        Font = new ChartFont { Size = 24 }
+                    }
+                },
+                Responsive = true,
+                Scales = new Scales {
+                    X = new ChartAxes {
+                        Title = new ChartAxesTitle {
+                            Text = dateRange,
+                            Display = true
+                        }
+                    },
+                    Y = new ChartAxes {
+                        Title = new ChartAxesTitle {
+                            Text = "Aantal bewegingen",
+                            Display = true
+                        }
+                    },
+                }
+            };
+        }
+    }
+
+    private List<CategoryOption> categories = new List<CategoryOption>
+    {
+        new CategoryOption { Value = "TimeToEat", Text = "Het is tijd om te eten." },
+        new CategoryOption { Value = "TimeToBrushTeeth", Text = "Het is tijd om uw tanden te poetsen." },
+        new CategoryOption { Value = "TimeToSleep", Text = "Het is tijd om te slapen." },
+        new CategoryOption { Value = "TimeToWakeUp", Text = "Het is tijd om op te staan." },
+        new CategoryOption { Value = "TurnOffLivingRoomLight", Text = "Vergeet niet de huiskamerverlichting uit te schakelen." },
+        new CategoryOption { Value = "TimeForMedication", Text = "Het is tijd voor uw medicatie." },
+        new CategoryOption { Value = "TimeToRest", Text = "Het is tijd om uit te rusten." },
+        new CategoryOption { Value = "TimeForExercise", Text = "Laten we een korte wandeling maken." },
+        new CategoryOption { Value = "TimeToDrink", Text = "Vergeet niet om wat water te drinken." },
+        new CategoryOption { Value = "TimeToCheckBloodSugar", Text = "Vergeet niet om uw bloedsuiker te controleren." },
+        new CategoryOption { Value = "TimeForAppointment", Text = "U heeft een afspraak, controleer uw agenda." },
+        new CategoryOption { Value = "TimeToRelax", Text = "Laten we wat ontspannen." },
+        new CategoryOption { Value = "TimeToRead", Text = "Laten we samen een boek lezen." },
+        new CategoryOption { Value = "TimeToListenMusic", Text = "Laten we naar wat muziek luisteren." },
+        new CategoryOption { Value = "TimeToCallHealthCareProvider", Text = "Het is tijd om uw zorgverlener te bellen." },
+        new CategoryOption { Value = "TimeToCheckMail", Text = "Vergeet niet uw post te controleren." },
+        new CategoryOption { Value = "TimeToWaterPlants", Text = "Laten we de planten water geven." },
+        new CategoryOption { Value = "TimeToFeedPet", Text = "Het is tijd om uw huisdier te voeren." },
+        new CategoryOption { Value = "TimeToShower", Text = "Het is tijd om een douche te nemen." },
+        new CategoryOption { Value = "TimeToChangeClothes", Text = "Laten we uw kleding verwisselen." },
+        new CategoryOption { Value = "TimeToCheckCalendar", Text = "Bekijk uw agenda voor de komende afspraken." },
+        new CategoryOption { Value = "TimeToDoExercise", Text = "Laten we wat lichte oefeningen doen." },
+        new CategoryOption { Value = "TimeToDoBreathingExercise", Text = "Laten we een ademhalingsoefening doen." },
+        new CategoryOption { Value = "TimeToDoStretching", Text = "Laten we wat rek- en strekoefeningen doen." },
+        new CategoryOption { Value = "TimeToDoMemoryGame", Text = "Laten we een geheugenspel spelen." },
+        new CategoryOption { Value = "TimeToDoPuzzle", Text = "Laten we samen een puzzel maken." },
+        new CategoryOption { Value = "TimeToDoCraft", Text = "Laten we wat knutselen." },
+        new CategoryOption { Value = "TimeToDoGardening", Text = "Laten we wat tuinieren." },
+        new CategoryOption { Value = "TimeToDoCooking", Text = "Het is tijd om te koken." },
+        new CategoryOption { Value = "TimeToDoCleaning", Text = "Laten we wat opruimen." },
+        new CategoryOption { Value = "TimeToDoShopping", Text = "Het is tijd om de boodschappen te doen." },
+        new CategoryOption { Value = "TimeToDoLaundry", Text = "Laten we de was doen." },
+        new CategoryOption { Value = "TimeToDoIroning", Text = "Laten we strijken." },
+        new CategoryOption { Value = "TimeToDoDishes", Text = "Vergeet de afwas niet te doen." },
+        new CategoryOption { Value = "TimeToDoReading", Text = "Laten we samen een boek lezen." },
+        new CategoryOption { Value = "TimeToDoWriting", Text = "Laten we samen schrijven." },
+        new CategoryOption { Value = "TimeToDoDrawing", Text = "Laten we samen tekenen." },
+        new CategoryOption { Value = "TimeToDoPainting", Text = "Laten we samen schilderen." },
+        new CategoryOption { Value = "TimeToDoSinging", Text = "Laten we samen zingen." },
+
+        // Music
+        new CategoryOption { Value = "FrancisWells", Text = "Francis Wells - Live a Little" },
+        new CategoryOption { Value = "Portal", Text = "Portal 4000 Degrees Kelvin" }
+    };
+}    
