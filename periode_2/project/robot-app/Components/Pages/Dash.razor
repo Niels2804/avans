@@ -139,15 +139,18 @@
                     case "motionDetection":
                         if (item.Value is bool motionDetection)
                         {
-                            string motionDetected = motionDetection ? "" : "geen";
                             if (!filteredMqttDataHistory.ContainsKey(currentTime))
                             {
+                                string motionDetected = motionDetection ? "" : "geen";
                                 filteredMqttDataHistory.Add(currentTime, $"Tijdens de meting is er {motionDetected} beweging gedetecteerd");
-                                Activity activity = new Activity();
-                                activity.Date = currentTime;
-                                await SqlUserRepository.AddNewMotion(activity);
-                                await SqlUserRepository.InitializeData();
-                                await UpdateChartAsync();
+                                if(motionDetection) 
+                                {
+                                    Activity activity = new Activity();
+                                    activity.Date = currentTime;
+                                    await SqlUserRepository.AddNewMotion(activity);
+                                    await SqlUserRepository.InitializeData();
+                                    await UpdateChartAsync();
+                                }
                                 newLogAdded = true;
                             }
                         }
@@ -170,7 +173,7 @@
         }
 
         // Maak de data history leeg
-        MqttData.dataHistory = new Dictionary<string, object>();
+        MqttData.dataHistory.Clear();
         isProcessing = false;
     }
 
@@ -228,7 +231,7 @@
     // LineChart ActivityData
     private void SetChartDataset() {
         try {
-             Dictionary<DateTime, Activity> motionSensorData = SqlUserRepository.Activities;
+            Dictionary<DateTime, Activity> motionSensorData = SqlUserRepository.Activities;
             List<int> detectionCounts = new List<int>();
 
             if (motionSensorData == null || !motionSensorData.Any()) {

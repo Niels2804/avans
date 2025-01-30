@@ -127,7 +127,7 @@ namespace SoundLibrary
             { Mentions.Bye_1, $"{_mainRoot}/bye-1.wav" },
             { Mentions.Bye_2, $"{_mainRoot}/bye-2.wav" },
             { Mentions.TimeToEat, $"{_mainRoot}/time-to-eat.wav" },
-            { Mentions.TimeToBrushTeeth, $"{_mainRoot}/time-to-brush-teeth.wav" },
+            { Mentions.TimeToBrushTeeth, $"{_mainRoot}/time-to-bursh-teeth.wav" }, // Woops, type but the file is like this in the robot
             { Mentions.TimeToSleep, $"{_mainRoot}/time-to-sleep.wav" },
             { Mentions.TimeToWakeUp, $"{_mainRoot}/time-to-wake-up.wav" },
             { Mentions.TurnOffLivingRoomLight, $"{_mainRoot}/turn-off-living-room-light.wav" },
