@@ -151,10 +151,8 @@ public class RompiRobot : Sensors {
             default:
                 Console.WriteLine("Geen geldige datatype gevonden.");
                 break;
-        }
+            }
         };
-
-       
     }
 
     private async Task CountDownForMeasureMovement()
