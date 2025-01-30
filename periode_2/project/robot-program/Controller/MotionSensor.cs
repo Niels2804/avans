@@ -49,7 +49,7 @@ namespace PIRmotion
 
             await PlayAnnouncement("Stopped measuring \nenvironment", Mentions.Stopped);
             double movementPercentage = detectedMovement / (detectedMovement + detectedNoMovement) * 100; // Calculates percentage
-            if(movementPercentage >= 40) // Better calculation to decide or there was some movement
+            if(movementPercentage >= 60) // Better calculation to decide or there was some movement
             {
                 // Getting the current time from Europe/Amsterdam
                 DateTime amsterdamTime = TimeZoneInfo.ConvertTime(DateTime.UtcNow, timeZone); // UtcNow grabs the correct summer- or wintertime
