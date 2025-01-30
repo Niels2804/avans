@@ -76,7 +76,7 @@ public class RompiRobot : Sensors {
             await Task.WhenAll(DrivingTask, MeasureTask); // awaiting for currently running driving task before starting a new task
             await PlayAnnouncement("Robot paused", Mentions.Paused);
             
-            CountDownAnimationTask = Task.Run(lcdTextAnimation.CountDown30);
+            CountDownAnimationTask = Task.Run(() => lcdTextAnimation.CountDown30(mqttClient));
             await Task.Delay(2000);
         }
         else if (button.GetState() == "Pressed" && !DrivingController.StatusPermissionToDrive() && !IsBusyWithDriving && !IsMeasuring)
