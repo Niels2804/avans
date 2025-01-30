@@ -1,5 +1,6 @@
 using System.Text;
 using SensorLibrary;
+using SimpleMqtt;
 using SoundLibrary;
 
 namespace LCDScreen 
@@ -39,7 +40,7 @@ namespace LCDScreen
             }
         }
 
-        public async Task CountDown30()
+        public async Task CountDown30(SimpleMqttClient mqttClient)
         {
             await speaker.PlayMusic(Mentions.Remaining30); // Announcement
             _ = Task.Run(() => speaker.PlayMusic(Mentions.Portal)); // Playing background music while the timer is running
@@ -79,6 +80,7 @@ namespace LCDScreen
             else 
             {
                 lcd.SetText("Robot is \ngedeactiveerd");
+                await mqttClient.PublishMessage($"robotDeactivated|true", "robot");
                 await speaker.PlayMusic(Mentions.Warning);
                 await speaker.PlayMusic(Mentions.Shutdown);
             }

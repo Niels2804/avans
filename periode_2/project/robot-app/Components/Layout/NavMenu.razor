@@ -181,6 +181,7 @@
                         previousTime = currentTime;
                         currentTime = newTime;
                         RefreshBatteryState();
+                        RefreshRobotState();
                         StateHasChanged();
                     }
                 });
@@ -231,6 +232,31 @@
         double batteryPercentage = Math.Round((robotCurrentBattery / totalBatteryCapacity) * 100);
         currentBatteryPercentage = Math.Clamp(batteryPercentage, 0, 100);
         currentBatteryVoltage = mqttData.BatteryVoltage;
+    }
+
+    private void RefreshRobotState()
+    {
+        if(SqlUserRepository.Robot.IsActive && mqttData.RobotDeactivated)
+        {
+            Task.Run(() => ChangeRobotState(false));
+            mqttData.RobotDeactivated = false;
+        } 
+        
+        if (!SqlUserRepository.Robot.IsActive && mqttData.RobotActivated)
+        {
+            Task.Run(() => ChangeRobotState(true));
+            mqttData.RobotActivated = false;
+        }
+    }
+    
+    private async Task ChangeRobotState(bool robotState)
+    {
+        await SqlUserRepository.UpdateRobotActivity(robotState);
+        await SqlUserRepository.InitializeData();
+        runningTaskQueue.Enqueue(async () => {       
+            await ShowNotification("Robot " + (robotState ? "Geheractiveerd" : "Gedeactiveerd"), "Robot is door de patient " + (robotState ? "geheractiveerd!" : "gedeactiveerd!"), robotState);
+        });
+        Console.WriteLine("Robot is door de gebruiker/patient " + (robotState ? "geheractiveerd!" : "gedeactiveerd!"));
     }
 
     private void LoadPersonalSettings()
