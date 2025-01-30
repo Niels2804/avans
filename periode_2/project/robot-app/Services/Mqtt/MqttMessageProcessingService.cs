@@ -33,8 +33,11 @@ public class MqttMessageProcessingService : IHostedService
                         _mqttData.MotionData[currentTime] = bool.TryParse(value, out bool motionDetected) ? motionDetected : false;
                         _mqttData.dataHistory.Add("motionDetection",  _mqttData.MotionData[currentTime]);
                         break;
+                    case "robotActivated":
+                        _mqttData.RobotActivated = bool.TryParse(value, out bool activated) ? activated : false;;
+                        break;
                     case "robotDeactivated":
-                        _mqttData.RobotDeactivated = bool.TryParse(value, out bool active) ? active : false;;
+                        _mqttData.RobotDeactivated = bool.TryParse(value, out bool deactivated) ? deactivated : false;;
                         break;
                     case "taskFinished": 
                         _mqttData.RobotFinishedMention = bool.TryParse(value, out bool RobotFinishedMention) ? RobotFinishedMention : false;

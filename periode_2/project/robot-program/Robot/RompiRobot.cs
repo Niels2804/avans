@@ -86,7 +86,7 @@ public class RompiRobot : Sensors {
                 lcdTextAnimation.CancelCountDownAnimation();
             } 
             await CountDownAnimationTask; // awaiting for currently running countDownAnimation task before continuing
-            await mqttClient.PublishMessage($"robotDeactivated|false", "robot");
+            await mqttClient.PublishMessage($"robotActivated|true", "robot");
             DrivingController.GrantPermissionToDrive();
             led.SetOff();
         }    
