@@ -2,6 +2,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+// Gets SQL connection string from the user secrets
+var sqlConnectionString = builder.Configuration["SqlConnectionString"];
+
+if (string.IsNullOrWhiteSpace(sqlConnectionString))
+    throw new InvalidProgramException("Configuration variable SqlConnectionString not found");
+
+//builder.Services.AddTransient<IEnvironmentRepository, SqlEnvironmentRepository>(o => new SqlEnvironmentRepository(sqlConnectionString));
+//builder.Services.AddTransient<IObjectRepository, SqlObjectRepository>(o => new SqlObjectRepository(sqlConnectionString));
+
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
