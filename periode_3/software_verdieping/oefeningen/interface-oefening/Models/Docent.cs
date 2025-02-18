@@ -12,7 +12,7 @@
             set
             {
                 this._personeelsNummer = value; 
-            }
+            }   
         }
         public Docent(string naam, long personeelsNummer) : base(naam)
         {
