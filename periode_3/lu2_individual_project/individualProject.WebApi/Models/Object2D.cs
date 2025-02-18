@@ -2,6 +2,7 @@
 {
     public class Object2D
     {
+        public Guid Id { get; set; }
         public int PrefabId { get; set; }
         public float PositionX { get; set; }
         public float PositionY { get; set; }
