@@ -16,6 +16,7 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
+app.MapGet("/", () => "Hello World! The API is up");
 
 // Configure the HTTP request pipeline.S
 if (app.Environment.IsDevelopment())
